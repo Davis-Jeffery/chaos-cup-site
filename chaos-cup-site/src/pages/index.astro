@@ -1,0 +1,23 @@
+---
+import { sanityClient } from 'sanity:client';
+
+// Quick connection test: counts every document in your dataset.
+let count: number | string = 'not connected';
+try {
+  count = await sanityClient.fetch('count(*)');
+} catch (e) {
+  count = 'not connected (check your .env values)';
+}
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chaos Cup</title>
+  </head>
+  <body style="font-family: system-ui; background: #0A0A12; color: #F4F3F8; padding: 40px">
+    <h1>Chaos Cup site is running</h1>
+    <p>Sanity documents found: <strong>{count}</strong></p>
+    <p><a href="/studio" style="color: #2EA9F6">Open Sanity Studio</a></p>
+  </body>
+</html>

@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Why 3v3 Works</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=Archivo:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#0A0A12;color:#F4F3F8;font-family:'Archivo',system-ui,sans-serif}
+a{color:#2EA9F6}a:hover{color:#7CC8FA}
+h1,h2,h3{font-family:'Archivo Black','Arial Black',sans-serif;margin:0;line-height:1;font-weight:400;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+ul{margin:0;padding-left:20px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px;box-sizing:border-box;width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 28px;border-radius:999px;font-weight:800;text-decoration:none;font-size:16px;letter-spacing:.02em;box-sizing:border-box;white-space:nowrap}
+.btn-pink{background:#F90EE7;color:#0A0A12}.btn-pink:hover{background:#FB5AEE;color:#0A0A12}
+.btn-blue{background:#2EA9F6;color:#0A0A12}.btn-blue:hover{background:#6CC2F9;color:#0A0A12}
+.btn-turkey{background:#DF6902;color:#0A0A12}.btn-turkey:hover{background:#F08A2E;color:#0A0A12}
+.hero-logo{display:block;width:100%;height:auto;margin:0 auto;filter:drop-shadow(0 6px 24px rgba(0,0,0,.55))}
+@media (min-width:900px){.hero-logo{position:absolute;top:40px;right:24px;width:260px;margin:0}}
+.btn-ghost{border:2px solid #F4F3F8;color:#F4F3F8}.btn-ghost:hover{background:#F4F3F8;color:#0A0A12}
+.btn-sm{min-height:44px;padding:0 20px;font-size:14px}
+.ph{background:repeating-linear-gradient(135deg,#191927 0 14px,#13131F 14px 28px);border:1px dashed #3B3B52;display:flex;align-items:center;justify-content:center;color:#A9A8BA;font:700 12px/1.4 'Archivo',sans-serif;text-transform:uppercase;letter-spacing:.1em;text-align:center;padding:16px;box-sizing:border-box}
+.eyebrow{font:800 13px/1.2 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.nav a.navlink{color:#F4F3F8;text-decoration:none;font-weight:600;font-size:15px}
+.nav a.navlink:hover{color:#F90EE7}
+.mobile-actions{display:none}
+.mobile-cta{display:none}
+.menu-btn{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:12px;border:1px solid #3B3B52;background:transparent;color:#F4F3F8;cursor:pointer;padding:0}
+.menu-btn:hover{border-color:#F4F3F8}
+@media (max-width:899px){
+.mobile-actions{display:flex;margin-left:auto}
+.mobile-cta{display:inline-flex}
+nav.mainnav{display:none !important;width:100%;flex-direction:column;align-items:stretch !important;gap:0 !important;padding:8px 0 12px;border-top:1px solid #1F1F2E}
+nav.mainnav.open{display:flex !important}
+nav.mainnav a.navlink{display:flex;align-items:center;min-height:52px;font-size:18px;border-bottom:1px solid #1F1F2E}
+nav.mainnav a.btn{margin-top:16px;width:100%;min-height:52px}
+}
+.panel{background:#14141F;border:1px solid #2A2A3C;border-radius:20px}
+</style>
+</helmet>
+<div style="width: 100%; min-width: 0; background: #0A0A12; overflow: hidden">
+
+<header class="nav" style="border-bottom: 1px solid #1F1F2E">
+<div class="wrap" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; padding-bottom: 16px">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #F4F3F8">
+<img src="assets/logo-main.webp" alt="Chaos Cup 3v3 Experience" style="height: 64px; width: auto; display: block">
+</a>
+<div class="mobile-actions" style="gap: 10px; align-items: center">
+<a class="btn btn-pink btn-sm mobile-cta" href="https://playmetrics.com/signup?clubToken=U2lnbnVwLkdCLlYyLTEzMjctVGhlIENoYW9zIEN1cC1odHRwczovL2FwaS5nYi5wbGF5bWV0cmljcy5jb20vcHVibGljL2dicy8xMzI3L2xvZ28tMTc4NTYxMDkyN3xpT3RYS2IxVDV1di9GMUlCWVlmQkZoNlNTU0VtWVMwWDlWNk0yTjZJUE9FPQ==&amp;program_id=2525">Register</a>
+<button type="button" class="menu-btn" aria-label="{{menuLabel}}" aria-expanded="{{menuOpen}}" aria-controls="site-menu" onClick="{{toggleMenu}}">
+<sc-if value="{{menuClosed}}" hint-placeholder-val="{{ true }}"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></svg></sc-if>
+<sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg></sc-if>
+</button>
+</div>
+<nav aria-label="Main" id="site-menu" class="{{navClass}}" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px">
+<a class="navlink" href="Main.dc.html#tournaments">Tournaments</a>
+<a class="navlink" href="Development.dc.html">Why 3v3</a>
+<a class="navlink" href="Rulebook.dc.html">Rules</a>
+<a class="navlink" href="Main.dc.html#past">Past Events</a>
+<a class="navlink" href="Main.dc.html#photos">Photos</a>
+<a class="navlink" href="Main.dc.html#sponsors">Sponsors</a>
+<a class="btn btn-pink btn-sm" href="https://playmetrics.com/signup?clubToken=U2lnbnVwLkdCLlYyLTEzMjctVGhlIENoYW9zIEN1cC1odHRwczovL2FwaS5nYi5wbGF5bWV0cmljcy5jb20vcHVibGljL2dicy8xMzI3L2xvZ28tMTc4NTYxMDkyN3xpT3RYS2IxVDV1di9GMUlCWVlmQkZoNlNTU0VtWVMwWDlWNk0yTjZJUE9FPQ==&amp;program_id=2525">Register a Team</a>
+</nav>
+</div>
+</header>
+<!-- Hero -->
+<section style="position: relative; min-height: 600px; display: flex; align-items: flex-end">
+<img src="assets/dev3.jpg" alt="Players in blue and red Re-Lyte pinnies battling for the ball inside the inflatable walls" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; display: block">
+<div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,18,0.1) 0%, rgba(10,10,18,0.55) 45%, #0A0A12 100%)"></div>
+<div class="wrap" style="position: relative; padding-top: 140px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 18px">
+<span class="eyebrow" style="color: #2EA9F6; font-size: 15px">Why 3v3 works</span>
+<h1 style="font-size: clamp(44px, 7vw, 92px); max-width: 900px">Small field. <span style="color: #F90EE7">Big development.</span></h1>
+<p style="font-size: 20px; line-height: 1.55; max-width: 680px; color: #E2E1EC; font-weight: 500">3v3 inside inflatable walls gives every player more touches, more decisions and more goals than a full-field game, and it keeps soccer fun.</p>
+</div>
+</section>
+
+<!-- Benefits -->
+<section style="padding: 96px 0">
+<div class="wrap" style="display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; flex-direction: column; gap: 14px; max-width: 760px">
+<span class="eyebrow" style="color: #F90EE7">Player development</span>
+<h2 style="font-size: clamp(34px, 5vw, 56px)">What players get from 3v3</h2>
+<p style="color: #C9C8D8; font-size: 18px; line-height: 1.6">Fewer players on a smaller field means every player is in the game all the time. Here is what that builds.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 16px">
+<div style="background: #14141F; border: 1px solid #2A2A3C; border-radius: 20px; padding: 26px; display: flex; flex-direction: column; gap: 14px">
+<span style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: #F90EE7; flex: none"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7 L16 10 L14.5 15 L9.5 15 L8 10 Z"></path></svg></span>
+<h3 style="font-size: 23px">More touches</h3>
+<p style="color: #C9C8D8; line-height: 1.6">With only three players a side and no keeper, the ball finds every player again and again. More touches means more practice of first touch, dribbling, passing and shooting in every minute played.</p>
+</div>
+<div style="background: #14141F; border: 1px solid #2A2A3C; border-radius: 20px; padding: 26px; display: flex; flex-direction: column; gap: 14px">
+<span style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: #F90EE7; flex: none"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 L4 14 L11 14 L10 22 L20 9 L13 9 Z"></path></svg></span>
+<h3 style="font-size: 23px">Quick decision making</h3>
+<p style="color: #C9C8D8; line-height: 1.6">Defenders are always close and space closes fast. Players have to scan, decide and act in a second, game after game. That speed of thought carries straight into the big field.</p>
+</div>
+<div style="background: #14141F; border: 1px solid #2A2A3C; border-radius: 20px; padding: 26px; display: flex; flex-direction: column; gap: 14px">
+<span style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: #F90EE7; flex: none"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L13.8 9.2 L20 11 L13.8 12.8 L12 19 L10.2 12.8 L4 11 L10.2 9.2 Z"></path></svg></span>
+<h3 style="font-size: 23px">Freedom to try new moves</h3>
+<p style="color: #C9C8D8; line-height: 1.6">Mistakes are cheap and the next chance is seconds away. Players can try the step-over, the nutmeg or the fake shot without worrying about losing the game on one play.</p>
+</div>
+<div style="background: #14141F; border: 1px solid #2A2A3C; border-radius: 20px; padding: 26px; display: flex; flex-direction: column; gap: 14px">
+<span style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: #F90EE7; flex: none"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1.5"></circle></svg></span>
+<h3 style="font-size: 23px">More chances to score</h3>
+<p style="color: #C9C8D8; line-height: 1.6">Short fields and small numbers mean shots and goals happen constantly. Every player gets to feel what it is like to finish, not just the strikers.</p>
+</div>
+<div style="background: #14141F; border: 1px solid #2A2A3C; border-radius: 20px; padding: 26px; display: flex; flex-direction: column; gap: 14px">
+<span style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: #F90EE7; flex: none"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 L15 9"></path><path d="M19 19 L9 9"></path><path d="M13 5 L19 5 L19 11"></path><path d="M11 5 L5 5 L5 11"></path></svg></span>
+<h3 style="font-size: 23px">More 1v1 battles</h3>
+<p style="color: #C9C8D8; line-height: 1.6">There is nowhere to hide in 3v3. Players attack and defend one against one over and over, which builds the courage and technique to beat a defender.</p>
+</div>
+<div style="background: #14141F; border: 1px solid #2A2A3C; border-radius: 20px; padding: 26px; display: flex; flex-direction: column; gap: 14px">
+<span style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: #F90EE7; flex: none"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="6" r="3"></circle><circle cx="18" cy="18" r="3"></circle><path d="M8.6 10.6 L15.4 7.4"></path><path d="M8.6 13.4 L15.4 16.6"></path></svg></span>
+<h3 style="font-size: 23px">Connecting with teammates</h3>
+<p style="color: #C9C8D8; line-height: 1.6">With two teammates, every pass matters. Players learn give-and-go, support angles and talking to each other because the team does not work without it.</p>
+</div>
+<div style="background: #14141F; border: 1px solid #2A2A3C; border-radius: 20px; padding: 26px; display: flex; flex-direction: column; gap: 14px">
+<span style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: #F90EE7; flex: none"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 A8 8 0 0 1 18 7"></path><path d="M18 3 L18 7 L14 7"></path><path d="M20 12 A8 8 0 0 1 6 17"></path><path d="M6 21 L6 17 L10 17"></path></svg></span>
+<h3 style="font-size: 23px">Attack and defend every play</h3>
+<p style="color: #C9C8D8; line-height: 1.6">No one stands at the back waiting. Every player switches between attacking and defending in an instant, learning the whole game instead of one position.</p>
+</div>
+<div style="background: #14141F; border: 1px solid #2A2A3C; border-radius: 20px; padding: 26px; display: flex; flex-direction: column; gap: 14px">
+<span style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: #F90EE7; flex: none"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="4.5" r="2"></circle><path d="M7 21 L10 15 L13 17 L14 22"></path><path d="M6 11 L10 8 L14 9 L17 13"></path><path d="M10 8 L10 15"></path></svg></span>
+<h3 style="font-size: 23px">Always moving</h3>
+<p style="color: #C9C8D8; line-height: 1.6">The inflatable walls keep the ball in play. Less time chasing balls out of bounds means more running, more effort and more fitness without it feeling like a workout.</p>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 16px">
+<img src="assets/dev1.jpg" alt="Three smiling players in Redmond Re-Lyte pinnies leaning on the inflatable wall" style="width: 100%; height: 300px; object-fit: cover; object-position: center 30%; border-radius: 20px; display: block">
+<img src="assets/dev2.jpg" alt="Player dribbling toward the inflatable wall" style="width: 100%; height: 300px; object-fit: cover; border-radius: 20px; display: block">
+<img src="assets/dev6.jpg" alt="Two players racing along the wall for the ball" style="width: 100%; height: 300px; object-fit: cover; border-radius: 20px; display: block">
+</div>
+</div>
+</section>
+
+<!-- Numbers -->
+<section id="numbers" style="padding: 96px 0; background: #0F0F19; border-top: 1px solid #1F1F2E">
+<div class="wrap" style="display: flex; flex-direction: column; gap: 36px">
+<div style="display: flex; flex-direction: column; gap: 14px; max-width: 820px">
+<span class="eyebrow" style="color: #2EA9F6">The research</span>
+<h2 style="font-size: clamp(34px, 5vw, 56px)">Smaller games, way more action</h2>
+<p style="color: #C9C8D8; font-size: 18px; line-height: 1.6">Research on youth players shows the same pattern every time: the smaller the game, the more every player gets involved. 3v3 is the smallest of them all.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr)); gap: 16px">
+<figure style="margin: 0; background: #14141F; border: 1px solid #2A2A3C; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+<figcaption style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'Archivo Black', sans-serif; font-size: 19px; color: #F4F3F8">Goals per game</span><span style="color: #A9A8BA; font-size: 13px">Average total goals, both teams combined</span></figcaption>
+<div style="display: grid; grid-template-columns: 112px minmax(0, 1fr) 64px; gap: 12px; align-items: center">
+<span style="font-weight: 800; font-size: 14px; color: #F4F3F8">Chaos Cup 3v3</span>
+<div style="height: 22px; background: #0A0A12; border-radius: 6px; overflow: hidden"><div title="Chaos Cup 3v3: 12.3" style="width: 100%; height: 100%; background: #F90EE7; border-radius: 0 6px 6px 0"></div></div>
+<span style="font-weight: 800; font-size: 15px; text-align: right; color: #F4F3F8">12.3</span>
+</div>
+<div style="display: grid; grid-template-columns: 112px minmax(0, 1fr) 64px; gap: 12px; align-items: center">
+<span style="font-weight: 600; font-size: 14px; color: #C9C8D8">11v11</span>
+<div style="height: 22px; background: #0A0A12; border-radius: 6px; overflow: hidden"><div title="11v11: 5" style="width: 41%; height: 100%; background: #8A8AA0; border-radius: 0 6px 6px 0"></div></div>
+<span style="font-weight: 800; font-size: 15px; text-align: right; color: #F4F3F8">5</span>
+</div>
+<span style="color: #A9A8BA; font-size: 13px">Chaos Cup games are just 12 minutes. The 11v11 youth figure is for a full-length game.</span>
+</figure>
+<figure style="margin: 0; background: #14141F; border: 1px solid #2A2A3C; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+<figcaption style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'Archivo Black', sans-serif; font-size: 19px; color: #F4F3F8">How many goals in a Chaos Cup game?</span><span style="color: #A9A8BA; font-size: 13px">Share of 71 games by total goals scored</span></figcaption>
+<div style="display: grid; grid-template-columns: 112px minmax(0, 1fr) 64px; gap: 12px; align-items: center">
+<span style="font-weight: 600; font-size: 14px; color: #C9C8D8">15 to 21</span>
+<div style="height: 22px; background: #0A0A12; border-radius: 6px; overflow: hidden"><div title="15 to 21: 23%" style="width: 37%; height: 100%; background: #8A8AA0; border-radius: 0 6px 6px 0"></div></div>
+<span style="font-weight: 800; font-size: 15px; text-align: right; color: #F4F3F8">23%</span>
+</div>
+<div style="display: grid; grid-template-columns: 112px minmax(0, 1fr) 64px; gap: 12px; align-items: center">
+<span style="font-weight: 800; font-size: 14px; color: #F4F3F8">10 to 14</span>
+<div style="height: 22px; background: #0A0A12; border-radius: 6px; overflow: hidden"><div title="10 to 14: 61%" style="width: 100%; height: 100%; background: #F90EE7; border-radius: 0 6px 6px 0"></div></div>
+<span style="font-weight: 800; font-size: 15px; text-align: right; color: #F4F3F8">61%</span>
+</div>
+<div style="display: grid; grid-template-columns: 112px minmax(0, 1fr) 64px; gap: 12px; align-items: center">
+<span style="font-weight: 600; font-size: 14px; color: #C9C8D8">5 to 9</span>
+<div style="height: 22px; background: #0A0A12; border-radius: 6px; overflow: hidden"><div title="5 to 9: 17%" style="width: 28%; height: 100%; background: #8A8AA0; border-radius: 0 6px 6px 0"></div></div>
+<span style="font-weight: 800; font-size: 15px; text-align: right; color: #F4F3F8">17%</span>
+</div>
+<span style="color: #A9A8BA; font-size: 13px">83% of games had 10 or more goals. Every game had at least 5.</span>
+</figure>
+<figure style="margin: 0; background: #14141F; border: 1px solid #2A2A3C; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+<figcaption style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'Archivo Black', sans-serif; font-size: 19px; color: #F4F3F8">Touches per player</span><span style="color: #A9A8BA; font-size: 13px">Average touches for each player in one game</span></figcaption>
+<div style="display: grid; grid-template-columns: 112px minmax(0, 1fr) 56px; gap: 12px; align-items: center">
+<span style="font-weight: 800; font-size: 14px; color: #F4F3F8">Small-sided*</span>
+<div style="height: 22px; background: #0A0A12; border-radius: 6px; overflow: hidden"><div title="Small-sided*: 115" style="width: 100%; height: 100%; background: #F90EE7; border-radius: 0 6px 6px 0"></div></div>
+<span style="font-weight: 800; font-size: 15px; text-align: right; color: #F4F3F8">115</span>
+</div>
+<div style="display: grid; grid-template-columns: 112px minmax(0, 1fr) 56px; gap: 12px; align-items: center">
+<span style="font-weight: 600; font-size: 14px; color: #C9C8D8">7v7</span>
+<div style="height: 22px; background: #0A0A12; border-radius: 6px; overflow: hidden"><div title="7v7: 55" style="width: 48%; height: 100%; background: #8A8AA0; border-radius: 0 6px 6px 0"></div></div>
+<span style="font-weight: 800; font-size: 15px; text-align: right; color: #F4F3F8">55</span>
+</div>
+<div style="display: grid; grid-template-columns: 112px minmax(0, 1fr) 56px; gap: 12px; align-items: center">
+<span style="font-weight: 600; font-size: 14px; color: #C9C8D8">11v11</span>
+<div style="height: 22px; background: #0A0A12; border-radius: 6px; overflow: hidden"><div title="11v11: 22" style="width: 19%; height: 100%; background: #8A8AA0; border-radius: 0 6px 6px 0"></div></div>
+<span style="font-weight: 800; font-size: 15px; text-align: right; color: #F4F3F8">22</span>
+</div>
+<span style="color: #A9A8BA; font-size: 13px">About 5x the touches of a full-field game</span>
+</figure>
+<figure style="margin: 0; background: #14141F; border: 1px solid #2A2A3C; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+<figcaption style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'Archivo Black', sans-serif; font-size: 19px; color: #F4F3F8">1v1 attempts per game</span><span style="color: #A9A8BA; font-size: 13px">Times a player took on a defender</span></figcaption>
+<div style="display: grid; grid-template-columns: 112px minmax(0, 1fr) 56px; gap: 12px; align-items: center">
+<span style="font-weight: 800; font-size: 14px; color: #F4F3F8">Small-sided*</span>
+<div style="height: 22px; background: #0A0A12; border-radius: 6px; overflow: hidden"><div title="Small-sided*: 113x" style="width: 100%; height: 100%; background: #F90EE7; border-radius: 0 6px 6px 0"></div></div>
+<span style="font-weight: 800; font-size: 15px; text-align: right; color: #F4F3F8">113x</span>
+</div>
+<div style="display: grid; grid-template-columns: 112px minmax(0, 1fr) 56px; gap: 12px; align-items: center">
+<span style="font-weight: 600; font-size: 14px; color: #C9C8D8">7v7</span>
+<div style="height: 22px; background: #0A0A12; border-radius: 6px; overflow: hidden"><div title="7v7: 79x" style="width: 70%; height: 100%; background: #8A8AA0; border-radius: 0 6px 6px 0"></div></div>
+<span style="font-weight: 800; font-size: 15px; text-align: right; color: #F4F3F8">79x</span>
+</div>
+<div style="display: grid; grid-template-columns: 112px minmax(0, 1fr) 56px; gap: 12px; align-items: center">
+<span style="font-weight: 600; font-size: 14px; color: #C9C8D8">11v11</span>
+<div style="height: 22px; background: #0A0A12; border-radius: 6px; overflow: hidden"><div title="11v11: 50x" style="width: 44%; height: 100%; background: #8A8AA0; border-radius: 0 6px 6px 0"></div></div>
+<span style="font-weight: 800; font-size: 15px; text-align: right; color: #F4F3F8">50x</span>
+</div>
+<span style="color: #A9A8BA; font-size: 13px">More than 2x the 1v1 battles</span>
+</figure>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<div style="flex: 1 1 280px; min-width: 0; background: #F90EE7; color: #0A0A12; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-family: 'Archivo Black', sans-serif; font-size: 56px; line-height: 1">4x</span>
+<span style="font-weight: 800; font-size: 18px">less time with the ball out of play</span>
+<span style="font-weight: 600; font-size: 14px">3.2 minutes in small-sided games vs 13.1 in 11v11. With inflatable walls, 3v3 loses even less.</span>
+</div>
+<div style="flex: 1 1 280px; min-width: 0; background: #2EA9F6; color: #0A0A12; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-family: 'Archivo Black', sans-serif; font-size: 56px; line-height: 1">0</span>
+<span style="font-weight: 800; font-size: 18px">players waiting in goal</span>
+<span style="font-weight: 600; font-size: 14px">No keepers in 3v3, so all six players are in the action every second.</span>
+</div>
+<div style="flex: 1 1 280px; min-width: 0; background: #14141F; border: 1px solid #2A2A3C; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-family: 'Archivo Black', sans-serif; font-size: 56px; line-height: 1; color: #F4F3F8">~170</span>
+<span style="font-weight: 800; font-size: 18px">touches in a Chaos Cup day</span>
+<span style="font-weight: 600; font-size: 14px; color: #C9C8D8">Our estimate for 5 games of 12 minutes at the measured small-sided rate of about 2.9 touches a minute, compared with about 45 at the 11v11 rate. With only 3 per side, real 3v3 numbers are likely higher.</span>
+</div>
+</div>
+<p style="color: #A9A8BA; font-size: 13px; line-height: 1.6">Chaos Cup goals: our own tally of 71 Chaos Cup 3v3 games (873 goals) from PlayMetrics results. 11v11 goals, touches, 1v1s and time out of play*: Scottish Football Association research (Small, 2006), which measured 4v4 as its smallest game. 3v3 puts even fewer players around the ball. The Chaos Cup day estimate is our own calculation from these rates.</p>
+</div>
+</section>
+
+<!-- Comparison table -->
+<section style="padding: 96px 0">
+<div class="wrap" style="display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<span class="eyebrow" style="color: #F90EE7">Side by side</span>
+<h2 style="font-size: clamp(34px, 5vw, 56px)">Chaos Cup 3v3 vs a full-field game</h2>
+</div>
+<div style="overflow-x: auto; border-radius: 20px; border: 1px solid #2A2A3C">
+<table style="width: 100%; min-width: 640px; border-collapse: collapse; background: #14141F; font-size: 16px; line-height: 1.5">
+<thead><tr>
+<th scope="col" style="text-align: left; padding: 18px; color: #A9A8BA; font-size: 13px; letter-spacing: .12em; text-transform: uppercase"></th>
+<th scope="col" style="text-align: left; padding: 18px; color: #F90EE7; font-family: 'Archivo Black', sans-serif; font-size: 18px; background: rgba(249,14,231,0.08)">Chaos Cup 3v3</th>
+<th scope="col" style="text-align: left; padding: 18px; color: #C9C8D8; font-family: 'Archivo Black', sans-serif; font-size: 18px">11v11</th>
+</tr></thead>
+<tbody>
+<tr style="border-top: 1px solid #2A2A3C">
+<th scope="row" style="text-align: left; padding: 16px 18px; font-weight: 700; color: #F4F3F8">Players on the field</th>
+<td style="padding: 16px 18px; color: #F4F3F8; background: rgba(249,14,231,0.08)">6 (3 per side)</td>
+<td style="padding: 16px 18px; color: #C9C8D8">22 (11 per side)</td>
+</tr>
+<tr style="border-top: 1px solid #2A2A3C">
+<th scope="row" style="text-align: left; padding: 16px 18px; font-weight: 700; color: #F4F3F8">Goalkeeper</th>
+<td style="padding: 16px 18px; color: #F4F3F8; background: rgba(249,14,231,0.08)">None. Everyone plays the field.</td>
+<td style="padding: 16px 18px; color: #C9C8D8">One per team, often out of the action</td>
+</tr>
+<tr style="border-top: 1px solid #2A2A3C">
+<th scope="row" style="text-align: left; padding: 16px 18px; font-weight: 700; color: #F4F3F8">Ball out of play</th>
+<td style="padding: 16px 18px; color: #F4F3F8; background: rgba(249,14,231,0.08)">Rarely. The walls keep it live.</td>
+<td style="padding: 16px 18px; color: #C9C8D8">Often. Throw-ins, goal kicks and corners</td>
+</tr>
+<tr style="border-top: 1px solid #2A2A3C">
+<th scope="row" style="text-align: left; padding: 16px 18px; font-weight: 700; color: #F4F3F8">Positions</th>
+<td style="padding: 16px 18px; color: #F4F3F8; background: rgba(249,14,231,0.08)">Everyone attacks and defends</td>
+<td style="padding: 16px 18px; color: #C9C8D8">Many players stay in one zone</td>
+</tr>
+<tr style="border-top: 1px solid #2A2A3C">
+<th scope="row" style="text-align: left; padding: 16px 18px; font-weight: 700; color: #F4F3F8">Touches per player</th>
+<td style="padding: 16px 18px; color: #F4F3F8; background: rgba(249,14,231,0.08)">Constant</td>
+<td style="padding: 16px 18px; color: #C9C8D8">Few, and some players go minutes without one</td>
+</tr>
+<tr style="border-top: 1px solid #2A2A3C">
+<th scope="row" style="text-align: left; padding: 16px 18px; font-weight: 700; color: #F4F3F8">Decisions per minute</th>
+<td style="padding: 16px 18px; color: #F4F3F8; background: rgba(249,14,231,0.08)">Many, under real pressure</td>
+<td style="padding: 16px 18px; color: #C9C8D8">Fewer, with more time standing</td>
+</tr>
+<tr style="border-top: 1px solid #2A2A3C">
+<th scope="row" style="text-align: left; padding: 16px 18px; font-weight: 700; color: #F4F3F8">Chances to score</th>
+<td style="padding: 16px 18px; color: #F4F3F8; background: rgba(249,14,231,0.08)">Every player, many times a game</td>
+<td style="padding: 16px 18px; color: #C9C8D8">Mostly forwards</td>
+</tr>
+<tr style="border-top: 1px solid #2A2A3C">
+<th scope="row" style="text-align: left; padding: 16px 18px; font-weight: 700; color: #F4F3F8">Mistakes</th>
+<td style="padding: 16px 18px; color: #F4F3F8; background: rgba(249,14,231,0.08)">Quickly forgotten, next chance is seconds away</td>
+<td style="padding: 16px 18px; color: #C9C8D8">Can feel costly and stick with a player</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<!-- Mental -->
+<section style="padding: 96px 0; background: #0F0F19; border-top: 1px solid #1F1F2E">
+<div class="wrap" style="display: flex; flex-wrap: wrap; gap: 56px; align-items: flex-start">
+<div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+<span class="eyebrow" style="color: #2EA9F6">The experience</span>
+<h2 style="font-size: clamp(34px, 5vw, 56px); margin-bottom: 8px">Building happy, lifelong players</h2>
+<p style="color: #C9C8D8; font-size: 18px; line-height: 1.6; margin-bottom: 8px">Skills matter, but so does how the game makes a player feel. The Chaos Cup is built so kids leave wanting to play again.</p>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 22px 0; border-top: 1px solid #2A2A3C">
+<h3 style="font-size: 22px">Confidence that comes from doing</h3>
+<p style="color: #C9C8D8; line-height: 1.65; font-size: 17px">Players do not build confidence from being told they are good. They build it by touching the ball, beating a defender and scoring, over and over. 3v3 gives them that repetition in every game.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 22px 0; border-top: 1px solid #2A2A3C">
+<h3 style="font-size: 22px">A safe place to make mistakes</h3>
+<p style="color: #C9C8D8; line-height: 1.65; font-size: 17px">When the next chance is seconds away, a bad touch is just part of the game. Kids learn that mistakes are how you get better, not something to fear.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 22px 0; border-top: 1px solid #2A2A3C">
+<h3 style="font-size: 22px">Everyone matters</h3>
+<p style="color: #C9C8D8; line-height: 1.65; font-size: 17px">With three on a team, every player is needed every play. No one is stuck on the bench or parked on the wing. Feeling needed is one of the strongest reasons kids keep playing.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 22px 0; border-top: 1px solid #2A2A3C">
+<h3 style="font-size: 22px">Ownership and leadership</h3>
+<p style="color: #C9C8D8; line-height: 1.65; font-size: 17px">Fewer adults directing every move means players solve problems themselves. They talk, decide and lead, like picking who takes the 1v1 golden goal in a tied championship.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 22px 0; border-top: 1px solid #2A2A3C">
+<h3 style="font-size: 22px">Joy first</h3>
+<p style="color: #C9C8D8; line-height: 1.65; font-size: 17px">Music, nonstop action and lots of goals make the Chaos Cup fun. Kids who love the game keep playing it, and kids who keep playing keep improving.</p>
+</div>
+</div>
+<div style="flex: 1 1 360px; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+<img src="assets/dev5.jpg" alt="Player in a green pinnie ready to defend" style="width: 100%; height: 340px; object-fit: cover; border-radius: 20px; display: block">
+<img src="assets/dev7.jpg" alt="Young player jumping with excitement on the court" style="width: 100%; height: 340px; object-fit: cover; border-radius: 20px; display: block">
+<img src="assets/dev4.jpg" alt="Players closing in on the ball along the wall" style="grid-column: span 2; width: 100%; height: 260px; object-fit: cover; border-radius: 20px; display: block">
+</div>
+</div>
+</section>
+
+<!-- CTA -->
+<section style="padding: 112px 0">
+<div class="wrap" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 22px">
+<h2 style="font-size: clamp(40px, 6vw, 80px)">More touches. More fun. <span style="color: #F90EE7">More soccer.</span></h2>
+<p style="font-size: 19px; color: #C9C8D8; max-width: 600px; line-height: 1.55">Give your player a day full of touches, goals and decisions they will remember.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; justify-content: center">
+<a class="btn btn-pink" style="min-height: 60px; padding: 0 36px; font-size: 18px" href="https://playmetrics.com/signup?clubToken=U2lnbnVwLkdCLlYyLTEzMjctVGhlIENoYW9zIEN1cC1odHRwczovL2FwaS5nYi5wbGF5bWV0cmljcy5jb20vcHVibGljL2dicy8xMzI3L2xvZ28tMTc4NTYxMDkyN3xpT3RYS2IxVDV1di9GMUlCWVlmQkZoNlNTU0VtWVMwWDlWNk0yTjZJUE9FPQ==&amp;program_id=2525">Register Your Team</a>
+<a class="btn btn-ghost" style="min-height: 60px" href="Main.dc.html#tournaments">See Upcoming Tournaments</a>
+</div>
+</div>
+</section>
+
+<!-- Sponsors -->
+<section id="sponsors" style="padding: 112px 0; background: #0F0F19; border-top: 1px solid #1F1F2E">
+<div class="wrap" style="display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<span class="eyebrow" style="color: #F90EE7">Thank you</span>
+<h2 style="font-size: clamp(36px, 5vw, 60px)">Our Sponsors</h2>
+</div>
+<a class="btn btn-ghost" href="https://thechaoscup.com/wp-content/uploads/2026/07/SPONSORSHIP-OPPORTUNITIES.pdf">Become a Sponsor</a>
+</div>
+<a href="https://glnk.io/oq72y/atomic-athletics-soccer" style="display: flex; flex-wrap: wrap; gap: 24px 40px; align-items: center; justify-content: space-between; padding: 32px; border-radius: 20px; border: 1px solid #2EA9F6; background: #12121D; text-decoration: none; color: #F4F3F8">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span class="eyebrow" style="color: #2EA9F6">Title sponsor · Turkey Takedown</span>
+<span style="font-family: 'Archivo Black', sans-serif; font-size: 30px">Redmond Re-Lyte</span>
+</div>
+<img src="assets/relyte-white.webp" alt="Redmond Re-Lyte" style="width: 260px; height: auto; display: block">
+</a>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 16px">
+<a href="https://www.key.com/personal/index.html" style="height: 120px; border-radius: 16px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box"><img src="assets/keybank.webp" alt="KeyBank" style="max-width: 100%; max-height: 100%; display: block"></a>
+<a href="https://onestopinsurance.com/" style="height: 120px; border-radius: 16px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box"><img src="assets/onestop.webp" alt="One Stop Insurance" style="max-width: 100%; max-height: 100%; display: block"></a>
+<a href="https://klinglercpa.com/" style="height: 120px; border-radius: 16px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box"><img src="assets/klingler.webp" alt="Klingler and Associates" style="max-width: 100%; max-height: 100%; display: block"></a>
+<a href="https://jclaker.jewelershowcase.com/" style="height: 120px; border-radius: 16px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box"><img src="assets/jclaker.webp" alt="JC Laker Jewelry, Inc." style="max-width: 100%; max-height: 100%; display: block"></a>
+<a href="https://d1training.com/" style="height: 120px; border-radius: 16px; background: #14141F; border: 1px solid #2A2A3C; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box"><img src="assets/d1.webp" alt="D1 Training" style="max-width: 100%; max-height: 100%; display: block"></a>
+<div style="height: 120px; border-radius: 16px; background: #14141F; border: 1px solid #2A2A3C; display: flex; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box"><img src="assets/macd33p.webp" alt="MAC d33p" style="max-width: 100%; max-height: 100%; display: block"></div>
+<a href="https://www.progjdj.com/" style="height: 120px; border-radius: 16px; background: #14141F; border: 1px solid #2A2A3C; display: flex; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box"><img src="assets/gjdj.webp" alt="Pro GJDJ" style="max-width: 100%; max-height: 100%; display: block"></a>
+<a href="https://www.smugmug.com/signup?coupon=Chaos2026" style="height: 120px; border-radius: 16px; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 18px; box-sizing: border-box; text-decoration: none"><img src="assets/smugmug-black.webp" alt="SmugMug" style="max-width: 100%; max-height: 44px; display: block"><span style="font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #2B2B33">Official Photo Sharing Partner</span></a>
+</div>
+</div>
+</section>
+
+<footer style="border-top: 1px solid #1F1F2E; background: #07070D">
+<div class="wrap" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; padding-top: 32px; padding-bottom: 32px; color: #A9A8BA; font-size: 14px">
+<span>Chaos Cup by Atomic Athletics</span>
+<a href="https://www.instagram.com/atomic_chaoscup/">Instagram @atomic_chaoscup</a>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":7200}}'>
+class Component extends DCLogic {
+renderVals() {
+const menuOpen = !!(this.state && this.state.menuOpen);
+const menu = { menuOpen, menuClosed: !menuOpen, navClass: menuOpen ? 'mainnav open' : 'mainnav', menuLabel: menuOpen ? 'Close menu' : 'Open menu', toggleMenu: () => this.setState({ menuOpen: !menuOpen }) };
+return menu;
+}
+}
+</script>
+</body>
+</html>

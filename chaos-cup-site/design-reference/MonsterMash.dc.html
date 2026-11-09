@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Monster Mash Recap</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=Archivo:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#0A0A12;color:#F4F3F8;font-family:'Archivo',system-ui,sans-serif}
+a{color:#2EA9F6}a:hover{color:#7CC8FA}
+h1,h2,h3{font-family:'Archivo Black','Arial Black',sans-serif;margin:0;line-height:1;font-weight:400;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px;box-sizing:border-box;width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 28px;border-radius:999px;font-weight:800;text-decoration:none;font-size:16px;letter-spacing:.02em;box-sizing:border-box;white-space:nowrap}
+.btn-pink{background:#F90EE7;color:#0A0A12}.btn-pink:hover{background:#FB5AEE;color:#0A0A12}
+.btn-blue{background:#2EA9F6;color:#0A0A12}.btn-blue:hover{background:#6CC2F9;color:#0A0A12}
+.btn-ghost{border:2px solid #F4F3F8;color:#F4F3F8}.btn-ghost:hover{background:#F4F3F8;color:#0A0A12}
+.btn-sm{min-height:44px;padding:0 20px;font-size:14px}
+.ph{background:repeating-linear-gradient(135deg,#191927 0 14px,#13131F 14px 28px);border:1px dashed #3B3B52;display:flex;align-items:center;justify-content:center;color:#A9A8BA;font:700 12px/1.4 'Archivo',sans-serif;text-transform:uppercase;letter-spacing:.1em;text-align:center;padding:16px;box-sizing:border-box}
+.eyebrow{font:800 13px/1.2 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.nav a.navlink{color:#F4F3F8;text-decoration:none;font-weight:600;font-size:15px}
+.nav a.navlink:hover{color:#F90EE7}
+.mobile-actions{display:none}
+.mobile-cta{display:none}
+.menu-btn{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:12px;border:1px solid #3B3B52;background:transparent;color:#F4F3F8;cursor:pointer;padding:0}
+.menu-btn:hover{border-color:#F4F3F8}
+@media (max-width:899px){
+.mobile-actions{display:flex;margin-left:auto}
+.mobile-cta{display:inline-flex}
+nav.mainnav{display:none !important;width:100%;flex-direction:column;align-items:stretch !important;gap:0 !important;padding:8px 0 12px;border-top:1px solid #1F1F2E}
+nav.mainnav.open{display:flex !important}
+nav.mainnav a.navlink{display:flex;align-items:center;min-height:52px;font-size:18px;border-bottom:1px solid #1F1F2E}
+nav.mainnav a.btn{margin-top:16px;width:100%;min-height:52px}
+}
+.tab{min-height:44px;padding:0 22px;border-radius:999px;font:800 15px 'Archivo',sans-serif;cursor:pointer;border:2px solid #3B3B52;background:transparent;color:#F4F3F8}
+.tab-on{background:#F4F3F8;color:#0A0A12;border-color:#F4F3F8}
+</style>
+</helmet>
+<div style="width: 100%; min-width: 0; background: #0A0A12; overflow: hidden">
+
+<header class="nav" style="border-bottom: 1px solid #1F1F2E">
+<div class="wrap" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; padding-bottom: 16px">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #F4F3F8">
+<img src="assets/logo-main.webp" alt="Chaos Cup 3v3 Experience" style="height: 64px; width: auto; display: block">
+</a>
+<div class="mobile-actions" style="gap: 10px; align-items: center">
+<a class="btn btn-pink btn-sm mobile-cta" href="https://playmetrics.com/signup?clubToken=U2lnbnVwLkdCLlYyLTEzMjctVGhlIENoYW9zIEN1cC1odHRwczovL2FwaS5nYi5wbGF5bWV0cmljcy5jb20vcHVibGljL2dicy8xMzI3L2xvZ28tMTc4NTYxMDkyN3xpT3RYS2IxVDV1di9GMUlCWVlmQkZoNlNTU0VtWVMwWDlWNk0yTjZJUE9FPQ==&amp;program_id=2525">Register</a>
+<button type="button" class="menu-btn" aria-label="{{menuLabel}}" aria-expanded="{{menuOpen}}" aria-controls="site-menu" onClick="{{toggleMenu}}">
+<sc-if value="{{menuClosed}}" hint-placeholder-val="{{ true }}"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></svg></sc-if>
+<sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg></sc-if>
+</button>
+</div>
+<nav aria-label="Main" id="site-menu" class="{{navClass}}" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px">
+<a class="navlink" href="Main.dc.html#tournaments">Tournaments</a>
+<a class="navlink" href="Development.dc.html">Why 3v3</a>
+<a class="navlink" href="Rulebook.dc.html">Rules</a>
+<a class="navlink" href="Main.dc.html#past">Past Events</a>
+<a class="navlink" href="Main.dc.html#photos">Photos</a>
+<a class="navlink" href="Main.dc.html#sponsors">Sponsors</a>
+<a class="btn btn-pink btn-sm" href="https://playmetrics.com/signup?clubToken=U2lnbnVwLkdCLlYyLTEzMjctVGhlIENoYW9zIEN1cC1odHRwczovL2FwaS5nYi5wbGF5bWV0cmljcy5jb20vcHVibGljL2dicy8xMzI3L2xvZ28tMTc4NTYxMDkyN3xpT3RYS2IxVDV1di9GMUlCWVlmQkZoNlNTU0VtWVMwWDlWNk0yTjZJUE9FPQ==&amp;program_id=2525">Register a Team</a>
+</nav>
+</div>
+</header>
+
+<!-- Recap hero -->
+<section style="padding: 40px 0 72px">
+<div class="wrap" style="display: flex; flex-direction: column; gap: 28px">
+<a href="Main.dc.html#past" style="font-weight: 700; font-size: 14px; color: #C9C8D8; text-decoration: none">All past tournaments</a>
+<div style="position: relative; border-radius: 28px; overflow: hidden; min-height: 560px; display: flex; align-items: flex-end">
+<img src="assets/mm-champs-1.jpg" alt="Monster Mash champions holding the Chaos Cup belt" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; display: block">
+<div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,18,0) 35%, rgba(10,10,18,0.92) 100%)"></div>
+<img src="assets/logo-monstermash.webp" alt="Redmond Re-Lyte Chaos Cup 3v3 Monster Mash logo" style="position: absolute; top: 20px; right: 24px; width: min(320px, 45%); height: auto; display: block; filter: drop-shadow(0 4px 18px rgba(0,0,0,0.75))">
+<div style="position: relative; padding: 32px; display: flex; flex-direction: column; gap: 12px">
+<span class="eyebrow" style="color: #F4F3F8">Holiday Series · Event 1 of 3 · Completed</span>
+<h1 style="font-size: clamp(48px, 7vw, 96px)">Monster <span style="color: #F90EE7">Mash</span></h1>
+<p style="font-size: 18px; color: #E2E1EC; line-height: 1.5; font-weight: 600">Saturday, Oct 17, 2026 · Salt Lake Academy West Campus, Herriman</p>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: space-between; padding: 32px; border-radius: 24px; background: #F2FAE8; color: #0A0A12">
+<div style="display: flex; flex-direction: column; gap: 8px; flex: 1 1 420px; min-width: 0">
+<img src="assets/smugmug-black.webp" alt="SmugMug" style="width: 180px; height: auto; display: block">
+<span class="eyebrow" style="color: #2F5A00">Official Photo Sharing Partner</span>
+<h2 style="font-size: clamp(30px, 4vw, 44px); color: #0A0A12">Check it out on SmugMug</h2>
+<p style="font-size: 17px; line-height: 1.5; color: #2B2B33">Every photo from the Monster Mash, in full resolution. Find your player, download favorites and order prints.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start">
+<a class="btn" style="background: #0A0A12; color: #FFFFFF; min-height: 60px; font-size: 18px; padding: 0 34px" href="https://chaoscupphotos.smugmug.com/Events/Monster-Mash">See the Monster Mash Gallery</a>
+<a href="https://www.smugmug.com/signup?coupon=Chaos2026" style="color: #2F5A00; font-weight: 700; font-size: 14px">Parents: save 25% on your own family site with code Chaos2026</a>
+<span style="font-size: 13px; color: #2B2B33">Offer for adults 18+. Subject to the terms on SmugMug's offer page.</span>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; padding: 24px 28px; border-radius: 20px; background: #14141F; border: 1px solid #2A2A3C">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-family: 'Archivo Black', sans-serif; font-size: 22px">Final standings and scores</span>
+<span style="color: #C9C8D8">Every division's results are on PlayMetrics.</span>
+</div>
+<a class="btn btn-blue" href="https://playmetricssports.com/g/leagues/1327-2438-663366d5/league_view.html">View Tournament Results</a>
+</div>
+</div>
+</section>
+
+<!-- Next up -->
+<section style="padding: 0 0 112px">
+<div class="wrap">
+<div style="background: #F90EE7; color: #0A0A12; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 14px; justify-content: space-between">
+<span class="eyebrow">Next up · Nov 20-21</span>
+<h3 style="font-size: 34px">Turkey Takedown</h3>
+<p style="font-weight: 600; line-height: 1.5">West Lake High School, Saratoga Springs. Early bird $238.50 per team through Nov 9.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<a class="btn" style="background: #0A0A12; color: #F4F3F8" href="https://playmetrics.com/signup?clubToken=U2lnbnVwLkdCLlYyLTEzMjctVGhlIENoYW9zIEN1cC1odHRwczovL2FwaS5nYi5wbGF5bWV0cmljcy5jb20vcHVibGljL2dicy8xMzI3L2xvZ28tMTc4NTYxMDkyN3xpT3RYS2IxVDV1di9GMUlCWVlmQkZoNlNTU0VtWVMwWDlWNk0yTjZJUE9FPQ==&amp;program_id=2525">Register Now</a>
+<a class="btn" style="border: 2px solid #0A0A12; color: #0A0A12" href="TurkeyTakedown.dc.html">Details</a>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Sponsors -->
+<section id="sponsors" style="padding: 112px 0; background: #0F0F19; border-top: 1px solid #1F1F2E">
+<div class="wrap" style="display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<span class="eyebrow" style="color: #F90EE7">Thank you</span>
+<h2 style="font-size: clamp(36px, 5vw, 60px)">Our Sponsors</h2>
+</div>
+<a class="btn btn-ghost" href="https://thechaoscup.com/wp-content/uploads/2026/07/SPONSORSHIP-OPPORTUNITIES.pdf">Become a Sponsor</a>
+</div>
+<a href="https://glnk.io/oq72y/atomic-athletics-soccer" style="display: flex; flex-wrap: wrap; gap: 24px 40px; align-items: center; justify-content: space-between; padding: 32px; border-radius: 20px; border: 1px solid #2EA9F6; background: #12121D; text-decoration: none; color: #F4F3F8">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span class="eyebrow" style="color: #2EA9F6">Title sponsor · Turkey Takedown</span>
+<span style="font-family: 'Archivo Black', sans-serif; font-size: 30px">Redmond Re-Lyte</span>
+</div>
+<img src="assets/relyte-white.webp" alt="Redmond Re-Lyte" style="width: 260px; height: auto; display: block">
+</a>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 16px">
+<a href="https://www.key.com/personal/index.html" style="height: 120px; border-radius: 16px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box"><img src="assets/keybank.webp" alt="KeyBank" style="max-width: 100%; max-height: 100%; display: block"></a>
+<a href="https://onestopinsurance.com/" style="height: 120px; border-radius: 16px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box"><img src="assets/onestop.webp" alt="One Stop Insurance" style="max-width: 100%; max-height: 100%; display: block"></a>
+<a href="https://klinglercpa.com/" style="height: 120px; border-radius: 16px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box"><img src="assets/klingler.webp" alt="Klingler and Associates" style="max-width: 100%; max-height: 100%; display: block"></a>
+<a href="https://jclaker.jewelershowcase.com/" style="height: 120px; border-radius: 16px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box"><img src="assets/jclaker.webp" alt="JC Laker Jewelry, Inc." style="max-width: 100%; max-height: 100%; display: block"></a>
+<a href="https://d1training.com/" style="height: 120px; border-radius: 16px; background: #14141F; border: 1px solid #2A2A3C; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box"><img src="assets/d1.webp" alt="D1 Training" style="max-width: 100%; max-height: 100%; display: block"></a>
+<div style="height: 120px; border-radius: 16px; background: #14141F; border: 1px solid #2A2A3C; display: flex; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box"><img src="assets/macd33p.webp" alt="MAC d33p" style="max-width: 100%; max-height: 100%; display: block"></div>
+<a href="https://www.progjdj.com/" style="height: 120px; border-radius: 16px; background: #14141F; border: 1px solid #2A2A3C; display: flex; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box"><img src="assets/gjdj.webp" alt="Pro GJDJ" style="max-width: 100%; max-height: 100%; display: block"></a>
+<a href="https://www.smugmug.com/signup?coupon=Chaos2026" style="height: 120px; border-radius: 16px; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 18px; box-sizing: border-box; text-decoration: none"><img src="assets/smugmug-black.webp" alt="SmugMug" style="max-width: 100%; max-height: 44px; display: block"><span style="font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #2B2B33">Official Photo Sharing Partner</span></a>
+</div>
+</div>
+</section>
+
+<footer style="border-top: 1px solid #1F1F2E; background: #07070D">
+<div class="wrap" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; padding-top: 32px; padding-bottom: 32px; color: #A9A8BA; font-size: 14px">
+<span>Chaos Cup by Atomic Athletics</span>
+<a href="https://www.instagram.com/atomic_chaoscup/">Instagram @atomic_chaoscup</a>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2400}}'>
+class Component extends DCLogic {
+renderVals() {
+const menuOpen = !!(this.state && this.state.menuOpen);
+const menu = { menuOpen, menuClosed: !menuOpen, navClass: menuOpen ? 'mainnav open' : 'mainnav', menuLabel: menuOpen ? 'Close menu' : 'Open menu', toggleMenu: () => this.setState({ menuOpen: !menuOpen }) };
+return menu;
+}
+}
+</script>
+</body>
+</html>
