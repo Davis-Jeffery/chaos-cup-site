@@ -571,10 +571,8 @@ async function sponsorDocs() {
         headline: 'Hydrate like a champion.',
         body: 'Redmond Re-Lyte keeps players going from the first whistle to the championship game.',
         image: await img('relyte-kids.jpg', 'Redmond Re-Lyte Kids: pediatrician-approved, no added sugar, no artificial dyes, made with Real Salt'),
-        qrCode: await img('relyte-qr.png', 'QR code for the Redmond Re-Lyte Chaos Cup link'),
-        qrLabel: 'Scan to shop with your phone',
         buttonLabel: 'Shop Redmond Re-Lyte',
-        backgroundColor: '#007C9A', // Redmond blue #00A6CE, deepened so white text passes contrast (4.8:1)
+        backgroundColor: '#009CC7', // Redmond's official blue
         textColor: 'light',
       },
     },

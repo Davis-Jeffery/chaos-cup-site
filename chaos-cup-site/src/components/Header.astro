@@ -69,18 +69,33 @@ const isCurrent = (href: string) => {
       <a class="btn btn-pink btn-sm" href={settings.registerUrl}>{registerLabel}</a>
     </nav>
   </div>
+  {/* Dims the page behind the open mobile menu; tapping it closes the menu. */}
+  <div class="menu-backdrop" aria-hidden="true" data-menu-backdrop></div>
 </header>
 
 <script>
   const button = document.querySelector<HTMLButtonElement>('[data-menu-button]');
   const menu = document.getElementById('site-menu');
+  const backdrop = document.querySelector<HTMLElement>('[data-menu-backdrop]');
+  const header = button?.closest('header');
 
   if (button && menu) {
     const setOpen = (open: boolean) => {
+      // Fit the menu between the header and the bottom of the screen; it scrolls if taller.
+      if (open && header) menu.style.maxHeight = `${Math.max(240, window.innerHeight - header.getBoundingClientRect().bottom)}px`;
       menu.classList.toggle('open', open);
+      backdrop?.classList.toggle('open', open);
+      // The menu covers the page, so the page behind it stays still.
+      document.documentElement.classList.toggle('menu-open', open);
       button.setAttribute('aria-expanded', String(open));
       button.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     };
+    backdrop?.addEventListener('click', () => setOpen(false));
+    // Close when keyboard focus moves past the menu into the page behind it.
+    header?.addEventListener('focusout', (event) => {
+      const next = (event as FocusEvent).relatedTarget as Node | null;
+      if (next && !header.contains(next)) setOpen(false);
+    });
 
     button.addEventListener('click', () => setOpen(button.getAttribute('aria-expanded') !== 'true'));
     // Close after tapping a link (including #anchors on the same page).
@@ -100,6 +115,9 @@ const isCurrent = (href: string) => {
 
 <style>
   .nav {
+    position: relative;
+    z-index: 50;
+    background: var(--bg);
     border-bottom: 1px solid var(--divider);
   }
   .nav-row {
@@ -181,17 +199,42 @@ const isCurrent = (href: string) => {
       display: flex;
       margin-left: auto;
     }
+    /* The open menu drops down over the page instead of pushing it down. */
     .mainnav {
       display: none;
-      width: 100%;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
       flex-direction: column;
       align-items: stretch;
       gap: 0;
-      padding: 8px 0 12px;
+      padding: 8px 24px 20px;
+      background: var(--bg);
       border-top: 1px solid var(--divider);
+      border-bottom: 1px solid var(--divider);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+      overflow-y: auto;
+      overscroll-behavior: contain;
     }
     .mainnav.open {
       display: flex;
+    }
+    .menu-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: rgba(10, 10, 18, 0.7);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0.2s;
+    }
+    .menu-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+    :global(html.menu-open) {
+      overflow: hidden;
     }
     .mainnav .navlink {
       display: flex;
@@ -210,6 +253,9 @@ const isCurrent = (href: string) => {
   /* Without JavaScript the menu button can't work, so show the links instead. */
   :global(html:not(.js)) .mainnav {
     display: flex;
+    position: static;
+    box-shadow: none;
+    max-height: none;
   }
   :global(html:not(.js)) .menu-btn {
     display: none;
