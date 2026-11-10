@@ -179,6 +179,20 @@ export const sponsor = defineType({
         }),
         defineField({ name: 'promoCode', title: 'Promo code', type: 'string', description: 'Shown in the dashed code box.' }),
         defineField({
+          name: 'stripText',
+          title: 'Short offer (tournament pages)',
+          type: 'text',
+          rows: 2,
+          description: 'One line for the strip under the photos on upcoming tournament pages.',
+        }),
+        defineField({ name: 'stripButtonLabel', title: 'Short offer button label', type: 'string' }),
+        defineField({
+          name: 'galleryOfferText',
+          title: 'Offer link text (past tournament pages)',
+          type: 'string',
+          description: 'Shown under the gallery button on past tournament pages.',
+        }),
+        defineField({
           name: 'finePrint',
           title: 'Fine print',
           type: 'text',

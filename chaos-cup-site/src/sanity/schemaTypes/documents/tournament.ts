@@ -251,11 +251,69 @@ export const tournament = defineType({
 
     // Game day
     defineField({
+      name: 'eventDetails',
+      title: 'Event details',
+      type: 'object',
+      group: 'gameDay',
+      description: 'The four "Event details" panels on the tournament page.',
+      fields: [
+        defineField({
+          name: 'scheduleNote',
+          title: 'Dates note',
+          type: 'text',
+          rows: 2,
+          description: 'Under the dates, like "Your team plays within one ~5-hour block."',
+        }),
+        defineField({
+          name: 'venueNote',
+          title: 'Venue note',
+          type: 'string',
+          description: 'After the address, like "Indoor Main + AUX Gyms on hardwood."',
+        }),
+        defineField({
+          name: 'divisionsNote',
+          title: 'Divisions note',
+          type: 'text',
+          rows: 3,
+          description: 'A "How placement works" link to the rulebook is added at the end.',
+        }),
+        defineField({ name: 'formatHeadline', title: 'Format headline', type: 'string', initialValue: '4 guaranteed games' }),
+        defineField({ name: 'formatText', title: 'Format text', type: 'text', rows: 2 }),
+      ],
+    }),
+    defineField({
       name: 'checklist',
       title: 'Game day checklist',
       type: 'array',
       group: 'gameDay',
       of: [defineArrayMember({ type: 'string' })],
+    }),
+
+    defineField({
+      name: 'photoStrip',
+      title: 'Photo strip',
+      type: 'array',
+      group: 'gameDay',
+      description: 'The row of photos above the SmugMug strip. Four items fill the row; one can be a video.',
+      validation: (rule) => rule.max(4),
+      of: [
+        defineArrayMember({
+          type: 'image',
+          options: { hotspot: true },
+          fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (rule) => rule.required() })],
+        }),
+        defineArrayMember({
+          type: 'object',
+          name: 'stripVideo',
+          title: 'Video',
+          fields: [
+            defineField({ name: 'title', title: 'Title', type: 'string', description: 'For screen readers.', validation: (rule) => rule.required() }),
+            defineField({ name: 'videoUrl', title: 'Video address', type: 'url', description: 'An MP4 hosted on Vercel Blob or Mux.' }),
+            imageField({ name: 'poster', title: 'Poster image', required: true }),
+          ],
+          preview: { select: { title: 'title', media: 'poster' } },
+        }),
+      ],
     }),
 
     // Recap

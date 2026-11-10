@@ -206,7 +206,7 @@ export const homePage = defineType({
                 defineField({ name: 'title', title: 'Title', type: 'string', validation: (rule) => rule.required() }),
                 defineField({ name: 'text', title: 'Text', type: 'text', rows: 3 }),
                 defineField({ name: 'linkLabel', title: 'Link label', type: 'string' }),
-                defineField({ name: 'linkPath', title: 'Link', type: 'string', description: 'For example /rules#goal-zone' }),
+                defineField({ name: 'linkPath', title: 'Link', type: 'string', description: 'For example /rules#rule-goal-zone' }),
               ],
             }),
           ],

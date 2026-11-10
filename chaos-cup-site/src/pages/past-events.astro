@@ -1,0 +1,152 @@
+---
+/** Every past tournament, newest first. No design file; built from the home page past cards. */
+import Layout from '../layouts/Layout.astro';
+import SanityImage from '../components/SanityImage.astro';
+import { sanityClient } from '../lib/sanity';
+import { getLayoutData, IMAGE } from '../lib/site';
+import { nowForRequest } from '../lib/status';
+import { cityFromAddress, dateRange, highlightParts } from '../lib/format';
+import Highlight from '../components/Highlight.astro';
+import { ALL_TOURNAMENTS_QUERY, pastEvents, tournamentPath, type Tournament } from '../lib/tournaments';
+
+const now = nowForRequest(Astro.url);
+const [data, { page, tournaments }] = await Promise.all([
+  getLayoutData(),
+  sanityClient.fetch<{ page: any; tournaments: Tournament[] }>(`{
+    "page": *[_id == "pastEventsPage"][0]{ ..., seo { ..., image ${IMAGE} } },
+    "tournaments": ${ALL_TOURNAMENTS_QUERY}
+  }`),
+]);
+const past = pastEvents(tournaments, now);
+const title = page?.title || 'Past Events';
+---
+
+<Layout
+  data={data}
+  now={now}
+  title={page?.seo?.title || highlightParts(title).map((p) => p.text).join('')}
+  description={page?.seo?.description || page?.intro}
+  ogImage={page?.seo?.image}
+>
+  <section class="pe">
+    <div class="wrap pe-inner">
+      <div class="pe-head">
+        <span class="eyebrow" style="color: var(--blue)">The archive</span>
+        <h1><Highlight text={title} /></h1>
+        {page?.intro && <p class="pe-intro">{page.intro}</p>}
+      </div>
+
+      {
+        past.length > 0 ? (
+          <ul class="pe-grid" role="list">
+            {past.map((t) => (
+              <li>
+                <article class="card pe-card">
+                  <a href={tournamentPath(t)} class="pe-photo-link" tabindex="-1" aria-hidden="true">
+                    <SanityImage
+                      image={t.cardImage ?? t.recap?.coverImage}
+                      aspect={1.7}
+                      sizes="(min-width: 1000px) 380px, 100vw"
+                      maxWidth={1080}
+                      class="pe-photo"
+                    />
+                  </a>
+                  <div class="pe-body">
+                    <span class="eyebrow" style="color: var(--faint); font-size: 12px">
+                      {[dateRange(t.startDate, t.endDate), cityFromAddress(t.venue?.address)].filter(Boolean).join(' · ')}
+                    </span>
+                    <h2>
+                      <a href={tournamentPath(t)}>{t.title}</a>
+                    </h2>
+                    {t.venue?.name && <p style="color: var(--muted); font-size: 15px">{t.venue.name}</p>}
+                    <div class="pe-actions">
+                      {t.links?.smugmugGalleryUrl && (
+                        <a class="btn btn-blue btn-sm" href={t.links.smugmugGalleryUrl} aria-label={`${t.title} photos on SmugMug`}>
+                          Photos
+                        </a>
+                      )}
+                      {t.links?.resultsUrl && (
+                        <a class="btn btn-ghost btn-sm" href={t.links.resultsUrl} aria-label={`${t.title} results`}>
+                          Results
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="pe-intro">No past events yet. The first recap lands here after the next Chaos Cup.</p>
+        )
+      }
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .pe {
+    padding: 72px 0 112px;
+  }
+  .pe-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  .pe-head {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .pe-head h1 {
+    font-size: clamp(44px, 7vw, 96px);
+  }
+  .pe-intro {
+    font-size: 19px;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.55;
+  }
+  .pe-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+    gap: 24px;
+  }
+  .pe-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .pe-card :global(.pe-photo) {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+  .pe-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 1;
+  }
+  .pe-body h2 {
+    font-size: 26px;
+  }
+  .pe-body h2 a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .pe-body h2 a:hover {
+    color: var(--magenta);
+  }
+  .pe-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: auto;
+  }
+</style>

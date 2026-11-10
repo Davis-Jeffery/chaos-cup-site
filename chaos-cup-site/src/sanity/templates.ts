@@ -10,6 +10,15 @@ const checklist = (shoeLine: string) => [
   'Check PlayMetrics for live schedule and standings',
 ];
 
+const eventDetails = (venueNote: string) => ({
+  scheduleNote: 'Your team plays within one ~5-hour block. Times posted on PlayMetrics by [SCHEDULE RELEASE DATE].',
+  venueNote,
+  divisionsNote:
+    'Boys, girls and coed divisions by birth year. Rosters of 3 to 6 players. To keep games even, teams may be moved, but you will never play a team more than 1 year apart from your selected division.',
+  formatHeadline: '4 guaranteed games',
+  formatText: 'Plus a chance at a 5th game for the championship. 12-minute running-clock games inside inflatable walled fields.',
+});
+
 const shared = {
   statusOverride: 'auto',
   divisions: 'U7 to U18',
@@ -24,6 +33,7 @@ const hardwood = {
     { _key: 'tennis', _type: 'shoe', name: 'Tennis shoes', rating: 'allowed', note: 'Court or running shoes with flat soles.' },
     { _key: 'cleats', _type: 'shoe', name: 'Cleats of any kind', rating: 'notAllowed', note: 'Molded, screw-in or turf studs. Not on hardwood.' },
   ],
+  eventDetails: eventDetails('Indoor gyms on hardwood.'),
   checklist: checklist('Futsal flats or tennis shoes only. No cleats on the hardwood.'),
 };
 
@@ -35,6 +45,7 @@ const turf = {
     { _key: 'futsal', _type: 'shoe', name: 'Futsal flats', rating: 'allowed', note: 'Flat indoor soccer shoes with gum rubber soles.' },
     { _key: 'tennis', _type: 'shoe', name: 'Tennis shoes', rating: 'allowed', note: 'Court or running shoes with flat soles.' },
   ],
+  eventDetails: eventDetails('Indoor field house on artificial turf.'),
   checklist: checklist('Cleats, turf shoes, futsal flats or tennis shoes. All are allowed on the turf.'),
 };
 

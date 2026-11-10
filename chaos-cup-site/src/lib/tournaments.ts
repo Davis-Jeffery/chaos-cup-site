@@ -39,6 +39,14 @@ export interface Tournament extends TournamentDates {
   };
   beneficiary?: { schoolName?: string; programName?: string; logo?: any; donateUrl?: string };
   checklist?: string[];
+  eventDetails?: {
+    scheduleNote?: string;
+    venueNote?: string;
+    divisionsNote?: string;
+    formatHeadline?: string;
+    formatText?: string;
+  };
+  photoStrip?: ({ _key: string; _type: 'image'; alt?: string; asset?: any } | { _key: string; _type: 'stripVideo'; title: string; videoUrl?: string; poster?: any })[];
   recap?: { coverImage?: any; text?: string; championPhotos?: any[] };
   seo?: { title?: string; description?: string; image?: any };
 }
@@ -59,6 +67,7 @@ export const TOURNAMENT_FIELDS = `
   shoes[] { ..., image ${IMG} },
   beneficiary { ..., logo ${IMG} },
   recap { ..., coverImage ${IMG}, championPhotos[] ${IMG} },
+  photoStrip[] { ..., asset->{ _id, url, metadata { dimensions, lqip } }, poster ${IMG} },
   seo { ..., image ${IMG} }
 `;
 
@@ -144,4 +153,30 @@ export function shoeSummary(shoes: Shoe[] = []): string | undefined {
   const names = ok.map((s, i) => (i === 0 ? s.name : s.name.charAt(0).toLowerCase() + s.name.slice(1)));
   const list = names.length === 1 ? names[0] : `${names.slice(0, -1).join(', ')} or ${names[names.length - 1]}`;
   return `${list} only`;
+}
+
+/** "Hardwood court" / "Indoor turf" for the hero pill, "hardwood" / "turf" in sentences. */
+export function surfaceLabels(type?: string): { pill?: string; noun: string } {
+  if (type === 'hardwood') return { pill: 'Hardwood court', noun: 'hardwood' };
+  if (type === 'turf') return { pill: 'Indoor turf', noun: 'turf' };
+  return { noun: 'this surface' };
+}
+
+/** "Futsal flats best", "Cleats or turf shoes best" */
+export function bestShoeLabel(shoes: Shoe[] = []): string | undefined {
+  const best = shoes.find((s) => s.rating === 'best');
+  return best ? `${best.name.replace(/\s*\/\s*/g, ' or ')} best` : undefined;
+}
+
+/**
+ * The other event a team can bundle with: the nearest other live or upcoming
+ * event that also has a bundle price.
+ */
+export function bundlePartner<T extends TournamentDates & { _id: string; pricing?: { bundleSavings?: number } }>(
+  t: T,
+  list: T[],
+  now: Date,
+): T | undefined {
+  if (!t.pricing?.bundleSavings) return undefined;
+  return currentAndUpcoming(list, now).find((o) => o._id !== t._id && o.pricing?.bundleSavings && o.status === 'upcoming');
 }

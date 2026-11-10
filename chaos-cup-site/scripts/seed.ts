@@ -74,8 +74,8 @@ async function uploadVideos(files: string[]): Promise<Record<string, string>> {
   if (!token) {
     console.warn(
       '\n! BLOB_READ_WRITE_TOKEN is not set, so videos were not uploaded and video fields are empty.\n' +
-        '  Create a Blob store in Vercel (Storage > Blob), run `vercel env pull .env.local`,\n' +
-        '  copy BLOB_READ_WRITE_TOKEN into .env, then run the seed again.\n',
+        '  Create a public Blob store in the Vercel dashboard (Storage > Create > Blob), copy its\n' +
+        '  BLOB_READ_WRITE_TOKEN into .env, then run the seed again.\n',
     );
     return {};
   }
@@ -348,6 +348,15 @@ async function shoes(surface: 'hardwood' | 'turf') {
   return list.map((s) => ({ _type: 'shoe', ...s }));
 }
 
+const eventDetails = (venueNote: string) => ({
+  scheduleNote: 'Your team plays within one ~5-hour block. Times posted on PlayMetrics by [SCHEDULE RELEASE DATE].',
+  venueNote,
+  divisionsNote:
+    'Boys, girls and coed divisions by birth year. Rosters of 3 to 6 players. To keep games even, teams may be moved, but you will never play a team more than 1 year apart from your selected division.',
+  formatHeadline: '4 guaranteed games',
+  formatText: 'Plus a chance at a 5th game for the championship. 12-minute running-clock games inside inflatable walled fields.',
+});
+
 const divisionsAndRoster = { divisions: 'U7 to U18', rosterSize: 'Rosters of 3 to 6 players' };
 const holidayPricing = { regularPrice: 265, earlyBirdPrice: 238.5, bundleSavings: 50.35 };
 
@@ -418,7 +427,7 @@ async function tournamentDocs(videos: Record<string, string>) {
       ...divisionsAndRoster,
       pricing: {
         ...holidayPricing,
-        earlyBirdDeadline: '2026-11-09',
+        earlyBirdDeadline: '2026-11-15',
         bundleNote: 'Add Frostbite Frenzy (Jan 8-9). Select Turkey Takedown, then choose the bundle at checkout.',
       },
       beneficiary: {
@@ -427,7 +436,20 @@ async function tournamentDocs(videos: Record<string, string>) {
         logo: await img('westlake-logo.webp', 'West Lake High School'),
         donateUrl: 'https://donate.stripe.com/28EaEXaVqbBjb1bgUj8Ra00',
       },
+      eventDetails: eventDetails('Indoor Main + AUX Gyms on hardwood.'),
       checklist: checklist('Futsal flats or tennis shoes only. No cleats on the hardwood.'),
+      photoStrip: [
+        await imgItem('strip1', 'action-2.jpg', 'Player dribbling along the line'),
+        await imgItem('strip2', 'action-8.jpg', 'Young player chasing down the ball'),
+        {
+          _key: 'strip3',
+          _type: 'stripVideo',
+          title: 'Champions showing off their rings',
+          ...(videos['reel-rings.mp4'] ? { videoUrl: videos['reel-rings.mp4'] } : {}),
+          poster: await img('reel-rings.jpg', 'Champions showing off their rings'),
+        },
+        await imgItem('strip4', 'action-9.jpg', 'Teammates working the ball together'),
+      ],
     },
     {
       _id: 'tournament-frostbite-frenzy',
@@ -470,7 +492,20 @@ async function tournamentDocs(videos: Record<string, string>) {
         logo: await img('brighton-logo.webp', 'Brighton High School'),
         donateUrl: 'https://donate.stripe.com/6oU3cvaVqbBjedn0Vl8Ra01',
       },
+      eventDetails: eventDetails('Indoor Field House on artificial turf.'),
       checklist: checklist('Cleats, turf shoes, futsal flats or tennis shoes. All are allowed on the turf.'),
+      photoStrip: [
+        await imgItem('strip1', 'action-2.jpg', 'Player dribbling along the line'),
+        await imgItem('strip2', 'action-8.jpg', 'Young player chasing down the ball'),
+        {
+          _key: 'strip3',
+          _type: 'stripVideo',
+          title: 'Champions showing off their rings',
+          ...(videos['reel-rings.mp4'] ? { videoUrl: videos['reel-rings.mp4'] } : {}),
+          poster: await img('reel-rings.jpg', 'Champions showing off their rings'),
+        },
+        await imgItem('strip4', 'action-9.jpg', 'Teammates working the ball together'),
+      ],
     },
   ];
 }
@@ -547,6 +582,10 @@ async function sponsorDocs() {
         textColor: 'dark',
         promoCode: 'Chaos2026',
         finePrint: "Offer for adults 18+. Subject to the terms on SmugMug's offer page.",
+        stripText:
+          'Event photos land on SmugMug, our Official Photo Sharing Partner. Parents save 25% with code Chaos2026 (adults 18+, offer terms apply).',
+        stripButtonLabel: 'Claim 25% Off',
+        galleryOfferText: 'Parents: save 25% on your own family site with code Chaos2026',
       },
     },
     ...(await Promise.all(
@@ -699,7 +738,7 @@ async function homePageDoc(videos: Record<string, string>) {
           title: '3v3, stay out of the Goal Zone',
           text: 'Three players per side, rosters of 3 to 6. Nobody plays inside the Goal Zone in front of each goal.',
           linkLabel: 'See how it works',
-          linkPath: '/rules#goal-zone',
+          linkPath: '/rules#rule-goal-zone',
         },
         { _type: 'ruleTile', title: 'The walls are in play', text: 'Bank it, pass it, use it. If the ball leaves the field, the other team restarts with a kick-in.' },
         { _type: 'ruleTile', title: '12-minute running clock', text: 'One continuous 12-minute game. The clock only stops for injuries or referee decisions.' },
@@ -716,7 +755,7 @@ async function homePageDoc(videos: Record<string, string>) {
     finalCta: {
       // The eyebrow in the design ("Nov 20-21 · West Lake High School") comes from the next tournament.
       headline: 'Bring the *chaos.*',
-      text: 'Grab two to five teammates, pick your division and lock in the early bird price before Nov 9.',
+      text: 'Grab two to five teammates, pick your division and lock in the early bird price through Nov 15.',
       primaryLabel: 'Register Your Team',
       secondaryLabel: 'Register as an Individual',
     },

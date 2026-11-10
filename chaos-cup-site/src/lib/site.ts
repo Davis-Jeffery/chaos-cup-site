@@ -110,7 +110,7 @@ export function activeSponsors(sponsors: Sponsor[], now: Date): Sponsor[] {
 
 /**
  * The event a sponsor's feature card names, as in "Title sponsor · Turkey Takedown".
- * On a tournament page that sponsor presents, it is that tournament. Otherwise it
+ * On the page of a live or upcoming tournament that sponsor presents, it is that tournament. Otherwise it
  * is the next live or upcoming tournament the sponsor presents.
  */
 export function featuredEventFor(
@@ -120,9 +120,10 @@ export function featuredEventFor(
   currentTournamentId?: string,
 ): TournamentSummary | undefined {
   const presented = tournaments.filter((t) => t.presentingSponsorId === sponsor._id);
-  const current = presented.find((t) => t._id === currentTournamentId);
-  if (current) return current;
   const rank = { live: 0, upcoming: 1 } as Record<string, number>;
+  // A past event's page names the next event instead, like the Monster Mash design.
+  const current = presented.find((t) => t._id === currentTournamentId);
+  if (current && getStatus(current, now) in rank) return current;
   return presented
     .filter((t) => getStatus(t, now) in rank)
     .sort((a, b) => rank[getStatus(a, now)] - rank[getStatus(b, now)] || a.startDate.localeCompare(b.startDate))[0];

@@ -1,0 +1,341 @@
+---
+/**
+ * Past tournament layout (MonsterMash.dc.html): big photo with the event logo,
+ * SmugMug gallery panel (required by the SmugMug contract), results and the
+ * next event.
+ */
+import SanityImage from '../SanityImage.astro';
+import { cityFromAddress, dateRange, formatPrice, longDate, shortDate, splitLastWord } from '../../lib/format';
+import { currentPrice, isEarlyBird, type Status } from '../../lib/status';
+import { canRegister, registerUrl, tournamentPath, type Tournament } from '../../lib/tournaments';
+import type { Sponsor } from '../../lib/site';
+
+interface Props {
+  tournament: Tournament;
+  nextEvent?: Tournament & { status: Status };
+  photoPartner?: Sponsor;
+  now: Date;
+  defaultRegisterUrl: string;
+}
+
+const { tournament: t, nextEvent: next, photoPartner, now, defaultRegisterUrl } = Astro.props;
+const [titleStart, titleEnd] = splitLastWord(t.title);
+const city = cityFromAddress(t.venue?.address);
+const cover = t.recap?.coverImage ?? t.heroImage ?? t.cardImage;
+const days = t.endDate && t.endDate !== t.startDate ? dateRange(t.startDate, t.endDate, { weekday: true }) : longDate(t.startDate, { fullWeekday: true });
+const where = [t.venue?.name, city].filter(Boolean).join(', ');
+const partnerBanner = photoPartner?.banner;
+const offerUrl = partnerBanner?.buttonUrl || photoPartner?.url;
+const smugmugLogo = photoPartner?.logoOnLight ?? photoPartner?.logoOnDark;
+const gallery = t.links?.smugmugGalleryUrl;
+
+const nextOpen = next && canRegister(next, now);
+const nextPrice = next && currentPrice(next, now);
+const nextLine = next
+  ? [
+      [next.venue?.name, cityFromAddress(next.venue?.address)].filter(Boolean).join(', '),
+      next.status === 'live'
+        ? 'Happening now.'
+        : nextPrice != null && nextOpen
+          ? isEarlyBird(next, now)
+            ? `Early bird ${formatPrice(nextPrice)} per team through ${shortDate(next.pricing!.earlyBirdDeadline!)}.`
+            : `${formatPrice(nextPrice)} per team.`
+          : undefined,
+    ]
+      .filter(Boolean)
+      .join('. ')
+      .replace(/\.\./g, '.')
+  : '';
+---
+
+<section class="recap" style={`--event: ${t.primaryColor}`}>
+  <div class="wrap recap-inner">
+    <a href="/past-events" class="back">All past tournaments</a>
+
+    <div class="cover">
+      <SanityImage image={cover} sizes="(min-width: 1248px) 1152px, 100vw" maxWidth={2000} loading="eager" fetchpriority="high" class="cover-img" />
+      <div aria-hidden="true" class="cover-shade"></div>
+      <SanityImage image={t.logo} maxWidth={640} widths={[320, 640]} sizes="320px" loading="eager" class="cover-logo" />
+      <div class="cover-text">
+        <span class="eyebrow" style="color: var(--text)">{[t.seriesLabel, 'Completed'].filter(Boolean).join(' · ')}</span>
+        <h1>
+          {titleStart}<span style="color: var(--event)">{titleEnd}</span>
+        </h1>
+        <p class="cover-meta">{[days, where].filter(Boolean).join(' · ')}</p>
+      </div>
+    </div>
+
+    {
+      gallery && (
+        <div class="gallery">
+          <div class="gallery-text">
+            <SanityImage image={smugmugLogo} alt={photoPartner?.name ?? 'SmugMug'} maxWidth={360} widths={[180, 360]} sizes="180px" class="gallery-logo" />
+            {photoPartner?.designation && (
+              <span class="eyebrow" style="color: var(--smugmug-green-dark)">{photoPartner.designation}</span>
+            )}
+            <h2>Check it out on {photoPartner?.name ?? 'SmugMug'}</h2>
+            <p>
+              {t.recap?.text ||
+                `Every photo from the ${t.title}, in full resolution. Find your player, download favorites and order prints.`}
+            </p>
+          </div>
+          <div class="gallery-actions">
+            <a class="btn gallery-btn" href={gallery}>
+              See the {t.title} Gallery
+            </a>
+            {partnerBanner?.galleryOfferText && offerUrl && (
+              <a class="gallery-offer" href={offerUrl}>
+                {partnerBanner.galleryOfferText}
+              </a>
+            )}
+            {partnerBanner?.finePrint && <span class="fine">{partnerBanner.finePrint}</span>}
+          </div>
+        </div>
+      )
+    }
+
+    {
+      t.links?.resultsUrl && (
+        <div class="results">
+          <div class="results-text">
+            <span class="results-title">Final standings and scores</span>
+            <span style="color: var(--muted)">Every division's results are on PlayMetrics.</span>
+          </div>
+          <a class="btn btn-blue" href={t.links.resultsUrl}>
+            View Tournament Results
+          </a>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+{
+  next && (
+    <section class="next-section">
+      <div class="wrap">
+        <div class="next">
+          <span class="eyebrow">
+            {next.status === 'live' ? 'Live now' : 'Next up'} · {dateRange(next.startDate, next.endDate, { year: false })}
+          </span>
+          <h3>{next.title}</h3>
+          {nextLine && <p class="next-line">{nextLine.endsWith('.') ? nextLine : `${nextLine}.`}</p>}
+          <div class="next-actions">
+            {nextOpen && (
+              <a class="btn next-primary" href={registerUrl(next, defaultRegisterUrl)}>
+                Register Now
+              </a>
+            )}
+            <a class="btn next-ghost" href={tournamentPath(next)}>
+              Details
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .recap {
+    padding: 40px 0 72px;
+  }
+  .recap-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .back {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--muted);
+    text-decoration: none;
+    align-self: flex-start;
+  }
+  .back:hover {
+    color: var(--text);
+  }
+  .cover {
+    position: relative;
+    border-radius: 28px;
+    overflow: hidden;
+    min-height: 560px;
+    display: flex;
+    align-items: flex-end;
+    background: var(--card);
+  }
+  .cover :global(.cover-img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    display: block;
+  }
+  .cover-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 10, 18, 0) 35%, rgba(10, 10, 18, 0.92) 100%);
+  }
+  .cover :global(.cover-logo) {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    width: min(320px, 45%);
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.75));
+  }
+  .cover-text {
+    position: relative;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .cover-text h1 {
+    font-size: clamp(48px, 7vw, 96px);
+  }
+  .cover-meta {
+    font-size: 18px;
+    color: #e2e1ec;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+  @media (max-width: 599px) {
+    .cover {
+      min-height: 460px;
+    }
+    .cover-text {
+      padding: 24px;
+    }
+  }
+
+  .gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 32px;
+    border-radius: 24px;
+    background: var(--smugmug-panel);
+    color: var(--ink);
+  }
+  .gallery-text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1 1 420px;
+    min-width: 0;
+  }
+  .gallery-text :global(.gallery-logo) {
+    width: 180px;
+    height: auto;
+    display: block;
+  }
+  .gallery-text h2 {
+    font-size: clamp(30px, 4vw, 44px);
+    color: var(--ink);
+  }
+  .gallery-text p {
+    font-size: 17px;
+    line-height: 1.5;
+    color: #2b2b33;
+  }
+  .gallery-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+    min-width: 0;
+  }
+  .gallery-btn {
+    background: var(--ink);
+    color: #ffffff;
+    min-height: 60px;
+    font-size: 18px;
+    padding: 0 34px;
+    white-space: normal;
+    text-align: center;
+  }
+  .gallery-btn:hover {
+    background: #22222e;
+    color: #ffffff;
+  }
+  .gallery-offer {
+    color: var(--smugmug-green-dark);
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .gallery-offer:hover {
+    color: var(--ink);
+  }
+  .fine {
+    font-size: 13px;
+    color: #2b2b33;
+  }
+
+  .results {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px;
+    border-radius: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+  .results-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .results-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+  }
+
+  .next-section {
+    padding: 0 0 112px;
+  }
+  .next {
+    background: var(--magenta);
+    color: var(--ink);
+    border-radius: 20px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .next h3 {
+    font-size: 34px;
+  }
+  .next-line {
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .next-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .next-primary {
+    background: var(--ink);
+    color: var(--text);
+  }
+  .next-primary:hover {
+    background: #22222e;
+    color: var(--text);
+  }
+  .next-ghost {
+    border: 2px solid var(--ink);
+    color: var(--ink);
+  }
+  .next-ghost:hover {
+    background: var(--ink);
+    color: var(--text);
+  }
+</style>

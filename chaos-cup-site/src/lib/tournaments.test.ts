@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { currentAndUpcoming, pastEvents, pickHero, seriesShort, shoeSummary, type Shoe } from './tournaments';
+import { bestShoeLabel, bundlePartner, currentAndUpcoming, pastEvents, pickHero, seriesShort, shoeSummary, type Shoe } from './tournaments';
 
 const at = (date: string) => new Date(`${date}T12:00:00-07:00`);
 
@@ -62,5 +62,22 @@ describe('card text', () => {
   it('reads the short series label', () => {
     expect(seriesShort({ seriesLabel: 'Holiday Series · Event 3 of 3' })).toBe('Event 3 of 3');
     expect(seriesShort({})).toBeUndefined();
+  });
+});
+
+describe('event page helpers', () => {
+  it('names the best shoe', () => {
+    expect(bestShoeLabel([{ name: 'Cleats / turf shoes', rating: 'best' }])).toBe('Cleats or turf shoes best');
+    expect(bestShoeLabel([{ name: 'Futsal flats', rating: 'best' }])).toBe('Futsal flats best');
+    expect(bestShoeLabel([])).toBeUndefined();
+  });
+  it('finds the bundle partner', () => {
+    const b = (t: typeof turkey) => ({ ...t, pricing: { bundleSavings: 50.35 } });
+    const list = [b(mash), b(turkey), b(frost)];
+    expect(bundlePartner(list[1], list, at('2026-11-09'))?._id).toBe('frost');
+    expect(bundlePartner(list[2], list, at('2026-11-09'))?._id).toBe('turkey');
+    // After Turkey Takedown there is nothing left to bundle with.
+    expect(bundlePartner(list[2], list, at('2026-11-22'))).toBeUndefined();
+    expect(bundlePartner({ ...turkey, pricing: {} }, list, at('2026-11-09'))).toBeUndefined();
   });
 });

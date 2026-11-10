@@ -1,0 +1,496 @@
+---
+/** Main column of an upcoming or live tournament page (TurkeyTakedown.dc.html). */
+import SanityImage from '../SanityImage.astro';
+import { dayList } from '../../lib/format';
+import { sortedShoes, surfaceLabels, type Tournament } from '../../lib/tournaments';
+
+interface Props {
+  tournament: Tournament;
+}
+
+const { tournament: t } = Astro.props;
+const shoes = sortedShoes(t.shoes);
+const surfaceNoun = surfaceLabels(t.surface?.type).noun;
+const d = t.eventDetails ?? {};
+
+const RATING = {
+  best: { label: 'Best', color: 'var(--magenta)' },
+  allowed: { label: 'Allowed', color: '#3CA8E4' },
+  notAllowed: { label: 'Not allowed', color: '#FF6B6B' },
+} as const;
+
+const mapsUrl =
+  t.venue?.mapsUrl ||
+  (t.venue?.name
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([t.venue.name, t.venue.address].filter(Boolean).join(' '))}`
+    : undefined);
+const mapEmbed = t.venue?.name
+  ? `https://www.google.com/maps?q=${encodeURIComponent([t.venue.name, t.venue.address].filter(Boolean).join(', '))}&output=embed`
+  : undefined;
+
+// The checklist item about shoes links its first sentence to the shoe check, like the design.
+const isShoeLine = (item: string) => /shoe|cleat|flats/i.test(item);
+const firstSentence = (item: string) => {
+  const i = item.indexOf('.');
+  return i === -1 ? [item, ''] : [item.slice(0, i + 1), item.slice(i + 1)];
+};
+---
+
+<div class="ev-main">
+  {
+    t.surface && (
+      <div id="surface" class="surface">
+        {t.surface.photo?.asset && (
+          <div class="surface-media">
+            <SanityImage image={t.surface.photo} aspect={2.6} sizes="(min-width: 1000px) 780px, 100vw" maxWidth={1600} class="surface-photo" />
+            <div aria-hidden="true" class="surface-shade" />
+            <div class="surface-caption">
+              <span class="eyebrow surface-badge">Playing surface</span>
+              {t.surface.headline && <span class="surface-headline">{t.surface.headline}</span>}
+              {t.surface.areaName && <span class="surface-area">{t.surface.areaName}</span>}
+            </div>
+          </div>
+        )}
+        {shoes.length > 0 && (
+          <div class="shoe-check">
+            <div class="shoe-head">
+              <span class="warn" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3 L22 20 L2 20 Z" />
+                  <line x1="12" y1="10" x2="12" y2="14" />
+                  <line x1="12" y1="17" x2="12" y2="17.01" />
+                </svg>
+              </span>
+              <div class="shoe-head-text">
+                <h2>Shoe check before you pack</h2>
+                {t.surface.intro && <span style="color: var(--muted)">{t.surface.intro}</span>}
+              </div>
+            </div>
+            <ul class="shoes" role="list">
+              {shoes.map((shoe) => {
+                const r = RATING[shoe.rating];
+                return (
+                  <li class="shoe" style={`--rating: ${r.color}`}>
+                    <div class="shoe-top">
+                      <span class="shoe-badge">
+                        {shoe.rating === 'best' && (
+                          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="#0A0A12">
+                            <path d="M12 2.5 L14.9 8.6 L21.5 9.4 L16.6 13.9 L17.9 20.5 L12 17.2 L6.1 20.5 L7.4 13.9 L2.5 9.4 L9.1 8.6 Z" />
+                          </svg>
+                        )}
+                        {shoe.rating === 'allowed' && (
+                          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="5 12 10 17 19 7" />
+                          </svg>
+                        )}
+                        {shoe.rating === 'notAllowed' && (
+                          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="3" stroke-linecap="round">
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                          </svg>
+                        )}
+                        {r.label}
+                      </span>
+                      <SanityImage image={shoe.image} alt="" maxWidth={200} widths={[100, 200]} sizes="96px" class="shoe-img" />
+                    </div>
+                    <span class="shoe-name">{shoe.name}</span>
+                    {shoe.rating === 'best' && <span class="shoe-best">Best choice for {surfaceNoun}</span>}
+                    {shoe.note && <span class="shoe-note">{shoe.note}</span>}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  <div class="block">
+    <h2>Event details</h2>
+    <div class="details">
+      <div class="panel detail">
+        <span class="eyebrow detail-label">Dates</span>
+        <span class="detail-value">{dayList(t.startDate, t.endDate)}</span>
+        {d.scheduleNote && <span class="detail-note">{d.scheduleNote}</span>}
+      </div>
+      {
+        t.venue?.name && (
+          <div class="panel detail">
+            <span class="eyebrow detail-label">Venue</span>
+            <span class="detail-value">{t.venue.name}</span>
+            {(t.venue.address || d.venueNote) && (
+              <span class="detail-note">{[t.venue.address && `${t.venue.address}.`, d.venueNote].filter(Boolean).join(' ')}</span>
+            )}
+          </div>
+        )
+      }
+      {
+        t.divisions && (
+          <div class="panel detail">
+            <span class="eyebrow detail-label">Divisions</span>
+            <span class="detail-value">{t.divisions}</span>
+            <span class="detail-note">
+              {d.divisionsNote ?? t.rosterSize}{' '}
+              <a href="/rules#rule-division-placement" style="font-weight: 700">How placement works</a>.
+            </span>
+          </div>
+        )
+      }
+      {
+        (d.formatHeadline || d.formatText) && (
+          <div class="panel detail">
+            <span class="eyebrow detail-label">Format</span>
+            {d.formatHeadline && <span class="detail-value">{d.formatHeadline}</span>}
+            {d.formatText && <span class="detail-note">{d.formatText}</span>}
+          </div>
+        )
+      }
+    </div>
+  </div>
+
+  {
+    t.venue?.name && (
+      <div class="block">
+        <h2>Getting there</h2>
+        <div class="getting">
+          {t.venue.photo?.asset ? (
+            <SanityImage image={t.venue.photo} aspect={1.5} sizes="(min-width: 1000px) 420px, 100vw" maxWidth={1080} class="venue-media" />
+          ) : (
+            mapEmbed && (
+              <iframe
+                class="venue-media"
+                src={mapEmbed}
+                title={`Map of ${t.venue.name}`}
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              />
+            )
+          )}
+          <div class="getting-text">
+            {t.venue.parking && <p>{t.venue.parking}</p>}
+            {mapsUrl && (
+              <a class="btn btn-ghost btn-sm" style="align-self: flex-start" href={mapsUrl}>
+                Open in Google Maps
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  {
+    (t.checklist?.length ?? 0) > 0 && (
+      <div class="block" id="checklist">
+        <h2>Game day checklist</h2>
+        <ol class="checklist" role="list">
+          {t.checklist!.map((item, i) => {
+            const [first, rest] = firstSentence(item);
+            return (
+              <li class="panel check">
+                <span class="check-num" aria-hidden="true">{i + 1}</span>
+                <span style="line-height: 1.5">
+                  {isShoeLine(item) && t.surface ? (
+                    <>
+                      <a href="#surface" class="check-link">{first}</a>
+                      {rest}
+                    </>
+                  ) : (
+                    item
+                  )}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    )
+  }
+
+  <div class="rules-callout">
+    <div class="rules-text">
+      <h3>Know the rules before you play</h3>
+      <p>
+        Walls in play but no pushing or stalling on them, no one in the Goal Zone, no slide tackles. Read the 60-second
+        version or the full rulebook.
+      </p>
+    </div>
+    <div class="rules-actions">
+      <a class="btn btn-ghost btn-sm" href="/#rules">Quick Rules</a>
+      <a class="btn btn-blue btn-sm" href="/rules">Full Rulebook</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ev-main {
+    flex: 999 1 560px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+    order: 1;
+  }
+  .surface {
+    border-radius: 24px;
+    overflow: hidden;
+    border: 2px solid var(--event);
+    background: var(--card);
+    scroll-margin-top: 24px;
+  }
+  .surface-media {
+    position: relative;
+  }
+  .surface-media :global(.surface-photo) {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    display: block;
+  }
+  .surface-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 10, 18, 0.05) 20%, rgba(10, 10, 18, 0.9) 100%);
+  }
+  .surface-caption {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    bottom: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .surface-badge {
+    align-self: flex-start;
+    background: var(--event);
+    color: var(--ink);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+  }
+  .surface-headline {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.05;
+    color: var(--text);
+  }
+  .surface-area {
+    color: #e2e1ec;
+    font-weight: 600;
+  }
+  .shoe-check {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .shoe-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .warn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--event);
+    flex: none;
+  }
+  .shoe-head-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .shoe-head-text h2 {
+    font-size: 28px;
+  }
+  @media (max-width: 599px) {
+    .shoe-head {
+      align-items: flex-start;
+    }
+    .shoe-head-text h2 {
+      font-size: 22px;
+    }
+  }
+  .shoes {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    /* Wide enough that badge and shoe image sit side by side: 2 + 1 in the page column. */
+    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+    gap: 14px;
+  }
+  .shoe {
+    border: 2px solid var(--rating);
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--raised);
+  }
+  .shoe-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 48px;
+  }
+  .shoe-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--rating);
+    color: var(--ink);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 12px 6px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .shoe-top :global(.shoe-img) {
+    width: auto;
+    flex-shrink: 0;
+    max-width: 96px;
+    max-height: 64px;
+    height: auto;
+    display: block;
+  }
+  .shoe-name {
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--text);
+  }
+  .shoe-best {
+    color: var(--magenta);
+    font-weight: 800;
+    font-size: 14px;
+  }
+  .shoe-note {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .block {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .block h2 {
+    font-size: 36px;
+  }
+  .details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+    gap: 14px;
+  }
+  .detail {
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .detail-label {
+    color: var(--faint);
+    font-size: 11px;
+  }
+  .detail-value {
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.3;
+  }
+  .detail-note {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .getting {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: stretch;
+  }
+  .getting :global(.venue-media) {
+    flex: 1 1 320px;
+    min-height: 240px;
+    width: 100%;
+    height: auto;
+    border: 0;
+    border-radius: 20px;
+    object-fit: cover;
+    display: block;
+    background: var(--card);
+  }
+  .getting-text {
+    flex: 1 1 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    justify-content: center;
+  }
+  .getting-text p {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+    gap: 14px;
+  }
+  .check {
+    padding: 22px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .check-num {
+    font-family: var(--font-display);
+    color: var(--event);
+    font-size: 20px;
+  }
+  .check-link {
+    color: var(--text);
+    font-weight: 700;
+  }
+  .rules-callout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px;
+    border-radius: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+  .rules-text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1 1 320px;
+  }
+  .rules-text h3 {
+    font-size: 26px;
+  }
+  .rules-text p {
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .rules-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+</style>

@@ -5,6 +5,9 @@ import {
   formatPrice,
   highlightParts,
   shortDate,
+  dayList,
+  divisionsShort,
+  longDate,
   shortSchool,
   streetAndCity,
   splitLastWord,
@@ -85,5 +88,22 @@ describe('headline highlights', () => {
   it('splits the last word of a title', () => {
     expect(splitLastWord('Turkey Takedown')).toEqual(['Turkey ', 'Takedown']);
     expect(splitLastWord('Monster')).toEqual(['', 'Monster']);
+  });
+});
+
+describe('event page dates', () => {
+  it('lists each day', () => {
+    expect(dayList('2026-11-20', '2026-11-21')).toBe('Fri, Nov 20 and Sat, Nov 21');
+    expect(dayList('2026-10-17', '2026-10-17')).toBe('Sat, Oct 17');
+    expect(dayList('2026-10-17')).toBe('Sat, Oct 17');
+    expect(dayList('2026-11-20', '2026-11-22')).toBe('Fri, Nov 20 to Sun, Nov 22');
+  });
+  it('writes a long date with the full weekday', () => {
+    expect(longDate('2026-11-09')).toBe('Mon, Nov 9, 2026');
+    expect(longDate('2026-10-17', { fullWeekday: true })).toBe('Saturday, Oct 17, 2026');
+  });
+  it('shortens division ranges', () => {
+    expect(divisionsShort('U7 to U18')).toBe('U7-U18');
+    expect(divisionsShort('U10 Girls')).toBe('U10 Girls');
   });
 });

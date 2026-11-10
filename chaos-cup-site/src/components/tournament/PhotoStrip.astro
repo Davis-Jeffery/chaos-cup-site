@@ -1,0 +1,117 @@
+---
+/** Photo strip and the one-line SmugMug offer under it (upcoming tournament pages). */
+import SanityImage from '../SanityImage.astro';
+import AutoplayVideo from '../AutoplayVideo.astro';
+import type { Sponsor } from '../../lib/site';
+import type { Tournament } from '../../lib/tournaments';
+
+interface Props {
+  items?: Tournament['photoStrip'];
+  photoPartner?: Sponsor;
+}
+
+const { items = [], photoPartner } = Astro.props;
+const offer = photoPartner?.banner;
+const offerUrl = offer?.buttonUrl || photoPartner?.url;
+const showOffer = Boolean(offer?.stripText);
+---
+
+{
+  (items.length > 0 || showOffer) && (
+    <section class="strip-section">
+      <div class="wrap strip-inner">
+        {items.length > 0 && (
+          <ul class="strip" role="list">
+            {items.map((item) => (
+              <li>
+                {item._type === 'stripVideo' ? (
+                  <AutoplayVideo
+                    src={item.videoUrl}
+                    poster={item.poster}
+                    label={item.title}
+                    aspect={0.75}
+                    posterWidth={600}
+                    sizes="(min-width: 1000px) 280px, 50vw"
+                    class="strip-media"
+                  />
+                ) : (
+                  <SanityImage image={item} aspect={0.75} sizes="(min-width: 1000px) 280px, 50vw" maxWidth={800} class="strip-media" />
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {showOffer && (
+          <div class="offer">
+            <span class="offer-text">{offer!.stripText}</span>
+            {offerUrl && (
+              <a class="btn btn-sm offer-btn" href={offerUrl}>
+                {offer!.stripButtonLabel || offer!.buttonLabel || 'Learn more'}
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .strip-section {
+    padding: 0 0 112px;
+  }
+  .strip-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .strip {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+    gap: 14px;
+  }
+  .strip :global(.strip-media) {
+    width: 100%;
+    height: 360px;
+    object-fit: cover;
+    border-radius: 16px;
+    display: block;
+    background: var(--card);
+  }
+  @media (max-width: 559px) {
+    .strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .strip :global(.strip-media) {
+      height: 240px;
+    }
+  }
+  .offer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 28px;
+    border-radius: 18px;
+    background: var(--smugmug-panel);
+    color: var(--ink);
+  }
+  .offer-text {
+    font-weight: 800;
+    font-size: 18px;
+    flex: 1 1 320px;
+  }
+  .offer-btn {
+    background: var(--ink);
+    color: #ffffff;
+  }
+  .offer-btn:hover {
+    background: #22222e;
+    color: #ffffff;
+  }
+</style>

@@ -6,11 +6,12 @@
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const FULL_WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 function parts(date: string) {
   const [y, m, d] = date.split('-').map(Number);
   const weekday = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
-  return { y, m, d, month: MONTHS[m - 1], weekday: WEEKDAYS[weekday] };
+  return { y, m, d, month: MONTHS[m - 1], weekday: WEEKDAYS[weekday], fullWeekday: FULL_WEEKDAYS[weekday] };
 }
 
 /** "Nov 20-21, 2026", "Fri-Sat, Nov 20-21, 2026", "Dec 31, 2026-Jan 1, 2027". */
@@ -29,6 +30,28 @@ export function dateRange(
   if (a.y !== b.y) return `${days}${a.month} ${a.d}${yr(a)}-${b.month} ${b.d}${yr(b)}`;
   if (a.m !== b.m) return `${days}${a.month} ${a.d}-${b.month} ${b.d}${yr(b)}`;
   return `${days}${a.month} ${a.d}-${b.d}${yr(b)}`;
+}
+
+/** "Mon, Nov 9, 2026" or, with fullWeekday, "Monday, Nov 9, 2026". */
+export function longDate(date: string, { fullWeekday = false }: { fullWeekday?: boolean } = {}): string {
+  const p = parts(date);
+  return `${fullWeekday ? p.fullWeekday : p.weekday}, ${p.month} ${p.d}, ${p.y}`;
+}
+
+/** "Fri, Nov 20 and Sat, Nov 21", or "Fri, Nov 20 to Sun, Nov 22" for longer events. */
+export function dayList(start: string, end?: string): string {
+  const day = (date: string) => {
+    const p = parts(date);
+    return `${p.weekday}, ${p.month} ${p.d}`;
+  };
+  if (!end || end === start) return day(start);
+  const days = Math.round((Date.parse(`${end}T00:00:00Z`) - Date.parse(`${start}T00:00:00Z`)) / 86_400_000);
+  return `${day(start)} ${days === 1 ? 'and' : 'to'} ${day(end)}`;
+}
+
+/** "U7 to U18" -> "U7-U18" */
+export function divisionsShort(divisions: string): string {
+  return divisions.replace(/^(U\d+)\s+to\s+(U\d+)$/i, '$1-$2');
 }
 
 /** "Nov 9" */

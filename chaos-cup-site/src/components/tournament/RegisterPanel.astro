@@ -1,0 +1,296 @@
+---
+/**
+ * The side panel on tournament pages. Shows one of:
+ * - registration (price, register, solo signup, bundle) while registration is open
+ * - "Registration closed" after registrationCloseDate
+ * - "Live now" with division standings buttons on game day
+ * - nothing about registration when postponed or cancelled
+ * The "This event supports" block shows in every state.
+ */
+import SanityImage from '../SanityImage.astro';
+import { dayList, formatPrice, longDate, shortSchool } from '../../lib/format';
+import { currentPrice, isEarlyBird, isRegistrationOpen, type Status } from '../../lib/status';
+import { registerUrl, soloUrl, tournamentPath, type Tournament } from '../../lib/tournaments';
+
+interface Props {
+  tournament: Tournament;
+  status: Status;
+  now: Date;
+  defaultRegisterUrl: string;
+  defaultSoloUrl?: string;
+  bundleWith?: Tournament;
+}
+
+const { tournament: t, status, now, defaultRegisterUrl, defaultSoloUrl, bundleWith } = Astro.props;
+const live = status === 'live';
+const halted = status === 'postponed' || status === 'cancelled';
+const open = status === 'upcoming' && isRegistrationOpen(t, now);
+const earlyBird = isEarlyBird(t, now);
+const price = currentPrice(t, now);
+const regular = t.pricing?.regularPrice;
+const solo = soloUrl(t, defaultSoloUrl);
+const school = t.beneficiary?.schoolName;
+
+// Links the partner event's name inside the bundle note, like the design.
+const bundleNote = t.pricing?.bundleNote ?? '';
+const bundleSplit = bundleWith && bundleNote.includes(bundleWith.title) ? bundleNote.split(bundleWith.title) : undefined;
+---
+
+<aside class="panel reg" aria-label={live ? 'Live now' : 'Registration'}>
+  {
+    live && (
+      <>
+        <span class="eyebrow live">
+          <span class="live-dot" aria-hidden="true" />
+          Live now
+        </span>
+        <p class="reg-lead">Games are underway. Follow your division's schedule and standings on PlayMetrics.</p>
+        {(t.links?.divisionLinks?.length ?? 0) > 0 ? (
+          <ul class="standings" role="list">
+            {t.links!.divisionLinks!.map((d) => (
+              <li>
+                <a class="btn btn-event" href={d.url}>
+                  {d.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="reg-note">Schedules and standings are in the PlayMetrics app.</p>
+        )}
+        <a class="btn btn-ghost full" href="#checklist">
+          Game day checklist
+        </a>
+      </>
+    )
+  }
+
+  {
+    !live && !halted && (
+      <>
+        <span class="eyebrow" style="color: var(--event)">
+          {open ? 'Registration open' : 'Registration closed'}
+        </span>
+        {open && price != null && (
+          <div class="price">
+            <div class="price-row">
+              <span class="amount">{formatPrice(price)}</span>
+              {earlyBird && regular != null && (
+                <span class="was">
+                  <span class="visually-hidden">Regular price </span>
+                  {formatPrice(regular)}
+                </span>
+              )}
+            </div>
+            <span class="reg-note">
+              {earlyBird
+                ? `Per team, early bird price through ${longDate(t.pricing!.earlyBirdDeadline!)}.${regular != null ? ` ${formatPrice(regular)} after.` : ''}`
+                : 'Per team.'}
+            </span>
+          </div>
+        )}
+        {open ? (
+          <>
+            <a class="btn btn-event full big" href={registerUrl(t, defaultRegisterUrl)}>
+              Register Your Team
+            </a>
+            {solo && (
+              <a class="btn btn-ghost full" href={solo}>
+                No team? Register solo
+              </a>
+            )}
+          </>
+        ) : (
+          <p class="reg-lead">Registration for {t.title} is closed. See you on {dayList(t.startDate, t.endDate)}.</p>
+        )}
+        {open && bundleWith && t.pricing?.bundleSavings && (
+          <div class="bundle">
+            <SanityImage
+              image={bundleWith.logo}
+              maxWidth={480}
+              widths={[240, 480]}
+              sizes="240px"
+              class="bundle-logo"
+            />
+            <span style="font-weight: 800">Bundle and save {formatPrice(t.pricing.bundleSavings)}</span>
+            {bundleNote && (
+              <span class="bundle-note">
+                {bundleSplit ? (
+                  <>
+                    {bundleSplit[0]}
+                    <a href={tournamentPath(bundleWith)}>{bundleWith.title}</a>
+                    {bundleSplit.slice(1).join(bundleWith.title)}
+                  </>
+                ) : (
+                  bundleNote
+                )}
+              </span>
+            )}
+          </div>
+        )}
+      </>
+    )
+  }
+
+  {
+    t.beneficiary?.donateUrl && (
+      <>
+        {!halted && <div class="divider" />}
+        <div class="supports">
+          <span class="eyebrow" style="color: var(--blue); font-size: 12px">This event supports</span>
+          <SanityImage image={t.beneficiary.logo} maxWidth={280} widths={[140, 280]} sizes="140px" class="school-logo" />
+          {school && (
+            <span class="school">
+              {shortSchool(school, 'HS')} {t.beneficiary.programName}
+            </span>
+          )}
+          <span class="reg-note-sm">
+            {status === 'cancelled' ? 'You can still help fund their season.' : "Can't play? You can still help fund their season."}
+          </span>
+          <a class="btn btn-blue full" href={t.beneficiary.donateUrl}>
+            Donate{school ? ` to ${shortSchool(school)}` : ''}
+          </a>
+        </div>
+      </>
+    )
+  }
+</aside>
+
+<style>
+  .reg {
+    flex: 1 1 340px;
+    min-width: 0;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border-color: var(--event);
+    order: 2;
+  }
+  /* When the columns stack, registration comes first. */
+  @media (max-width: 939px) {
+    .reg {
+      order: 0;
+    }
+  }
+  .price {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .amount {
+    font-family: var(--font-display);
+    font-size: 44px;
+  }
+  .was {
+    color: var(--faint);
+    text-decoration: line-through;
+    font-size: 18px;
+  }
+  .reg-note {
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .reg-lead {
+    color: var(--muted);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .full {
+    width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+  .big {
+    min-height: 60px;
+    font-size: 18px;
+  }
+  .bundle {
+    padding: 16px;
+    border-radius: 14px;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .bundle :global(.bundle-logo) {
+    width: 100%;
+    max-width: 240px;
+    height: auto;
+    display: block;
+  }
+  .bundle-note {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .bundle-note a {
+    font-weight: 700;
+  }
+  .divider {
+    height: 1px;
+    background: var(--border);
+  }
+  .supports {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .supports :global(.school-logo) {
+    width: 140px;
+    height: auto;
+    display: block;
+  }
+  .school {
+    font-weight: 800;
+    font-size: 18px;
+  }
+  .reg-note-sm {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .standings {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .standings .btn {
+    width: 100%;
+  }
+  .live {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    align-self: flex-start;
+    background: var(--event);
+    color: var(--ink);
+    padding: 8px 14px;
+    border-radius: 999px;
+  }
+  .live-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--ink);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.35;
+      transform: scale(0.7);
+    }
+  }
+</style>
