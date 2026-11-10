@@ -12,7 +12,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "seed": "sanity exec scripts/seed.ts --with-user-token"
   },
   "dependencies": {
     "@astrojs/react": "^7.1.0",
@@ -30,8 +31,10 @@
     "styled-components": "^6.6.0"
   },
   "devDependencies": {
+    "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@vercel/blob": "^2.9.0",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0"
   }

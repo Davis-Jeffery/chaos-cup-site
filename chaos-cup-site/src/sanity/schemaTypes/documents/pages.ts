@@ -23,6 +23,21 @@ const titleText = (name: string, title: string) =>
 
 const seoField = defineField({ name: 'seo', title: 'SEO', type: 'seo', group: 'seo' });
 
+const photosField = (description?: string) =>
+  defineField({
+    name: 'photos',
+    title: 'Photos',
+    type: 'array',
+    description,
+    of: [
+      defineArrayMember({
+        type: 'image',
+        options: { hotspot: true },
+        fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (rule) => rule.required() })],
+      }),
+    ],
+  });
+
 // ---------- Rulebook ----------
 export const rulebookPage = defineType({
   name: 'rulebookPage',
@@ -105,7 +120,7 @@ export const homePage = defineType({
         ...sectionHeading,
         defineField({ name: 'body', title: 'Body', type: 'text', rows: 4 }),
         defineField({ name: 'points', title: 'Points', type: 'array', of: [defineArrayMember({ type: 'string' })] }),
-        imageField({ name: 'image', title: 'Image' }),
+        { ...photosField('The design shows 3: one large, two small.'), validation: (rule: any) => rule.max(3) },
       ],
     }),
 
@@ -280,6 +295,7 @@ export const developmentPage = defineType({
             }),
           ],
         }),
+        photosField('The photo strip under the cards.'),
       ],
     }),
 
