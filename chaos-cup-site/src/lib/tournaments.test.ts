@@ -78,6 +78,6 @@ describe('event page helpers', () => {
     expect(bundlePartner(list[2], list, at('2026-11-09'))?._id).toBe('turkey');
     // After Turkey Takedown there is nothing left to bundle with.
     expect(bundlePartner(list[2], list, at('2026-11-22'))).toBeUndefined();
-    expect(bundlePartner({ ...turkey, pricing: {} }, list, at('2026-11-09'))).toBeUndefined();
+    expect(bundlePartner({ ...turkey, pricing: { bundleSavings: 0 } }, list, at('2026-11-09'))).toBeUndefined();
   });
 });

@@ -1,0 +1,24 @@
+---
+/** A numbered run of rules. Each rule gets id="rule-<key>" so other pages and rules can link to it. */
+import { renderRuleBody, type RuleData } from '../../lib/rules';
+
+interface Props {
+  rules: RuleData[];
+  numbers: Map<string, string>;
+}
+
+const { rules, numbers } = Astro.props;
+---
+
+<ol class="rules" role="list">
+  {
+    rules.map((rule) => (
+      <li id={`rule-${rule._key}`}>
+        <span class="num">{numbers.get(rule._key)}</span>
+        <span>
+          <b>{rule.title.replace(/\.$/, '')}.</b> <Fragment set:html={renderRuleBody(rule.body, numbers)} />
+        </span>
+      </li>
+    ))
+  }
+</ol>

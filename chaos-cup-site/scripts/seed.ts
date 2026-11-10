@@ -123,6 +123,9 @@ type SectionSeed = {
   title: string;
   rules: RuleSeed[];
   groups?: { key: string; eyebrow: string; headline: string; intro: string; rules: string[]; diagramSet: string }[];
+  image?: { file: string; alt: string; caption: string };
+  callout?: { label: string; text: string };
+  button?: { label: string; url: string };
 };
 
 // {{key}} inside rule text becomes a cross reference to that rule, shown as "rule 4.2".
@@ -142,6 +145,15 @@ const ruleSections: SectionSeed[] = [
   {
     id: 'ruleSection-field',
     title: 'The Field',
+    image: {
+      file: 'kick3v3-field.webp',
+      alt: 'An inflatable 3v3 field: a rectangle of long inflatable tube walls with a gap at each end for the goals',
+      caption: 'One of our inflatable fields. Low tube walls surround the field, with an opening at each end where the goal sits.',
+    },
+    callout: {
+      label: 'Why the walls matter:',
+      text: 'the ball almost never stops, so players get far more touches, quicker decisions and more goals than in a normal game.',
+    },
     rules: [
       { key: 'inflatable-walls', title: 'Inflatable walls', text: 'Every game is played inside an inflatable walled field. The walls are part of the field, and the ball is live when it bounces off them.' },
       { key: 'stay-off-walls', title: 'Stay off the walls', text: 'No climbing, sitting, leaning or hanging on the walls at any time, for players or spectators.' },
@@ -178,7 +190,7 @@ const ruleSections: SectionSeed[] = [
         key: 'goal-zone-group',
         eyebrow: 'Goal Zone',
         headline: 'Nobody plays in the zone. Outside it, defend however you want.',
-        intro: 'Every goal has a marked zone in front of it. Refs don\'t judge intent or where a player "should" be. They only ask one question: is anyone playing inside the zone? Pressure, cover, balance and dropping back to protect the goal are all good soccer, as long as it happens outside the line.',
+        intro: 'Every goal has a marked zone in front of it. Refs don\'t judge intent or where a player "should" be. They only ask one question: *is anyone playing inside the zone?* Pressure, cover, balance and dropping back to protect the goal are all good soccer, as long as it happens outside the line.',
         rules: ['goal-zone', 'nobody-in-zone', 'zone-violations'],
         diagramSet: 'goalZone',
       },
@@ -202,7 +214,7 @@ const ruleSections: SectionSeed[] = [
         eyebrow: '3-Foul Rule',
         headline: 'Only after a team\'s 3rd foul',
         // Plain text field, so the "rule 4.2" here does not renumber itself.
-        intro: 'This special free kick from half happens only when a team reaches 3 fouls. Every other free kick is taken from the spot of the foul and is indirect, as in rule 4.2.',
+        intro: 'This special free kick from half happens *only* when a team reaches 3 fouls. Every other free kick is taken from the spot of the foul and is indirect, as in rule 4.2.',
         rules: ['three-foul-rule', 'three-foul-kick'],
         diagramSet: 'threeFoul',
       },
@@ -219,6 +231,7 @@ const ruleSections: SectionSeed[] = [
   {
     id: 'ruleSection-scoring',
     title: 'Scoring and Standings',
+    button: { label: 'Standings on PlayMetrics', url: 'https://playmetricssports.com/g/leagues/1327-2438-663366d5/league_view.html' },
     rules: [
       { key: 'points', title: 'Points', text: 'Win 3, tie 1, loss 0.' },
       { key: 'goal-differential-cap', title: 'Goal differential cap', text: 'Goal differential counts a maximum of +5 per game.' },
@@ -250,6 +263,10 @@ const ruleSections: SectionSeed[] = [
   {
     id: 'ruleSection-conduct',
     title: 'Conduct',
+    callout: {
+      label: 'The Chaos Cup way:',
+      text: 'creativity rewarded, bravery celebrated. Mistakes are part of the game. Encourage every player, on both teams.',
+    },
     rules: [
       { key: 'referees-final', title: 'Referees are final', text: 'All referee decisions are final. Only the team captain may ask a referee a question, calmly and between plays.' },
       { key: 'zero-tolerance', title: 'Zero tolerance', text: 'Abuse of referees, players, staff or spectators is not tolerated. Players, coaches or spectators may be removed from the event.' },
@@ -291,13 +308,18 @@ function ruleBody(ruleKey: string, text: string) {
   return [{ _key: `${ruleKey}-b0`, _type: 'block', style: 'normal', markDefs, children }];
 }
 
-function ruleSectionDocs() {
+async function ruleSectionDocs() {
   const seen = new Set<string>();
-  return ruleSections.map((section, index) => ({
+  const docs = [];
+  for (const [index, section] of ruleSections.entries()) {
+    docs.push({
     _id: section.id,
     _type: 'ruleSection',
     title: section.title,
     order: (index + 1) * 10,
+    ...(section.image ? { image: await img(section.image.file, section.image.alt, { caption: section.image.caption }) } : {}),
+    ...(section.callout ? { callout: section.callout } : {}),
+    ...(section.button ? { button: section.button } : {}),
     rules: section.rules.map((rule) => {
       if (seen.has(rule.key)) throw new Error(`Duplicate rule key "${rule.key}".`);
       seen.add(rule.key);
@@ -315,7 +337,9 @@ function ruleSectionDocs() {
       }),
       diagramSet: g.diagramSet,
     })),
-  }));
+    });
+  }
+  return docs;
 }
 
 // ---------- tournaments ----------
@@ -766,13 +790,10 @@ async function rulebookPageDoc() {
   return {
     _id: 'rulebookPage',
     _type: 'rulebookPage',
+    eyebrow: 'Official rules · Holiday Series 2026-27',
     title: 'Chaos Cup Rulebook',
     intro: 'Short version: play hard, play fair, have fun. The details below cover everything from rosters to tiebreakers so every team plays by the same rules.',
     // The design links the PDF to [RULEBOOK PDF LINK]. Upload it in the Studio when it exists.
-    fieldImage: await img(
-      'kick3v3-field.webp',
-      'An inflatable 3v3 field: a rectangle of long inflatable tube walls with a gap at each end for the goals',
-    ),
   };
 }
 
@@ -925,7 +946,7 @@ async function main() {
     pastEventsPageDoc(),
     ...(await sponsorDocs()),
     ...(await tournamentDocs(videos)),
-    ...ruleSectionDocs(),
+    ...(await ruleSectionDocs()),
   ];
 
   // Drafts of these documents would hide the seeded version in the Studio, so clear them.

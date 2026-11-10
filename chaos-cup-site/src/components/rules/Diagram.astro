@@ -1,0 +1,27 @@
+---
+/** Picks a coded diagram by the value editors choose in Sanity. */
+import WhereToStand from './diagrams/WhereToStand.astro';
+import KickIn from './diagrams/KickIn.astro';
+import FreeKicks from './diagrams/FreeKicks.astro';
+import NoOffside from './diagrams/NoOffside.astro';
+import GoalZone from './diagrams/GoalZone.astro';
+import ThreeFoul from './diagrams/ThreeFoul.astro';
+
+interface Props {
+  name?: string;
+}
+
+const { name } = Astro.props;
+const map: Record<string, any> = {
+  whereToStand: WhereToStand,
+  kickIn: KickIn,
+  freeKicks: FreeKicks,
+  noOffside: NoOffside,
+  goalZone: GoalZone,
+  threeFoul: ThreeFoul,
+  threeFoulKick: ThreeFoul,
+};
+const Component = name ? map[name] : undefined;
+---
+
+{Component && <Component />}

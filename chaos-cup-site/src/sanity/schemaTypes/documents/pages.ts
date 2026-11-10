@@ -54,10 +54,16 @@ export const rulebookPage = defineType({
     { name: 'seo', title: 'SEO' },
   ],
   fields: [
+    defineField({
+      name: 'eyebrow',
+      title: 'Eyebrow',
+      type: 'string',
+      group: 'content',
+      description: 'Small text above the title, like "Official rules · Holiday Series 2026-27".',
+    }),
     defineField({ name: 'title', title: 'Page title', type: 'string', group: 'content', validation: (rule) => rule.required() }),
     defineField({ name: 'intro', title: 'Intro', type: 'text', rows: 3, group: 'content' }),
     defineField({ name: 'pdf', title: 'Rulebook PDF', type: 'file', group: 'content', options: { accept: 'application/pdf' } }),
-    imageField({ name: 'fieldImage', title: 'Field image', group: 'content', description: 'Shown at the top of Section 02.' }),
     seoField,
   ],
   preview: { prepare: () => ({ title: 'Rulebook page' }) },

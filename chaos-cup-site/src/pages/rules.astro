@@ -1,0 +1,388 @@
+---
+/** Rulebook, from design-reference/Rulebook.dc.html. Numbers, ranges and cross references are generated. */
+import Layout from '../layouts/Layout.astro';
+import SanityImage from '../components/SanityImage.astro';
+import Diagram from '../components/rules/Diagram.astro';
+import RuleList from '../components/rules/RuleList.astro';
+import { sanityClient } from '../lib/sanity';
+import { getLayoutData, IMAGE } from '../lib/site';
+import { nowForRequest } from '../lib/status';
+import { dateRange } from '../lib/format';
+import { boldParts, groupRange, layoutSection, numberRules, sectionSlug, type RuleSectionData } from '../lib/rules';
+import { ALL_TOURNAMENTS_QUERY, canRegister, currentAndUpcoming, registerUrl, type Tournament } from '../lib/tournaments';
+
+const now = nowForRequest(Astro.url);
+const [data, { page, sections, tournaments }] = await Promise.all([
+  getLayoutData(),
+  sanityClient.fetch<{ page: any; sections: RuleSectionData[]; tournaments: Tournament[] }>(`{
+    "page": *[_id == "rulebookPage"][0]{ ..., "pdfUrl": pdf.asset->url, seo { ..., image ${IMAGE} } },
+    "sections": *[_type == "ruleSection" && !(_id in path("drafts.**"))]{ ..., image ${IMAGE} },
+    "tournaments": ${ALL_TOURNAMENTS_QUERY}
+  }`),
+]);
+
+const { ordered, numbers } = numberRules(sections ?? []);
+const pad = (n: number) => String(n).padStart(2, '0');
+const next = currentAndUpcoming(tournaments, now).find((t) => canRegister(t, now));
+---
+
+<Layout
+  data={data}
+  now={now}
+  title={page?.seo?.title || page?.title || 'Rulebook'}
+  description={page?.seo?.description || page?.intro}
+  ogImage={page?.seo?.image}
+>
+  <section class="rb-title">
+    <div class="wrap rb-title-row">
+      <div class="rb-title-text">
+        {page?.eyebrow && <span class="eyebrow" style="color: var(--magenta)">{page.eyebrow}</span>}
+        <h1>{page?.title || 'Chaos Cup Rulebook'}</h1>
+        {page?.intro && <p>{page.intro}</p>}
+      </div>
+      <div class="rb-title-actions">
+        <a class="btn btn-ghost btn-sm" href="/#rules">60-Second Version</a>
+        {page?.pdfUrl && <a class="btn btn-pink btn-sm" href={page.pdfUrl}>Download PDF</a>}
+      </div>
+    </div>
+  </section>
+
+  <section class="rb-body">
+    <div class="wrap rb-layout">
+      <nav class="toc" aria-label="Rulebook sections">
+        <span class="eyebrow toc-label">On this page</span>
+        {
+          ordered.map((s, i) => (
+            <a href={`#${sectionSlug(s.title)}`}>
+              <span>{pad(i + 1)}</span>
+              {s.title}
+            </a>
+          ))
+        }
+      </nav>
+
+      <div class="rb-sections">
+        {
+          ordered.map((s, i) => (
+            <div id={sectionSlug(s.title)} class="rsec">
+              <span class="eyebrow" style="color: var(--blue)">Section {pad(i + 1)}</span>
+              <h2>{s.title}</h2>
+              {s.image?.asset && (
+                <figure class="sec-figure">
+                  <SanityImage image={s.image} sizes="(min-width: 900px) 720px, 100vw" maxWidth={1440} class="sec-img" />
+                  {s.image.caption && <figcaption>{s.image.caption}</figcaption>}
+                </figure>
+              )}
+              {layoutSection(s).map((block) =>
+                block.kind === 'rules' ? (
+                  <RuleList rules={block.rules} numbers={numbers} />
+                ) : block.kind === 'diagram' ? (
+                  <Diagram name={block.diagram} />
+                ) : (
+                  <div id={block.group._key} class="rgroup">
+                    <div class="rgroup-head">
+                      <span class="eyebrow" style="color: var(--magenta)">
+                        {block.group.eyebrow}
+                        {block.group.eyebrow && ' · '}
+                        <span style="color: var(--text)">
+                          {groupRange(
+                            block.rules.map((r) => r._key),
+                            numbers,
+                          )}{' '}
+                          explained
+                        </span>
+                      </span>
+                      <h3>{block.group.headline}</h3>
+                      {block.group.intro && (
+                        <p>
+                          {boldParts(block.group.intro).map((p) =>
+                            p.bold ? <b style="color: var(--text)">{p.text}</b> : p.text,
+                          )}
+                        </p>
+                      )}
+                    </div>
+                    <RuleList rules={block.rules} numbers={numbers} />
+                    <Diagram name={block.group.diagramSet} />
+                  </div>
+                ),
+              )}
+              {s.callout?.text && (
+                <div class="callout">
+                  {s.callout.label && <b>{s.callout.label}</b>} {s.callout.text}
+                </div>
+              )}
+              {s.button?.label && s.button.url && (
+                <a class="btn btn-ghost btn-sm" style="align-self: flex-start" href={s.button.url}>
+                  {s.button.label}
+                </a>
+              )}
+            </div>
+          ))
+        }
+
+        {
+          next && (
+            <div class="rb-cta">
+              <div class="rb-cta-text">
+                <span class="rb-cta-headline">Got it? Let's play.</span>
+                <span style="font-weight: 600">
+                  {[next.title, dateRange(next.startDate, next.endDate, { year: false }), next.venue?.name].filter(Boolean).join(' · ')}
+                </span>
+              </div>
+              <a class="btn rb-cta-btn" href={registerUrl(next, data.settings.registerUrl)}>
+                Register Your Team
+              </a>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .rb-title {
+    padding: 72px 0 48px;
+    border-bottom: 1px solid var(--divider);
+  }
+  .rb-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .rb-title-text {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1 1 520px;
+    min-width: 0;
+  }
+  .rb-title-text h1 {
+    font-size: clamp(48px, 7vw, 88px);
+  }
+  .rb-title-text p {
+    font-size: 19px;
+    color: var(--muted);
+    line-height: 1.55;
+    max-width: 640px;
+  }
+  .rb-title-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .rb-body {
+    padding: 56px 0 112px;
+  }
+  .rb-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 48px;
+    align-items: flex-start;
+  }
+  .toc {
+    flex: 1 1 260px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px;
+    border-radius: 18px;
+    background: var(--raised);
+    border: 1px solid var(--divider);
+  }
+  @media (min-width: 1000px) {
+    .toc {
+      position: sticky;
+      top: 24px;
+    }
+  }
+  .toc-label {
+    color: var(--faint);
+    font-size: 11px;
+    padding: 10px 14px;
+  }
+  .toc a {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 10px;
+    color: #d9d8e4;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .toc a:hover {
+    background: #1a1a28;
+    color: var(--text);
+  }
+  .toc a span {
+    color: var(--blue);
+    font-weight: 800;
+    font-size: 13px;
+    width: 22px;
+    flex: none;
+  }
+
+  .rb-sections {
+    flex: 999 1 640px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+  }
+  .rsec {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    scroll-margin-top: 24px;
+  }
+  .rsec h2 {
+    font-size: 36px;
+  }
+  .sec-figure {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .sec-figure :global(.sec-img) {
+    width: 100%;
+    max-width: 720px;
+    height: auto;
+    display: block;
+    border-radius: 18px;
+  }
+  .sec-figure figcaption {
+    color: var(--faint);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Rule lists (also used inside group boxes and RuleList). */
+  .rb-sections :global(ol.rules) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .rb-sections :global(ol.rules li) {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 16px;
+    padding: 18px 0;
+    border-top: 1px solid #23233a;
+    line-height: 1.6;
+    font-size: 17px;
+    color: #d9d8e4;
+    scroll-margin-top: 24px;
+  }
+  .rb-sections :global(ol.rules li:target) {
+    background: rgba(46, 169, 246, 0.08);
+    box-shadow: -12px 0 0 rgba(46, 169, 246, 0.08), 12px 0 0 rgba(46, 169, 246, 0.08);
+  }
+  .rb-sections :global(ol.rules li b) {
+    color: var(--text);
+  }
+  .rb-sections :global(.num) {
+    font: 800 14px/1.9 var(--font-body);
+    color: var(--blue);
+    letter-spacing: 0.04em;
+  }
+  .rb-sections :global(.rule-p) {
+    display: block;
+    margin-top: 10px;
+  }
+  .rb-sections :global(.rule-list) {
+    margin: 10px 0 0;
+  }
+  .rb-sections :global(ol.rules a) {
+    font-weight: 700;
+  }
+  @media (max-width: 700px) {
+    .rb-sections :global(.rule-figs) {
+      margin-left: 0 !important;
+    }
+    .rb-sections :global(ol.rules li) {
+      grid-template-columns: 44px minmax(0, 1fr);
+      gap: 12px;
+    }
+  }
+
+  .rgroup {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 8px 0 12px;
+    padding: 28px;
+    border-radius: 24px;
+    background: var(--card);
+    border: 2px solid var(--magenta);
+    scroll-margin-top: 24px;
+  }
+  .rgroup-head {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .rgroup-head h3 {
+    font-size: 30px;
+  }
+  .rgroup-head p {
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  @media (max-width: 599px) {
+    .rgroup {
+      padding: 20px 16px;
+    }
+  }
+
+  .callout {
+    padding: 18px 20px;
+    border-radius: 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    line-height: 1.55;
+    color: #d9d8e4;
+  }
+  .callout b {
+    color: var(--magenta);
+  }
+
+  .rb-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 32px;
+    border-radius: 20px;
+    background: var(--magenta);
+    color: var(--ink);
+  }
+  .rb-cta-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .rb-cta-headline {
+    font-family: var(--font-display);
+    font-size: 28px;
+  }
+  .rb-cta-btn {
+    background: var(--ink);
+    color: var(--text);
+  }
+  .rb-cta-btn:hover {
+    background: #22222e;
+    color: var(--text);
+  }
+</style>
