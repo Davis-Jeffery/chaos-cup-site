@@ -6,6 +6,7 @@ import FreeKicks from './diagrams/FreeKicks.astro';
 import NoOffside from './diagrams/NoOffside.astro';
 import GoalZone from './diagrams/GoalZone.astro';
 import ThreeFoul from './diagrams/ThreeFoul.astro';
+import AfterGoal from './diagrams/AfterGoal.astro';
 
 interface Props {
   name?: string;
@@ -20,6 +21,7 @@ const map: Record<string, any> = {
   goalZone: GoalZone,
   threeFoul: ThreeFoul,
   threeFoulKick: ThreeFoul,
+  afterGoal: AfterGoal,
 };
 const Component = name ? map[name] : undefined;
 ---

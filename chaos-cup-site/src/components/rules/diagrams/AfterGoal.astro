@@ -1,0 +1,346 @@
+---
+/**
+ * Rule "After a goal: touch your end line", animated.
+ * One 12 second loop: White scores, all three White players run back and touch
+ * their own end line while Blue collects the ball and waits, then Blue restarts
+ * with an indirect kick (a pass to a teammate).
+ *
+ * Every piece is drawn at its starting spot and moved with CSS keyframes, all
+ * on the same 12s clock. With reduced motion the loop is paused on the restart
+ * frame, which shows the whole story with the dashed run lines; Play starts it.
+ * Controls are shared with the other animated diagrams (src/lib/diagramAnimation.ts).
+ */
+---
+
+<div class="rule-figs ag" data-anim>
+  <figure class="ag-fig">
+    <svg
+      role="img"
+      aria-label="Animation. White scores on the right goal. All three White players run back and touch their own end line on the left. Blue takes the ball out of the net and waits. Once every White player has touched, Blue restarts with an indirect kick to a teammate."
+      viewBox="0 0 400 240"
+      class="ag-svg"
+    >
+      <rect x="4" y="4" width="392" height="232" rx="18" fill="none" stroke="#2D5A44" stroke-width="6"></rect>
+      <line x1="200" y1="10" x2="200" y2="230" stroke="#4E7F66" stroke-width="2" stroke-dasharray="6 6"></line>
+      <path d="M388 74 A46 46 0 0 0 388 166 Z" fill="rgba(249,14,231,0.14)" stroke="#F90EE7" stroke-width="2" stroke-dasharray="7 5"></path>
+      <path d="M12 74 A46 46 0 0 1 12 166 Z" fill="rgba(249,14,231,0.14)" stroke="#F90EE7" stroke-width="2" stroke-dasharray="7 5"></path>
+      <rect x="388" y="98" width="8" height="44" fill="#F4F3F8"></rect>
+      <rect x="4" y="98" width="8" height="44" fill="#F4F3F8"></rect>
+
+      <g class="ag-scene">
+        <!-- White's own end line, lit up while they run back. -->
+        <line class="ag-endline" x1="10" y1="14" x2="10" y2="226" stroke="#F4F3F8" stroke-width="5" stroke-linecap="round"></line>
+        <text x="30" y="226" fill="#F4F3F8" font-family="Archivo, sans-serif" font-size="11" font-weight="700" class="ag-endline-label">White's end line</text>
+
+        <!-- Run lines (always faintly visible, so a paused frame still explains the play). -->
+        <g stroke="#F4F3F8" stroke-width="2" stroke-dasharray="4 5" fill="none" opacity="0.35">
+          <line x1="300" y1="112" x2="30" y2="120"></line>
+          <line x1="255" y1="60" x2="30" y2="56"></line>
+          <line x1="230" y1="180" x2="30" y2="184"></line>
+        </g>
+        <g stroke="#3CA8E4" stroke-width="2" stroke-dasharray="4 5" fill="none" opacity="0.45">
+          <polyline points="345,160 372,124 340,120"></polyline>
+        </g>
+
+        <!-- Touch rings: each appears when that White player reaches the line. -->
+        <circle class="ag-touch ag-touch-1" cx="22" cy="122" r="16" fill="none" stroke="#F5D90A" stroke-width="2.5"></circle>
+        <circle class="ag-touch ag-touch-2" cx="22" cy="55" r="16" fill="none" stroke="#F5D90A" stroke-width="2.5"></circle>
+        <circle class="ag-touch ag-touch-3" cx="22" cy="185" r="16" fill="none" stroke="#F5D90A" stroke-width="2.5"></circle>
+
+        <!-- Blue's indirect kick: a pass to a teammate. -->
+        <g class="ag-pass">
+          <line x1="332" y1="126" x2="306" y2="168" stroke="#3CA8E4" stroke-width="2.5" stroke-dasharray="5 4"></line>
+          <path d="M301 176 L302.6 163.8 L312 169.6 Z" fill="#3CA8E4"></path>
+        </g>
+
+        <!-- Players. White attacks the right goal; Blue defends it. -->
+        <circle class="ag-w1" cx="300" cy="112" r="10" fill="#F4F3F8" stroke="#0A0A12" stroke-width="2"></circle>
+        <circle class="ag-w2" cx="255" cy="60" r="10" fill="#F4F3F8" stroke="#0A0A12" stroke-width="2"></circle>
+        <circle class="ag-w3" cx="230" cy="180" r="10" fill="#F4F3F8" stroke="#0A0A12" stroke-width="2"></circle>
+        <circle class="ag-b1" cx="345" cy="160" r="10" fill="#3CA8E4" stroke="#0A0A12" stroke-width="2"></circle>
+        <circle class="ag-b2" cx="300" cy="195" r="10" fill="#3CA8E4" stroke="#0A0A12" stroke-width="2"></circle>
+        <circle cx="240" cy="96" r="10" fill="#3CA8E4" stroke="#0A0A12" stroke-width="2"></circle>
+
+        <circle class="ag-ball" cx="312" cy="112" r="5.5" fill="#F5D90A" stroke="#0A0A12" stroke-width="1.5"></circle>
+
+        <!-- Call-outs. -->
+        <text class="ag-goal" x="336" y="62" fill="#F5D90A" font-family="'Archivo Black', Archivo, sans-serif" font-size="26" text-anchor="middle">GOAL!</text>
+        <text class="ag-wait" x="340" y="98" fill="#3CA8E4" font-family="Archivo, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Blue waits</text>
+        <text class="ag-all" x="110" y="26" fill="#F5D90A" font-family="Archivo, sans-serif" font-size="12" font-weight="700" text-anchor="middle">All 3 touched</text>
+        <text class="ag-kick" x="300" y="226" fill="#3CA8E4" font-family="Archivo, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Indirect kick restart</text>
+      </g>
+    </svg>
+
+    <ol class="ag-steps" aria-hidden="true">
+      <li class="ag-step-1"><span>1</span>White scores</li>
+      <li class="ag-step-2"><span>2</span>White touches their end line</li>
+      <li class="ag-step-3"><span>3</span>Blue restarts</li>
+    </ol>
+
+    <figcaption>
+      <span class="ag-badge">After a goal</span>
+      <span class="ag-title">Touch your end line</span>
+      <span class="ag-text">White scores. All three White players run back and touch their own end line (the wall or their own goal counts). Blue takes the ball out of the net and waits. Once every White player has touched, Blue restarts with an indirect kick.</span>
+      <span class="ag-sum">Score, touch back, then restart. Restarting early or skipping the touch means any goal is disallowed.</span>
+      <button type="button" class="ag-toggle" data-anim-toggle>Pause animation</button>
+    </figcaption>
+  </figure>
+</div>
+
+<style>
+  .ag {
+    max-width: 560px;
+    margin: 4px 0 12px 80px;
+  }
+  .ag-fig {
+    margin: 0;
+    border: 2px solid #3ca8e4;
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #0f0f19;
+  }
+  .ag-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: #0e2a1c;
+    border-radius: 14px;
+  }
+  figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ag-badge {
+    display: inline-flex;
+    align-self: flex-start;
+    background: #3ca8e4;
+    color: #0a0a12;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+  .ag-title {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 20px;
+    color: #f4f3f8;
+  }
+  .ag-text {
+    color: #c9c8d8;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .ag-sum {
+    color: #3ca8e4;
+    font-weight: 800;
+    font-size: 14px;
+  }
+  .ag-toggle {
+    align-self: flex-start;
+    margin-top: 4px;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 999px;
+    border: 1px solid #3a3a4d;
+    background: transparent;
+    color: #f4f3f8;
+    font: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .ag-toggle:hover {
+    border-color: #f4f3f8;
+  }
+
+  /* Step tracker under the field, lit in time with the animation. */
+  .ag-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .ag-steps li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    border: 1px solid #262636;
+    color: #8f8ea3;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  .ag-steps span {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #262636;
+    color: #f4f3f8;
+    font-size: 12px;
+  }
+  @media (max-width: 480px) {
+    .ag-steps {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---- Animation: everything runs on one 12s clock. ---- */
+  .ag-svg *,
+  .ag-steps li {
+    animation-duration: 12s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    animation-play-state: paused;
+  }
+  .ag.is-running .ag-svg *,
+  .ag.is-running .ag-steps li {
+    animation-play-state: running;
+  }
+  /* Reduced motion: hold the restart frame until the visitor presses Play. */
+  .ag.is-still .ag-svg *,
+  .ag.is-still .ag-steps li {
+    animation-delay: -7.8s;
+  }
+
+  .ag-scene { animation-name: ag-scene; }
+  .ag-endline { animation-name: ag-endline; }
+  .ag-endline-label { animation-name: ag-endline; }
+  .ag-w1 { animation-name: ag-w1; }
+  .ag-w2 { animation-name: ag-w2; }
+  .ag-w3 { animation-name: ag-w3; }
+  .ag-b1 { animation-name: ag-b1; }
+  .ag-b2 { animation-name: ag-b2; }
+  .ag-ball { animation-name: ag-ball; }
+  .ag-touch-1 { animation-name: ag-touch-1; }
+  .ag-touch-2 { animation-name: ag-touch-2; }
+  .ag-touch-3 { animation-name: ag-touch-3; }
+  .ag-goal { animation-name: ag-goal; }
+  .ag-wait { animation-name: ag-wait; }
+  .ag-all { animation-name: ag-all; }
+  .ag-pass { animation-name: ag-pass; }
+  .ag-kick { animation-name: ag-pass; }
+  .ag-step-1 { animation-name: ag-step-1; }
+  .ag-step-2 { animation-name: ag-step-2; }
+  .ag-step-3 { animation-name: ag-step-3; }
+
+  /* Fade in, play, fade out, loop. */
+  @keyframes ag-scene {
+    0% { opacity: 0; }
+    3%, 93% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes ag-endline {
+    0%, 16% { opacity: 0.2; }
+    20%, 48% { opacity: 1; }
+    54%, 100% { opacity: 0.35; }
+  }
+
+  /* 1. White's shot goes in (1.0s to 1.8s). */
+  @keyframes ag-ball {
+    0%, 8% { transform: translate(0, 0); }
+    15%, 30% { transform: translate(70px, 10px); }
+    /* Blue carries it out to the restart spot. */
+    36% { transform: translate(52px, 10px); }
+    42%, 54% { transform: translate(20px, 9px); }
+    /* The indirect kick: a pass to a teammate. */
+    61%, 100% { transform: translate(-12px, 62px); }
+  }
+  @keyframes ag-goal {
+    0%, 14% { opacity: 0; transform: translateY(6px); }
+    17% { opacity: 1; transform: translateY(0); }
+    28% { opacity: 1; }
+    32%, 100% { opacity: 0; }
+  }
+
+  /* 2. All three White players run back to their own end line (2.2s to 5.4s). */
+  @keyframes ag-w1 {
+    0%, 18% { transform: translate(0, 0); }
+    45%, 100% { transform: translate(-278px, 10px); }
+  }
+  @keyframes ag-w2 {
+    0%, 17% { transform: translate(0, 0); }
+    38%, 100% { transform: translate(-233px, -5px); }
+  }
+  @keyframes ag-w3 {
+    0%, 19% { transform: translate(0, 0); }
+    42%, 100% { transform: translate(-208px, 5px); }
+  }
+  @keyframes ag-touch-2 {
+    0%, 37% { opacity: 0; }
+    39%, 92% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes ag-touch-3 {
+    0%, 41% { opacity: 0; }
+    43%, 92% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes ag-touch-1 {
+    0%, 44% { opacity: 0; }
+    46%, 92% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes ag-all {
+    0%, 46% { opacity: 0; }
+    49%, 92% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* Blue gets the ball out of the net and waits at the restart spot. */
+  @keyframes ag-b1 {
+    0%, 18% { transform: translate(0, 0); }
+    30% { transform: translate(27px, -36px); }
+    42%, 100% { transform: translate(-5px, -40px); }
+  }
+  @keyframes ag-wait {
+    0%, 41% { opacity: 0; }
+    43%, 51% { opacity: 1; }
+    54%, 100% { opacity: 0; }
+  }
+
+  /* 3. Everyone has touched: Blue restarts with an indirect kick (6.5s). */
+  @keyframes ag-b2 {
+    0%, 40% { transform: translate(0, 0); }
+    52%, 100% { transform: translate(-5px, -15px); }
+  }
+  @keyframes ag-pass {
+    0%, 52% { opacity: 0; }
+    55%, 92% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* Step tracker. */
+  @keyframes ag-step-1 {
+    0%, 16% { color: #f4f3f8; border-color: #f5d90a; }
+    18%, 100% { color: #8f8ea3; border-color: #262636; }
+  }
+  @keyframes ag-step-2 {
+    0%, 16% { color: #8f8ea3; border-color: #262636; }
+    18%, 48% { color: #f4f3f8; border-color: #f5d90a; }
+    51%, 100% { color: #8f8ea3; border-color: #262636; }
+  }
+  @keyframes ag-step-3 {
+    0%, 48% { color: #8f8ea3; border-color: #262636; }
+    51%, 93% { color: #f4f3f8; border-color: #3ca8e4; }
+    100% { color: #8f8ea3; border-color: #262636; }
+  }
+</style>
+
+<script>
+  import { setupAnimatedDiagrams } from '../../../lib/diagramAnimation';
+  setupAnimatedDiagrams();
+</script>

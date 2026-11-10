@@ -6,8 +6,7 @@
  * - Primary sponsors with a dark tile get the full-width feature card
  *   ("Title sponsor · Turkey Takedown").
  * - Primary sponsors with a light tile (SmugMug, whose only logo is black)
- *   join the end of the logo grid with their designation under the logo,
- *   exactly as the design shows.
+ *   lead the logo grid with their designation under the logo.
  * - Secondary sponsors fill the logo grid in display order.
  *
  * Logos are shown exactly as uploaded: never recolored or filtered.
@@ -27,8 +26,8 @@ const sponsors = activeSponsors(data.sponsors, now);
 
 const featured = sponsors.filter((s) => s.tier === 'primary' && s.tileStyle !== 'light');
 const grid = [
-  ...sponsors.filter((s) => s.tier !== 'primary'),
   ...sponsors.filter((s) => s.tier === 'primary' && s.tileStyle === 'light'),
+  ...sponsors.filter((s) => s.tier !== 'primary'),
 ];
 
 const href = (s: Sponsor) => (s.linkEnabled !== false && s.url ? s.url : undefined);

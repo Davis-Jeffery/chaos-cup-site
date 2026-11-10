@@ -12,6 +12,7 @@ export const diagramOptions = [
   { title: 'Free kicks', value: 'freeKicks' },
   { title: 'No offside', value: 'noOffside' },
   { title: '3-foul kick', value: 'threeFoulKick' },
+  { title: 'After a goal (animated)', value: 'afterGoal' },
 ];
 
 const ruleBody = defineField({
