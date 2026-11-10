@@ -11,16 +11,17 @@ import RegisterPanel from '../../components/tournament/RegisterPanel.astro';
 import EventDetails from '../../components/tournament/EventDetails.astro';
 import PhotoStrip from '../../components/tournament/PhotoStrip.astro';
 import Recap from '../../components/tournament/Recap.astro';
-import { sanityClient } from '../../lib/sanity';
+import { sanityFetch } from '../../lib/sanity';
 import { activeSponsors, getLayoutData } from '../../lib/site';
 import { getStatus, nowForRequest } from '../../lib/status';
 import { dateRange } from '../../lib/format';
 import { ALL_TOURNAMENTS_QUERY, bundlePartner, currentAndUpcoming, type Tournament } from '../../lib/tournaments';
 
 const { slug } = Astro.params;
-const now = nowForRequest(Astro.url);
+const preview = Astro.locals.preview;
+const now = nowForRequest(Astro.url, { preview });
 
-const [data, tournaments] = await Promise.all([getLayoutData(), sanityClient.fetch<Tournament[]>(ALL_TOURNAMENTS_QUERY)]);
+const [data, tournaments] = await Promise.all([getLayoutData(preview), sanityFetch<Tournament[]>(ALL_TOURNAMENTS_QUERY, { preview })]);
 const t = tournaments.find((x) => x.slug === slug);
 if (!t) return Astro.rewrite('/404');
 

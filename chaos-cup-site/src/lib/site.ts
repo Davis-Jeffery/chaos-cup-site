@@ -2,7 +2,7 @@
  * Data every page needs for the shared layout: site settings, sponsors and
  * the slim tournament list the sponsors card uses.
  */
-import { sanityClient } from './sanity';
+import { sanityFetch } from './sanity';
 import { denverDate, getStatus, type TournamentDates } from './status';
 
 // Image projection with the metadata SanityImage uses for width and height.
@@ -82,8 +82,8 @@ const LAYOUT_QUERY = `{
   }
 }`;
 
-export async function getLayoutData(): Promise<LayoutData> {
-  const data = await sanityClient.fetch<LayoutData>(LAYOUT_QUERY);
+export async function getLayoutData(preview = false): Promise<LayoutData> {
+  const data = await sanityFetch<LayoutData>(LAYOUT_QUERY, { preview });
   return { settings: data.settings, sponsors: data.sponsors ?? [], tournaments: data.tournaments ?? [] };
 }
 

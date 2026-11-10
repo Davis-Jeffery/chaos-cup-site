@@ -9,6 +9,8 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Sponsors from '../components/Sponsors.astro';
+import { VisualEditing } from '@sanity/astro/visual-editing';
+import { stegaClean } from '@sanity/client/stega';
 import { urlFor } from '../lib/sanity';
 import type { LayoutData } from '../lib/site';
 
@@ -30,9 +32,13 @@ const { data, now, title, description, ogImage, footer = 'compact', hideSponsors
   Astro.props;
 const { settings } = data;
 
+const preview = Astro.locals.preview;
 const siteName = 'Chaos Cup';
-const fullTitle = !title ? (settings.seoTitle ?? siteName) : title.includes(siteName) ? title : `${title} | ${siteName}`;
-const metaDescription = description ?? settings.seoDescription;
+// Preview text carries invisible click-to-edit markers; keep them out of <head>.
+const cleanTitle = stegaClean(title);
+const seoTitle = stegaClean(settings.seoTitle);
+const fullTitle = !cleanTitle ? (seoTitle ?? siteName) : cleanTitle.includes(siteName) ? cleanTitle : `${cleanTitle} | ${siteName}`;
+const metaDescription = stegaClean(description ?? settings.seoDescription);
 const shareImage = ogImage?.asset ? ogImage : settings.seoImage;
 const shareImageUrl = shareImage?.asset ? urlFor(shareImage).width(1200).height(630).fit('crop').url() : undefined;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
@@ -66,6 +72,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800&display=swap"
     />
+    {preview && <meta name="robots" content="noindex" />}
     <slot name="head" />
   </head>
   <body>
@@ -78,5 +85,49 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
       <slot name="after-sponsors" />
     </main>
     <Footer settings={settings} variant={footer} />
+    {
+      preview && (
+        <div class="preview-bar" data-preview-bar>
+          <span class="preview-dot" aria-hidden="true" />
+          <span>Preview: showing drafts</span>
+          <a href={`/api/draft-mode/disable?redirect=${encodeURIComponent(Astro.url.pathname + Astro.url.search)}`}>Exit preview</a>
+        </div>
+      )
+    }
+    <VisualEditing enabled={preview} zIndex={1000} />
   </body>
 </html>
+
+<style>
+  .preview-bar {
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: var(--text);
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+  }
+  .preview-bar a {
+    color: var(--ink);
+    font-weight: 800;
+  }
+  .preview-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--magenta);
+  }
+</style>
+
+<script>
+  // Inside the Studio's Presentation tool the Studio shows its own controls.
+  if (window.self !== window.top) document.querySelector('[data-preview-bar]')?.remove();
+</script>

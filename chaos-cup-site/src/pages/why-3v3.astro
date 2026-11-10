@@ -4,17 +4,18 @@ import Layout from '../layouts/Layout.astro';
 import SanityImage from '../components/SanityImage.astro';
 import Highlight from '../components/Highlight.astro';
 import BenefitIcon from '../components/BenefitIcon.astro';
-import { sanityClient } from '../lib/sanity';
+import { sanityFetch } from '../lib/sanity';
 import { getLayoutData, IMAGE } from '../lib/site';
 import { nowForRequest } from '../lib/status';
 import { stripHighlights } from '../lib/format';
 import { barWidth, formatChartValue } from '../lib/charts';
 import { ALL_TOURNAMENTS_QUERY, canRegister, currentAndUpcoming, registerUrl, type Tournament } from '../lib/tournaments';
 
-const now = nowForRequest(Astro.url);
+const preview = Astro.locals.preview;
+const now = nowForRequest(Astro.url, { preview });
 const [data, { page, tournaments }] = await Promise.all([
-  getLayoutData(),
-  sanityClient.fetch<{ page: any; tournaments: Tournament[] }>(`{
+  getLayoutData(preview),
+  sanityFetch<{ page: any; tournaments: Tournament[] }>(`{
     "page": *[_id == "developmentPage"][0]{
       ...,
       hero { ..., image ${IMAGE} },
@@ -23,7 +24,7 @@ const [data, { page, tournaments }] = await Promise.all([
       seo { ..., image ${IMAGE} }
     },
     "tournaments": ${ALL_TOURNAMENTS_QUERY}
-  }`),
+  }`, { preview }),
 ]);
 const p = page ?? {};
 const next = currentAndUpcoming(tournaments, now).find((t) => canRegister(t, now));

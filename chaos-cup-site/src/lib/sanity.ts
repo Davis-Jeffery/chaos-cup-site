@@ -1,5 +1,7 @@
 import { sanityClient } from 'sanity:client';
 import imageUrlBuilder from '@sanity/image-url';
+import { serverEnv } from './env';
+import { STEGA_FIELDS, stegaFilterKey } from './preview-cookie';
 
 export { sanityClient };
 
@@ -34,4 +36,29 @@ export function imageSet(
     src: build(list[list.length - 1]),
     srcset: list.map((w) => `${build(w)} ${w}w`).join(', '),
   };
+}
+
+/**
+ * Every page query goes through here. In preview mode it reads drafts with the
+ * server-only token, skips the CDN and adds click-to-edit markers to display
+ * text. Otherwise it reads published content from the CDN.
+ */
+export function sanityFetch<T>(query: string, { preview = false, params = {} }: { preview?: boolean; params?: Record<string, unknown> } = {}) {
+  if (!preview) return sanityClient.fetch<T>(query, params);
+  const token = serverEnv('SANITY_API_READ_TOKEN');
+  if (!token) throw new Error('SANITY_API_READ_TOKEN is required for preview mode.');
+  return sanityClient.fetch<T>(query, params, {
+    perspective: 'drafts',
+    token,
+    useCdn: false,
+    resultSourceMap: 'withKeyArraySelector',
+    stega: {
+      enabled: true,
+      studioUrl: '/studio',
+      filter: (props) => {
+        const key = stegaFilterKey(props.sourcePath as unknown[]);
+        return Boolean(key && STEGA_FIELDS.has(key) && props.filterDefault(props));
+      },
+    },
+  });
 }

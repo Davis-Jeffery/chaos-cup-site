@@ -7,7 +7,7 @@ import SponsorBanner from '../components/SponsorBanner.astro';
 import SanityImage from '../components/SanityImage.astro';
 import AutoplayVideo from '../components/AutoplayVideo.astro';
 import Highlight from '../components/Highlight.astro';
-import { sanityClient } from '../lib/sanity';
+import { sanityFetch } from '../lib/sanity';
 import { activeSponsors, getLayoutData, IMAGE } from '../lib/site';
 import { nowForRequest } from '../lib/status';
 import { cityFromAddress, dateRange } from '../lib/format';
@@ -23,11 +23,12 @@ import {
   type Tournament,
 } from '../lib/tournaments';
 
-const now = nowForRequest(Astro.url);
+const preview = Astro.locals.preview;
+const now = nowForRequest(Astro.url, { preview });
 
 const [data, { home, tournaments }] = await Promise.all([
-  getLayoutData(),
-  sanityClient.fetch<{ home: any; tournaments: Tournament[] }>(`{
+  getLayoutData(preview),
+  sanityFetch<{ home: any; tournaments: Tournament[] }>(`{
     "home": *[_id == "homePage"][0]{
       ...,
       whatIs { ..., photos[] ${IMAGE} },
@@ -35,7 +36,7 @@ const [data, { home, tournaments }] = await Promise.all([
       seo { ..., image ${IMAGE} }
     },
     "tournaments": ${ALL_TOURNAMENTS_QUERY}
-  }`),
+  }`, { preview }),
 ]);
 const { settings } = data;
 const h = home ?? {};

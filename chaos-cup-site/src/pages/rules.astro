@@ -4,21 +4,22 @@ import Layout from '../layouts/Layout.astro';
 import SanityImage from '../components/SanityImage.astro';
 import Diagram from '../components/rules/Diagram.astro';
 import RuleList from '../components/rules/RuleList.astro';
-import { sanityClient } from '../lib/sanity';
+import { sanityFetch } from '../lib/sanity';
 import { getLayoutData, IMAGE } from '../lib/site';
 import { nowForRequest } from '../lib/status';
 import { dateRange } from '../lib/format';
 import { boldParts, groupRange, layoutSection, numberRules, sectionSlug, type RuleSectionData } from '../lib/rules';
 import { ALL_TOURNAMENTS_QUERY, canRegister, currentAndUpcoming, registerUrl, type Tournament } from '../lib/tournaments';
 
-const now = nowForRequest(Astro.url);
+const preview = Astro.locals.preview;
+const now = nowForRequest(Astro.url, { preview });
 const [data, { page, sections, tournaments }] = await Promise.all([
-  getLayoutData(),
-  sanityClient.fetch<{ page: any; sections: RuleSectionData[]; tournaments: Tournament[] }>(`{
+  getLayoutData(preview),
+  sanityFetch<{ page: any; sections: RuleSectionData[]; tournaments: Tournament[] }>(`{
     "page": *[_id == "rulebookPage"][0]{ ..., "pdfUrl": pdf.asset->url, seo { ..., image ${IMAGE} } },
     "sections": *[_type == "ruleSection" && !(_id in path("drafts.**"))]{ ..., image ${IMAGE} },
     "tournaments": ${ALL_TOURNAMENTS_QUERY}
-  }`),
+  }`, { preview }),
 ]);
 
 const { ordered, numbers } = numberRules(sections ?? []);

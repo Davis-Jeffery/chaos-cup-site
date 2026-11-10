@@ -4,8 +4,9 @@ import { getLayoutData } from '../lib/site';
 import { nowForRequest } from '../lib/status';
 
 Astro.response.status = 404;
-const now = nowForRequest(Astro.url);
-const data = await getLayoutData();
+const preview = Astro.locals.preview;
+const now = nowForRequest(Astro.url, { preview });
+const data = await getLayoutData(preview);
 ---
 
 <Layout data={data} now={now} title="Page not found" hideSponsors>

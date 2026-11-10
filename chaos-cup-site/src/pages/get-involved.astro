@@ -6,23 +6,24 @@
 import Layout from '../layouts/Layout.astro';
 import SanityImage from '../components/SanityImage.astro';
 import Highlight from '../components/Highlight.astro';
-import { sanityClient, imageSet } from '../lib/sanity';
+import { sanityFetch, imageSet } from '../lib/sanity';
 import { getLayoutData, IMAGE } from '../lib/site';
 import { nowForRequest } from '../lib/status';
 import { stripHighlights } from '../lib/format';
 import { videoSource } from '../lib/video';
 
-const now = nowForRequest(Astro.url);
+const preview = Astro.locals.preview;
+const now = nowForRequest(Astro.url, { preview });
 const [data, page] = await Promise.all([
-  getLayoutData(),
-  sanityClient.fetch<any>(`*[_id == "getInvolvedPage"][0]{
+  getLayoutData(preview),
+  sanityFetch<any>(`*[_id == "getInvolvedPage"][0]{
     ...,
     hero { ..., image ${IMAGE} },
     video { ..., poster ${IMAGE} },
     schools { ..., image ${IMAGE} },
     partners { ..., image ${IMAGE} },
     seo { ..., image ${IMAGE} }
-  }`),
+  }`, { preview }),
 ]);
 const p = page ?? {};
 const video = videoSource(p.video?.videoUrl);
