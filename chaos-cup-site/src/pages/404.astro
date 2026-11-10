@@ -9,7 +9,7 @@ const now = nowForRequest(Astro.url, { preview });
 const data = await getLayoutData(preview);
 ---
 
-<Layout data={data} now={now} title="Page not found" hideSponsors>
+<Layout data={data} now={now} title="Page not found" hideSponsors noindex>
   <section style="padding: 128px 0">
     <div class="wrap" style="display: flex; flex-direction: column; align-items: flex-start; gap: 24px">
       <span class="eyebrow" style="color: var(--magenta)">404</span>

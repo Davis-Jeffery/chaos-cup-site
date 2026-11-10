@@ -8,7 +8,7 @@ export { sanityClient };
 const builder = imageUrlBuilder(sanityClient);
 
 /** Image URL builder. Always serves WebP/AVIF when the browser supports it. */
-export const urlFor = (source: any) => builder.image(source).auto('format');
+export const urlFor = (source: any) => builder.image(source).auto('format').quality(75);
 
 export const DEFAULT_WIDTHS = [320, 480, 640, 800, 1080, 1280, 1600, 1920];
 

@@ -1,0 +1,212 @@
+---
+/** Contact: one email address (from Site settings) plus quick answers that point to the right page. */
+import Layout from '../layouts/Layout.astro';
+import Highlight from '../components/Highlight.astro';
+import { sanityFetch } from '../lib/sanity';
+import { getLayoutData, IMAGE } from '../lib/site';
+import { nowForRequest } from '../lib/status';
+import { stegaClean } from '@sanity/client/stega';
+
+const preview = Astro.locals.preview;
+const now = nowForRequest(Astro.url, { preview });
+const [data, page] = await Promise.all([
+  getLayoutData(preview),
+  sanityFetch<any>(`*[_id == "contactPage"][0]{ ..., seo { ..., image ${IMAGE} } }`, { preview }),
+]);
+const p = page ?? {};
+const email = stegaClean(data.settings.contactEmail);
+const instagram = data.settings.instagramUrl;
+const handle = instagram?.match(/instagram\.com\/([^/?#]+)/)?.[1];
+---
+
+<Layout
+  data={data}
+  now={now}
+  title={p.seo?.title || 'Contact'}
+  description={p.seo?.description || p.intro}
+  ogImage={p.seo?.image}
+>
+  <section class="contact">
+    <div class="wrap contact-layout">
+      <div class="contact-text">
+        {p.eyebrow && <span class="eyebrow" style="color: var(--magenta)">{p.eyebrow}</span>}
+        <h1><Highlight text={p.headline || "Let's *talk.*"} /></h1>
+        {p.intro && <p class="intro">{p.intro}</p>}
+      </div>
+
+      <div class="email-card">
+        <span class="email-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="5" width="18" height="14" rx="2.5" />
+            <path d="M4 7l8 6 8-6" />
+          </svg>
+        </span>
+        <span class="eyebrow" style="color: var(--faint)">Email us</span>
+        {
+          email ? (
+            <>
+              <a class="email" href={`mailto:${email}`}>
+                {/* Long addresses wrap after the @, never mid-word. */}
+                {email.split('@')[0]}@<wbr />
+                {email.split('@').slice(1).join('@')}
+              </a>
+              <a class="btn btn-pink" href={`mailto:${email}`}>
+                Send an Email
+              </a>
+            </>
+          ) : (
+            <span class="email">Add a contact email in Site settings.</span>
+          )
+        }
+        {p.emailNote && <span class="email-note">{p.emailNote}</span>}
+        {
+          instagram && (
+            <span class="email-note">
+              Or message us on Instagram <a href={instagram}>{handle ? `@${handle}` : 'Instagram'}</a>
+            </span>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  {
+    (p.topics?.length ?? 0) > 0 && (
+      <section class="topics-sec">
+        <div class="wrap topics-inner">
+          <h2>Quick answers</h2>
+          <ul class="topics" role="list">
+            {p.topics.map((t: any) => (
+              <li class="topic">
+                <h3>{t.title}</h3>
+                {t.text && <p>{t.text}</p>}
+                {t.linkLabel && t.linkPath && (
+                  <a class="topic-link" href={stegaClean(t.linkPath)}>
+                    {t.linkLabel}
+                    <span aria-hidden="true"> &rarr;</span>
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+</Layout>
+
+<style>
+  .contact {
+    padding: 96px 0 72px;
+  }
+  .contact-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px 64px;
+    align-items: center;
+  }
+  .contact-text {
+    flex: 1 1 460px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .contact-text h1 {
+    font-size: clamp(56px, 9vw, 120px);
+  }
+  .intro {
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--muted);
+    max-width: 560px;
+  }
+  .email-card {
+    flex: 1 1 380px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 36px;
+    border-radius: 28px;
+    background: var(--card);
+    border: 2px solid var(--magenta);
+  }
+  .email-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: var(--magenta);
+  }
+  .email {
+    font-family: var(--font-display);
+    font-size: clamp(20px, 2.4vw, 28px);
+    line-height: 1.2;
+    color: var(--text);
+    text-decoration: none;
+    overflow-wrap: break-word;
+  }
+  a.email:hover {
+    color: var(--magenta);
+  }
+  .email-note {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .email-note a {
+    font-weight: 700;
+  }
+  @media (max-width: 599px) {
+    .email-card {
+      padding: 24px;
+    }
+  }
+
+  .topics-sec {
+    padding: 72px 0 112px;
+    background: var(--raised);
+    border-top: 1px solid var(--divider);
+  }
+  .topics-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .topics-inner h2 {
+    font-size: clamp(32px, 4vw, 48px);
+  }
+  .topics {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+    gap: 16px;
+  }
+  .topic {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .topic h3 {
+    font-size: 21px;
+  }
+  .topic p {
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .topic-link {
+    margin-top: auto;
+    font-weight: 800;
+    text-decoration: none;
+  }
+</style>

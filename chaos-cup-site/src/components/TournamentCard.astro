@@ -102,7 +102,7 @@ const school = t.beneficiary?.schoolName;
       )}
       {/* The main button already goes to the details page when registration is closed or the event is live. */}
       {open && (
-        <a class="btn t-details" href={tournamentPath(t)} aria-label={`${t.title} details`}>
+        <a class="btn t-details" href={tournamentPath(t)} aria-label={`Details: ${t.title}`}>
           Details
         </a>
       )}

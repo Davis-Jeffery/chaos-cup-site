@@ -3,6 +3,7 @@ import { HomeIcon } from '@sanity/icons/Home';
 import { ArchiveIcon } from '@sanity/icons/Archive';
 import { BarChartIcon } from '@sanity/icons/BarChart';
 import { UsersIcon } from '@sanity/icons/Users';
+import { EnvelopeIcon } from '@sanity/icons/Envelope';
 import { defineArrayMember, defineField, defineType } from 'sanity';
 import { imageField } from '../../lib/fields';
 
@@ -540,4 +541,43 @@ export const getInvolvedPage = defineType({
     seoField,
   ],
   preview: { prepare: () => ({ title: 'Get involved page' }) },
+});
+
+export const contactPage = defineType({
+  name: 'contactPage',
+  title: 'Contact page',
+  type: 'document',
+  icon: EnvelopeIcon,
+  description: 'The email address itself is set once in Site settings > Footer and contact.',
+  groups: [
+    { name: 'content', title: 'Content', default: true },
+    { name: 'seo', title: 'SEO' },
+  ],
+  fields: [
+    ...sectionHeading.map((f) => ({ ...f, group: 'content' })),
+    defineField({ name: 'intro', title: 'Intro', type: 'text', rows: 3, group: 'content' }),
+    defineField({ name: 'emailNote', title: 'Note under the email', type: 'string', group: 'content', description: 'For example "We usually reply within two business days."' }),
+    defineField({
+      name: 'topics',
+      title: 'Quick answers',
+      type: 'array',
+      group: 'content',
+      description: 'Cards that point people to the right page before they email.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'contactTopic',
+          fields: [
+            defineField({ name: 'title', title: 'Title', type: 'string', validation: (rule) => rule.required() }),
+            defineField({ name: 'text', title: 'Text', type: 'text', rows: 2 }),
+            defineField({ name: 'linkLabel', title: 'Link label', type: 'string' }),
+            defineField({ name: 'linkPath', title: 'Link', type: 'string', description: 'A page path like /rules or a full web address.' }),
+          ],
+          preview: { select: { title: 'title', subtitle: 'linkPath' } },
+        }),
+      ],
+    }),
+    seoField,
+  ],
+  preview: { prepare: () => ({ title: 'Contact page' }) },
 });

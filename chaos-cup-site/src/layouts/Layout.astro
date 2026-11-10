@@ -26,12 +26,15 @@ interface Props {
   /** Hide the sponsors section (it shows on every page by default). */
   hideSponsors?: boolean;
   currentTournamentId?: string;
+  /** Keep this page out of search results. */
+  noindex?: boolean;
 }
 
-const { data, now, title, description, ogImage, footer = 'compact', hideSponsors = false, currentTournamentId } =
+const { data, now, title, description, ogImage, footer = 'compact', hideSponsors = false, currentTournamentId, noindex = false } =
   Astro.props;
 const { settings } = data;
 
+const FONTS = 'https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800&display=swap';
 const preview = Astro.locals.preview;
 const siteName = 'Chaos Cup';
 // Preview text carries invisible click-to-edit markers; keep them out of <head>.
@@ -41,7 +44,9 @@ const fullTitle = !cleanTitle ? (seoTitle ?? siteName) : cleanTitle.includes(sit
 const metaDescription = stegaClean(description ?? settings.seoDescription);
 const shareImage = ogImage?.asset ? ogImage : settings.seoImage;
 const shareImageUrl = shareImage?.asset ? urlFor(shareImage).width(1200).height(630).fit('crop').url() : undefined;
-const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
+// One address per page: no trailing slash, no query string.
+const canonicalPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const canonical = new URL(canonicalPath, Astro.site ?? Astro.url).href;
 ---
 
 <!doctype html>
@@ -54,6 +59,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
     {metaDescription && <meta name="description" content={metaDescription} />}
     <link rel="canonical" href={canonical} />
     <meta name="theme-color" content="#0A0A12" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap.xml" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={siteName} />
@@ -68,11 +77,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://cdn.sanity.io" />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800&display=swap"
-    />
-    {preview && <meta name="robots" content="noindex" />}
+    {/* Fonts load without blocking the first paint; text shows in the fallback font for a moment. */}
+    <link rel="preload" as="style" href={FONTS} />
+    <link rel="stylesheet" href={FONTS} media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href={FONTS} /></noscript>
+    {(preview || noindex) && <meta name="robots" content="noindex" />}
     <slot name="head" />
   </head>
   <body>

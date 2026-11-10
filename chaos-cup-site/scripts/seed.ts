@@ -36,7 +36,7 @@ const SMUGMUG_OFFER_URL = 'https://www.smugmug.com/signup?coupon=Chaos2026';
 const RELYTE_URL = 'https://glnk.io/oq72y/atomic-athletics-soccer';
 // Still on the old WordPress site. Phase 10 sets up redirects for these.
 const SPONSORSHIP_PDF_URL = 'https://thechaoscup.com/wp-content/uploads/2026/07/SPONSORSHIP-OPPORTUNITIES.pdf';
-const CONTACT_URL = 'https://thechaoscup.com/contact-2/';
+const CONTACT_EMAIL = 'contact@atomicathleticsutah.com';
 
 // ---------- helpers ----------
 
@@ -574,7 +574,7 @@ async function sponsorDocs() {
         qrCode: await img('relyte-qr.png', 'QR code for the Redmond Re-Lyte Chaos Cup link'),
         qrLabel: 'Scan to shop with your phone',
         buttonLabel: 'Shop Redmond Re-Lyte',
-        backgroundColor: '#00A6CE',
+        backgroundColor: '#007C9A', // Redmond blue #00A6CE, deepened so white text passes contrast (4.8:1)
         textColor: 'light',
       },
     },
@@ -673,7 +673,7 @@ async function siteSettingsDoc() {
         links: [
           internal('host', 'Host a Chaos Cup', '/get-involved#schools'),
           external('packages', 'Sponsorship Packages', SPONSORSHIP_PDF_URL),
-          external('contact', 'Contact Us', CONTACT_URL),
+          internal('contact', 'Contact Us', '/contact'),
         ],
       },
       {
@@ -687,6 +687,7 @@ async function siteSettingsDoc() {
       },
     ],
     instagramUrl: INSTAGRAM_URL,
+    contactEmail: CONTACT_EMAIL,
     seoTitle: 'Chaos Cup 3v3 | Youth soccer inside inflatable walled fields',
     seoDescription:
       'Fast 3v3 soccer inside inflatable walled fields. More touches, more goals, nonstop energy. Ages U7 to U18, and every event funds a local high school program.',
@@ -802,6 +803,34 @@ function pastEventsPageDoc() {
     _type: 'pastEventsPage',
     title: 'Past Events',
     intro: 'Photos and results from every Chaos Cup.',
+    seo: {
+      _type: 'seo',
+      description: 'Photos, SmugMug galleries and final results from every Chaos Cup 3v3 youth soccer tournament in Utah.',
+    },
+  };
+}
+
+function contactPageDoc() {
+  const topic = (key: string, title: string, text: string, linkLabel: string, linkPath: string) => ({
+    _key: key,
+    _type: 'contactTopic',
+    title,
+    text,
+    linkLabel,
+    linkPath,
+  });
+  return {
+    _id: 'contactPage',
+    _type: 'contactPage',
+    eyebrow: 'Contact',
+    headline: "Let's *talk.*",
+    intro: 'Questions about a tournament, hosting a Chaos Cup at your school or sponsoring a program? Send us an email and we will get back to you.',
+    topics: [
+      topic('register', 'Registration and teams', 'Register a team or sign up solo on PlayMetrics. Schedules and standings live there too.', 'See tournaments', '/#tournaments'),
+      topic('host', 'Host a Chaos Cup', 'High school programs can bring a Chaos Cup to their school to fund their season.', 'How hosting works', '/get-involved#schools'),
+      topic('sponsor', 'Sponsor a school', 'Put your business in front of local families while supporting a high school program.', 'Sponsorship options', '/get-involved#sponsors-path'),
+      topic('rules', 'Rules and game day', 'Shoes, check-in, the Goal Zone and everything else about how the games work.', 'Read the rulebook', '/rules'),
+    ],
   };
 }
 
@@ -810,6 +839,10 @@ async function getInvolvedPageDoc() {
   return {
     _id: 'getInvolvedPage',
     _type: 'getInvolvedPage',
+    seo: {
+      _type: 'seo',
+      description: 'Host a Chaos Cup at your high school or sponsor a program. Every 3v3 event funds student-athletes and brings local families together.',
+    },
     hero: {
       eyebrow: 'Get involved',
       headline: 'Build the future of *local athletics.*',
@@ -828,7 +861,7 @@ async function getInvolvedPageDoc() {
       schoolProvides: ['A venue for the event', 'Your players, families and community'],
       weProvide: ['Event logistics and coordination', 'Registration and team placement', 'Administration, from schedules to standings', 'Everything else on game day'],
       buttonLabel: 'Host a Chaos Cup',
-      buttonUrl: CONTACT_URL,
+      buttonUrl: '/contact',
       image: await img('mm-champs-3.jpg', 'Players showing off their Chaos Cup rings'),
     },
     partners: {
@@ -847,7 +880,7 @@ async function getInvolvedPageDoc() {
       headline: 'Ready to *get involved?*',
       text: 'Tell us about your school or business and we will help you find the right fit.',
       buttonLabel: 'Contact Us',
-      buttonUrl: CONTACT_URL,
+      buttonUrl: '/contact',
     },
   };
 }
@@ -990,6 +1023,7 @@ async function main() {
     await rulebookPageDoc(),
     await developmentPageDoc(),
     await getInvolvedPageDoc(),
+    contactPageDoc(),
     pastEventsPageDoc(),
     ...(await sponsorDocs()),
     ...(await tournamentDocs(videos)),

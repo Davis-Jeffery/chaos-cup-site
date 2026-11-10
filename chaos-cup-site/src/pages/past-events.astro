@@ -62,12 +62,12 @@ const title = page?.title || 'Past Events';
                     {t.venue?.name && <p style="color: var(--muted); font-size: 15px">{t.venue.name}</p>}
                     <div class="pe-actions">
                       {t.links?.smugmugGalleryUrl && (
-                        <a class="btn btn-blue btn-sm" href={t.links.smugmugGalleryUrl} aria-label={`${t.title} photos on SmugMug`}>
+                        <a class="btn btn-blue btn-sm" href={t.links.smugmugGalleryUrl} aria-label={`Photos: ${t.title} on SmugMug`}>
                           Photos
                         </a>
                       )}
                       {t.links?.resultsUrl && (
-                        <a class="btn btn-ghost btn-sm" href={t.links.resultsUrl} aria-label={`${t.title} results`}>
+                        <a class="btn btn-ghost btn-sm" href={t.links.resultsUrl} aria-label={`Results: ${t.title}`}>
                           Results
                         </a>
                       )}

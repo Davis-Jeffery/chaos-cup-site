@@ -289,11 +289,11 @@ const photos = h.whatIs?.photos ?? [];
                   <h3>{t.title}</h3>
                   {t.venue?.name && <p style="color: var(--muted); font-size: 15px">{t.venue.name}</p>}
                   <div class="past-actions">
-                    <a class="btn btn-blue btn-sm" href={tournamentPath(t)} aria-label={`${t.title} photos and videos`}>
+                    <a class="btn btn-blue btn-sm" href={tournamentPath(t)} aria-label={`Photos and Videos: ${t.title}`}>
                       Photos and Videos
                     </a>
                     {t.links?.resultsUrl && (
-                      <a class="btn btn-ghost btn-sm" href={t.links.resultsUrl} aria-label={`${t.title} results`}>
+                      <a class="btn btn-ghost btn-sm" href={t.links.resultsUrl} aria-label={`View Results: ${t.title}`}>
                         View Results
                       </a>
                     )}

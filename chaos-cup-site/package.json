@@ -13,7 +13,8 @@
     "astro": "astro",
     "test": "vitest run",
     "test:watch": "vitest",
-    "seed": "sanity exec scripts/seed.ts --with-user-token"
+    "seed": "sanity exec scripts/seed.ts --with-user-token",
+    "preview:prod": "LOCAL_PROD=1 astro build && node --env-file=.env dist/server/entry.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^7.1.0",
@@ -32,6 +33,7 @@
     "styled-components": "^6.6.0"
   },
   "devDependencies": {
+    "@astrojs/node": "^11.1.11",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

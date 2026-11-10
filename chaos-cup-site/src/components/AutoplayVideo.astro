@@ -26,7 +26,35 @@ const posterUrl = poster?.asset ? imageSet(poster, { aspect, widths: [posterWidt
 ---
 
 {
-  src ? (
+  src && eager ? (
+    <>
+      {/* Hero: the video sits underneath a sized poster image, which paints first and
+          fades away once the video plays. (Chrome won't load a transparent video.) */}
+      <video
+        data-src={src}
+        muted
+        loop
+        playsinline
+        preload="none"
+        data-autoplay
+        data-deferred
+        aria-label={label}
+        aria-hidden={label ? undefined : 'true'}
+        class={className}
+        style={style}
+      />
+      <SanityImage
+        image={poster}
+        aspect={aspect}
+        sizes={sizes}
+        alt=""
+        loading="eager"
+        fetchpriority="high"
+        class:list={[className, 'video-cover']}
+        style={style}
+      />
+    </>
+  ) : src ? (
     <video
       src={src}
       poster={posterUrl}
@@ -54,15 +82,62 @@ const posterUrl = poster?.asset ? imageSet(poster, { aspect, widths: [posterWidt
   )
 }
 
+<style>
+  :global(.video-cover) {
+    transition: opacity 0.6s ease;
+  }
+  :global(.video-cover.is-hidden) {
+    opacity: 0;
+  }
+</style>
+
 <script>
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // Hero videos wait until the page has loaded and only play on tablet and
+  // desktop screens. Phones (often on cellular data), data saver and slow
+  // connections keep the poster image, so the 4 MB video never slows them down.
+  const connection = (navigator as any).connection;
+  const slow = connection?.saveData || /(^|-)2g|3g/.test(connection?.effectiveType ?? '');
+  const wide = window.matchMedia('(min-width: 768px)');
+  const startDeferred = () => {
+    if (slow || reduce.matches || !wide.matches) return;
+    document.querySelectorAll<HTMLVideoElement>('video[data-deferred]').forEach((video) => {
+      const cover = video.nextElementSibling;
+      const show = () => {
+        video.classList.add('is-playing');
+        cover?.classList.contains('video-cover') && cover.classList.add('is-hidden');
+      };
+      video.addEventListener('playing', show, { once: true });
+      video.addEventListener('timeupdate', show, { once: true });
+      // Set preload before the source, or the browser stops after the first bytes.
+      video.preload = 'auto';
+      video.src = video.dataset.src ?? '';
+      video.play().then(show).catch(() => {});
+    });
+  };
+  // Starting a video briefly ties up the browser, so wait for the visitor's first
+  // move, scroll, tap or key press (or 4 seconds), keeping the page responsive.
+  let started = false;
+  const startOnce = () => {
+    if (started) return;
+    started = true;
+    ['pointermove', 'scroll', 'touchstart', 'keydown'].forEach((t) => window.removeEventListener(t, startOnce));
+    startDeferred();
+  };
+  const arm = () => {
+    ['pointermove', 'scroll', 'touchstart', 'keydown'].forEach((t) => window.addEventListener(t, startOnce, { once: true, passive: true }));
+    setTimeout(startOnce, 4000);
+  };
+  if (document.readyState === 'complete') arm();
+  else window.addEventListener('load', arm, { once: true });
   const videos = document.querySelectorAll<HTMLVideoElement>('video[data-autoplay]');
 
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
         const video = entry.target as HTMLVideoElement;
-        if (reduce.matches) continue;
+        if (reduce.matches || (video.dataset.deferred !== undefined && !video.getAttribute('src'))) continue;
         if (entry.isIntersecting) video.play().catch(() => {});
         else video.pause();
       }

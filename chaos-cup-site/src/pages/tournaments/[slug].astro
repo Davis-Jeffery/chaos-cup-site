@@ -14,7 +14,10 @@ import Recap from '../../components/tournament/Recap.astro';
 import { sanityFetch } from '../../lib/sanity';
 import { activeSponsors, getLayoutData } from '../../lib/site';
 import { getStatus, nowForRequest } from '../../lib/status';
-import { dateRange } from '../../lib/format';
+import { cityFromAddress, dateRange } from '../../lib/format';
+import { urlFor } from '../../lib/sanity';
+import { currentPrice } from '../../lib/status';
+import { stegaClean } from '@sanity/client/stega';
 import { ALL_TOURNAMENTS_QUERY, bundlePartner, currentAndUpcoming, type Tournament } from '../../lib/tournaments';
 
 const { slug } = Astro.params;
@@ -32,8 +35,43 @@ const photoPartner = activeSponsors(data.sponsors, now).find((s) => /photo shari
 const nextEvent = currentAndUpcoming(tournaments, now).find((x) => x._id !== t._id);
 const bundleWith = bundlePartner(t, tournaments, now);
 
+// schema.org event data so search engines can show dates, venue and price.
+const eventImage = t.cardImage ?? t.heroImage ?? t.recap?.coverImage;
+const price = currentPrice(t, now);
+const jsonLd = stegaClean({
+  '@context': 'https://schema.org',
+  '@type': 'SportsEvent',
+  name: `${t.title} | ${t.presentingSponsorName ? `${t.presentingSponsorName} ` : ''}Chaos Cup 3v3`,
+  sport: 'Soccer',
+  startDate: t.startDate,
+  endDate: t.endDate || t.startDate,
+  eventStatus: `https://schema.org/${
+    status === 'cancelled' ? 'EventCancelled' : status === 'postponed' ? 'EventPostponed' : 'EventScheduled'
+  }`,
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  url: new URL(Astro.url.pathname, Astro.site ?? Astro.url).href,
+  ...(eventImage?.asset ? { image: [urlFor(eventImage).width(1200).url()] } : {}),
+  ...(t.venue?.name
+    ? { location: { '@type': 'Place', name: t.venue.name, ...(t.venue.address ? { address: t.venue.address } : {}) } }
+    : {}),
+  organizer: { '@type': 'Organization', name: 'Atomic Athletics', url: (Astro.site ?? Astro.url).origin },
+  ...(price != null && !isPast && !halted
+    ? {
+        offers: {
+          '@type': 'Offer',
+          price: price.toFixed(2),
+          priceCurrency: 'USD',
+          url: t.links?.registerUrl || data.settings.registerUrl,
+          availability: 'https://schema.org/InStock',
+        },
+      }
+    : {}),
+});
+
 const vars = `--event: ${t.primaryColor}; --event-accent: ${t.accentColor || t.primaryColor}`;
-const title = t.seo?.title || t.title;
+const city = cityFromAddress(t.venue?.address);
+const title =
+  t.seo?.title || (isPast ? `${t.title} Photos and Results` : city ? `${t.title}: 3v3 Soccer in ${city}` : `${t.title}: 3v3 Soccer`);
 const description =
   t.seo?.description ||
   (isPast
@@ -49,6 +87,7 @@ const description =
   ogImage={t.seo?.image ?? t.cardImage ?? t.recap?.coverImage}
   currentTournamentId={t._id}
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   {
     isPast ? (
       <Recap tournament={t} nextEvent={nextEvent} photoPartner={photoPartner} now={now} defaultRegisterUrl={data.settings.registerUrl} />
