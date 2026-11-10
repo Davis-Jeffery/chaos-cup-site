@@ -1,0 +1,90 @@
+---
+/**
+ * Muted looping video that plays only while on screen and only when the
+ * visitor has not asked for reduced motion (then it shows controls instead).
+ * Without a video URL it falls back to the poster image.
+ */
+import SanityImage from './SanityImage.astro';
+import { imageSet } from '../lib/sanity';
+
+interface Props {
+  src?: string;
+  poster?: any;
+  /** Accessible name. Leave out for decorative background video. */
+  label?: string;
+  /** Poster crop, width / height. */
+  aspect?: number;
+  posterWidth?: number;
+  sizes?: string;
+  eager?: boolean;
+  class?: string;
+  style?: string;
+}
+
+const { src, poster, label, aspect, posterWidth = 1280, sizes, eager = false, class: className, style } = Astro.props;
+const posterUrl = poster?.asset ? imageSet(poster, { aspect, widths: [posterWidth] }).src : undefined;
+---
+
+{
+  src ? (
+    <video
+      src={src}
+      poster={posterUrl}
+      muted
+      loop
+      playsinline
+      preload={eager ? 'auto' : 'none'}
+      data-autoplay
+      aria-label={label}
+      aria-hidden={label ? undefined : 'true'}
+      class={className}
+      style={style}
+    />
+  ) : (
+    <SanityImage
+      image={poster}
+      aspect={aspect}
+      sizes={sizes}
+      alt={label ?? ''}
+      loading={eager ? 'eager' : 'lazy'}
+      fetchpriority={eager ? 'high' : undefined}
+      class={className}
+      style={style}
+    />
+  )
+}
+
+<script>
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const videos = document.querySelectorAll<HTMLVideoElement>('video[data-autoplay]');
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        const video = entry.target as HTMLVideoElement;
+        if (reduce.matches) continue;
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      }
+    },
+    { threshold: 0.25 },
+  );
+
+  const apply = () => {
+    videos.forEach((video) => {
+      if (reduce.matches) {
+        video.pause();
+        if (video.hasAttribute('aria-label')) video.controls = true;
+      } else {
+        video.controls = false;
+      }
+    });
+  };
+
+  videos.forEach((video) => observer.observe(video));
+  apply();
+  reduce.addEventListener('change', () => {
+    apply();
+    if (!reduce.matches) videos.forEach((v) => { observer.unobserve(v); observer.observe(v); });
+  });
+</script>

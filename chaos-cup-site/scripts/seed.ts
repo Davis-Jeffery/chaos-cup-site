@@ -514,6 +514,7 @@ async function sponsorDocs() {
         body: 'Redmond Re-Lyte keeps players going from the first whistle to the championship game.',
         image: await img('relyte-kids.jpg', 'Redmond Re-Lyte Kids: pediatrician-approved, no added sugar, no artificial dyes, made with Real Salt'),
         qrCode: await img('relyte-qr.png', 'QR code for the Redmond Re-Lyte Chaos Cup link'),
+        qrLabel: 'Scan to shop with your phone',
         buttonLabel: 'Shop Redmond Re-Lyte',
         backgroundColor: '#00A6CE',
         textColor: 'light',
@@ -536,9 +537,11 @@ async function sponsorDocs() {
       ...SERIES_CONTRACT,
       banner: {
         eyebrow: 'Official Photo Sharing Partner of the Chaos Cup Series',
-        headline: 'Save 25% on your family photo site.',
+        headline: 'Save *25%* on your family photo site.',
         body: 'Parents, save 25% on SmugMug and build a private album and website for all your family memories, from tournament day to the holidays.',
         qrCode: await img('smugmug-qr.png', 'QR code for 25% off SmugMug with code Chaos2026'),
+        qrLabel: 'Scan with your phone',
+        accentColor: '#4E8F00',
         buttonLabel: 'Claim 25% Off on SmugMug',
         backgroundColor: '#F2FAE8',
         textColor: 'dark',
@@ -641,6 +644,7 @@ async function homePageDoc(videos: Record<string, string>) {
   return {
     _id: 'homePage',
     _type: 'homePage',
+    heroText: 'Fast 3v3 soccer inside inflatable walled fields. More touches, more goals, nonstop energy. Ages U7 to U18.',
     quickFacts: keyed('fact', [
       { _type: 'quickFact', value: 'U7-U18', label: 'Boys and girls divisions' },
       { _type: 'quickFact', value: '3-6', label: 'Players per roster' },
@@ -709,14 +713,9 @@ async function homePageDoc(videos: Record<string, string>) {
       ]),
     },
     past: { eyebrow: 'The archive', headline: 'Past Tournaments' },
-    smugmug: {
-      eyebrow: 'Official Photo Sharing Partner of the Chaos Cup Series',
-      headline: 'Save 25% on your family photo site.',
-      body: 'Parents, save 25% on SmugMug and build a private album and website for all your family memories, from tournament day to the holidays.',
-    },
     finalCta: {
       // The eyebrow in the design ("Nov 20-21 · West Lake High School") comes from the next tournament.
-      headline: 'Bring the chaos.',
+      headline: 'Bring the *chaos.*',
       text: 'Grab two to five teammates, pick your division and lock in the early bird price before Nov 9.',
       primaryLabel: 'Register Your Team',
       secondaryLabel: 'Register as an Individual',

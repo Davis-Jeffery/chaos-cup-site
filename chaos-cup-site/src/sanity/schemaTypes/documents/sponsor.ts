@@ -137,10 +137,16 @@ export const sponsor = defineType({
         ),
       fields: [
         defineField({ name: 'eyebrow', title: 'Eyebrow', type: 'string', description: 'Small text above the headline.' }),
-        defineField({ name: 'headline', title: 'Headline', type: 'string' }),
+        defineField({
+          name: 'headline',
+          title: 'Headline',
+          type: 'string',
+          description: 'Wrap words in *asterisks* to color them with the accent color, like "Save *25%* on your family photo site."',
+        }),
         defineField({ name: 'body', title: 'Body', type: 'text', rows: 3 }),
         imageField({ name: 'image', title: 'Image' }),
         imageField({ name: 'qrCode', title: 'QR code' }),
+        defineField({ name: 'qrLabel', title: 'QR code label', type: 'string', initialValue: 'Scan with your phone' }),
         defineField({ name: 'buttonLabel', title: 'Button label', type: 'string' }),
         defineField({ name: 'buttonUrl', title: 'Button link', type: 'url', description: 'Leave blank to use the sponsor link.' }),
         defineField({
@@ -163,6 +169,13 @@ export const sponsor = defineType({
             direction: 'horizontal',
           },
           initialValue: 'light',
+        }),
+        defineField({
+          name: 'accentColor',
+          title: 'Accent color',
+          type: 'string',
+          description: 'Optional hex color for the eyebrow and highlighted headline words. Leave blank to use the text color.',
+          validation: (rule) => rule.regex(/^#[0-9a-fA-F]{6}$/, { name: 'hex color' }),
         }),
         defineField({ name: 'promoCode', title: 'Promo code', type: 'string', description: 'Shown in the dashed code box.' }),
         defineField({

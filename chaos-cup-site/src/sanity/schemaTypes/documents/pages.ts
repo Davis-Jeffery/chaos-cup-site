@@ -7,7 +7,12 @@ import { imageField } from '../../lib/fields';
 
 const sectionHeading = [
   defineField({ name: 'eyebrow', title: 'Eyebrow', type: 'string', description: 'Small text above the headline.' }),
-  defineField({ name: 'headline', title: 'Headline', type: 'string' }),
+  defineField({
+    name: 'headline',
+    title: 'Headline',
+    type: 'string',
+    description: 'Wrap words in *asterisks* to color them, like "Bring the *chaos.*"',
+  }),
 ];
 
 const titleText = (name: string, title: string) =>
@@ -88,11 +93,19 @@ export const homePage = defineType({
     { name: 'reels', title: 'Reels' },
     { name: 'tournaments', title: 'Tournaments' },
     { name: 'rules', title: 'Rules in 60 seconds' },
-    { name: 'past', title: 'Past and photos' },
+    { name: 'past', title: 'Past tournaments' },
     { name: 'cta', title: 'Final call to action' },
     { name: 'seo', title: 'SEO' },
   ],
   fields: [
+    defineField({
+      name: 'heroText',
+      title: 'Hero intro line',
+      type: 'text',
+      rows: 2,
+      group: 'intro',
+      description: 'Shown under the event name in the home hero, like "Fast 3v3 soccer inside inflatable walled fields."',
+    }),
     defineField({
       name: 'quickFacts',
       title: 'Quick facts',
@@ -208,15 +221,6 @@ export const homePage = defineType({
       type: 'object',
       group: 'past',
       fields: [...sectionHeading],
-    }),
-    defineField({
-      name: 'smugmug',
-      title: 'SmugMug section',
-      type: 'object',
-      group: 'past',
-      description: 'Only used if the SmugMug sponsor has no banner of its own.',
-      options: { collapsible: true, collapsed: true },
-      fields: [...sectionHeading, defineField({ name: 'body', title: 'Body', type: 'text', rows: 3 })],
     }),
 
     defineField({

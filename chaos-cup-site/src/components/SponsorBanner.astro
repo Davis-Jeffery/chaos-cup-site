@@ -1,0 +1,250 @@
+---
+/**
+ * Full banner for a primary sponsor, driven by its Sanity banner fields.
+ * - With an image: photo on the left, colored panel on the right (Redmond Re-Lyte).
+ * - Without an image: one rounded panel with the QR code on the right (SmugMug).
+ * Logos are shown exactly as uploaded.
+ */
+import SanityImage from './SanityImage.astro';
+import Highlight from './Highlight.astro';
+import type { Sponsor } from '../lib/site';
+
+interface Props {
+  sponsor: Sponsor;
+  id?: string;
+}
+
+const { sponsor, id } = Astro.props;
+const b = sponsor.banner ?? {};
+const dark = b.textColor === 'dark';
+const href = b.buttonUrl || (sponsor.linkEnabled !== false ? sponsor.url : undefined);
+const logo = dark ? (sponsor.logoOnLight ?? sponsor.logoOnDark) : sponsor.logoOnDark;
+const vars = [
+  `--banner-bg: ${b.backgroundColor || 'var(--card)'}`,
+  `--banner-text: ${dark ? 'var(--ink)' : '#FFFFFF'}`,
+  `--banner-body: ${dark ? '#2B2B33' : '#FFFFFF'}`,
+  `--banner-accent: ${b.accentColor || (dark ? 'var(--ink)' : '#FFFFFF')}`,
+  `--banner-eyebrow: ${b.accentColor ? `color-mix(in srgb, ${b.accentColor} 60%, black)` : dark ? 'var(--ink)' : '#FFFFFF'}`,
+  `--btn-bg: ${dark ? 'var(--ink)' : '#FFFFFF'}`,
+  `--btn-text: ${dark ? '#FFFFFF' : 'var(--ink)'}`,
+].join('; ');
+const withImage = Boolean(b.image?.asset);
+---
+
+<div class:list={['banner', withImage ? 'banner-split' : 'banner-panel']} style={vars} id={id}>
+  {
+    withImage && (
+      <div class="banner-photo">
+        <SanityImage image={b.image} sizes="(min-width: 900px) 560px, 100vw" maxWidth={1200} class="banner-photo-img" />
+      </div>
+    )
+  }
+  <div class="banner-content">
+    <SanityImage
+      image={logo}
+      alt={sponsor.name}
+      maxWidth={480}
+      widths={[240, 480]}
+      sizes="240px"
+      class="banner-logo"
+      style={withImage ? 'width: 240px' : 'width: 220px'}
+    />
+    {b.eyebrow && <span class="eyebrow" style="color: var(--banner-eyebrow)">{b.eyebrow}</span>}
+    {
+      b.headline && (
+        <h2 class:list={[withImage ? 'h-split' : 'h-panel']}>
+          <Highlight text={b.headline} color="var(--banner-accent)" />
+        </h2>
+      )
+    }
+    {b.body && <p class:list={['banner-body', { 'banner-body-strong': withImage }]}>{b.body}</p>}
+    <div class="banner-actions">
+      {
+        href && b.buttonLabel && (
+          <a class="btn banner-btn" href={href}>
+            {b.buttonLabel}
+          </a>
+        )
+      }
+      {
+        b.promoCode && (
+          <div class="promo">
+            <span class="promo-label">PROMO CODE</span>
+            <span class="promo-code">{b.promoCode}</span>
+          </div>
+        )
+      }
+      {
+        withImage && b.qrCode?.asset && (
+          <a href={href} class="qr-inline">
+            <SanityImage image={b.qrCode} maxWidth={208} widths={[208]} sizes="104px" class="qr-small" />
+            <span>{b.qrLabel || 'Scan with your phone'}</span>
+          </a>
+        )
+      }
+    </div>
+    {b.finePrint && <span class="fine-print">{b.finePrint}</span>}
+  </div>
+  {
+    !withImage && b.qrCode?.asset && (
+      <div class="qr-side">
+        <SanityImage image={b.qrCode} maxWidth={480} widths={[480]} sizes="240px" class="qr-large" />
+        <span>{b.qrLabel || 'Scan with your phone'}</span>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .banner {
+    display: flex;
+    flex-wrap: wrap;
+    border-radius: 28px;
+    overflow: hidden;
+    background: var(--banner-bg);
+    color: var(--banner-text);
+  }
+  .banner-split {
+    align-items: stretch;
+  }
+  .banner-panel {
+    gap: 48px;
+    align-items: center;
+    padding: clamp(28px, 5vw, 64px);
+  }
+  .banner-photo {
+    flex: 1 1 360px;
+    min-width: 0;
+    min-height: 320px;
+    position: relative;
+    align-self: stretch;
+  }
+  .banner-photo :global(.banner-photo-img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: left center;
+    display: block;
+  }
+  .banner-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+  }
+  .banner-split .banner-content {
+    flex: 1 1 420px;
+    padding: clamp(28px, 5vw, 56px);
+    gap: 20px;
+  }
+  .banner-panel .banner-content {
+    flex: 1 1 460px;
+    gap: 22px;
+  }
+  .banner-content :global(.banner-logo) {
+    align-self: flex-start;
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  .h-split {
+    font-size: clamp(36px, 5vw, 60px);
+    color: var(--banner-text);
+  }
+  .h-panel {
+    font-size: clamp(40px, 6vw, 72px);
+    color: var(--banner-text);
+  }
+  .banner-body {
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--banner-body);
+  }
+  .banner-body-strong {
+    font-weight: 600;
+  }
+  .banner-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+  }
+  .banner-btn {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    min-height: 58px;
+    font-size: 17px;
+  }
+  .banner-btn:hover {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    opacity: 0.88;
+  }
+  .promo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 16px;
+    border: 2px dashed currentColor;
+    border-radius: 12px;
+  }
+  .promo-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+  }
+  .promo-code {
+    font-family: var(--font-display);
+    font-size: 20px;
+  }
+  .qr-inline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--banner-text);
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1.35;
+    max-width: 260px;
+  }
+  .qr-inline:hover {
+    color: var(--banner-text);
+  }
+  .qr-inline span {
+    max-width: 8.5em;
+  }
+  .qr-inline :global(.qr-small) {
+    width: 104px;
+    height: 104px;
+    display: block;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 6px;
+    flex-shrink: 0;
+  }
+  .fine-print {
+    font-size: 13px;
+    color: var(--banner-body);
+  }
+  .qr-side {
+    flex: 0 1 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: 0 auto;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .qr-side :global(.qr-large) {
+    width: 240px;
+    height: 240px;
+    display: block;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 12px;
+  }
+</style>

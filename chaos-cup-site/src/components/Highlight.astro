@@ -1,0 +1,13 @@
+---
+/** Renders text with *marked* words in a color, like "Bring the *chaos.*" */
+import { highlightParts } from '../lib/format';
+
+interface Props {
+  text?: string;
+  color?: string;
+}
+
+const { text, color = 'var(--magenta)' } = Astro.props;
+---
+
+{highlightParts(text).map((p) => (p.highlight ? <span style={`color: ${color}`}>{p.text}</span> : p.text))}

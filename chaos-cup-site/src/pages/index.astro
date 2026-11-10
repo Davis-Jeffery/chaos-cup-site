@@ -1,33 +1,686 @@
 ---
-/**
- * TEMPORARY (Phase 4): shows the shared layout and button styles.
- * Phase 5 replaces this with the real home page.
- */
+/** Home page, from design-reference/Main.dc.html. */
 import Layout from '../layouts/Layout.astro';
-import { getLayoutData } from '../lib/site';
+import HomeHero from '../components/home/HomeHero.astro';
+import TournamentCard from '../components/TournamentCard.astro';
+import SponsorBanner from '../components/SponsorBanner.astro';
+import SanityImage from '../components/SanityImage.astro';
+import AutoplayVideo from '../components/AutoplayVideo.astro';
+import Highlight from '../components/Highlight.astro';
+import { sanityClient } from '../lib/sanity';
+import { activeSponsors, getLayoutData, IMAGE } from '../lib/site';
 import { nowForRequest } from '../lib/status';
+import { cityFromAddress, dateRange } from '../lib/format';
+import {
+  ALL_TOURNAMENTS_QUERY,
+  canRegister,
+  currentAndUpcoming,
+  pastEvents,
+  pickHero,
+  registerUrl,
+  soloUrl,
+  tournamentPath,
+  type Tournament,
+} from '../lib/tournaments';
 
 const now = nowForRequest(Astro.url);
-const data = await getLayoutData();
+
+const [data, { home, tournaments }] = await Promise.all([
+  getLayoutData(),
+  sanityClient.fetch<{ home: any; tournaments: Tournament[] }>(`{
+    "home": *[_id == "homePage"][0]{
+      ...,
+      whatIs { ..., photos[] ${IMAGE} },
+      reels { ..., videos[] { ..., poster ${IMAGE} } },
+      seo { ..., image ${IMAGE} }
+    },
+    "tournaments": ${ALL_TOURNAMENTS_QUERY}
+  }`),
+]);
+const { settings } = data;
+const h = home ?? {};
+
+const hero = pickHero(tournaments, now);
+const heroEvent = hero.state === 'comingSoon' ? undefined : hero.tournament;
+const current = currentAndUpcoming(tournaments, now);
+const upcomingOnly = current.filter((t) => t.status === 'upcoming');
+const past = pastEvents(tournaments, now);
+const latestPast = past[0];
+
+// Primary sponsor banners: the photo partner sits after past events, the rest after tournaments.
+const primaries = activeSponsors(data.sponsors, now).filter((s) => s.tier === 'primary' && s.banner?.headline);
+const isPhotoPartner = (s: { designation?: string }) => /photo sharing partner/i.test(s.designation ?? '');
+const bannersAfterTournaments = primaries.filter((s) => !isPhotoPartner(s));
+const bannersAfterPast = primaries.filter(isPhotoPartner);
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+const announcement = settings.announcement;
+const showAnnouncement = announcement?.enabled && (announcement.mode === 'custom' ? announcement.text : latestPast);
+
+const ctaEvent = heroEvent && canRegister(heroEvent, now) ? heroEvent : upcomingOnly.find((t) => canRegister(t, now));
+const photos = h.whatIs?.photos ?? [];
 ---
 
-<Layout data={data} now={now} footer="full">
-  <section style="padding: 96px 0">
-    <div class="wrap" style="display: flex; flex-direction: column; gap: 32px">
-      <span class="eyebrow" style="color: var(--blue)">Phase 4 preview</span>
-      <h1 style="font-size: clamp(44px, 7vw, 96px)">Shared <span style="color: var(--magenta)">layout.</span></h1>
-      <p style="font-size: 19px; color: var(--muted); max-width: 640px; line-height: 1.55">
-        Header, sponsors and footer are live from Sanity. The home page sections arrive in Phase 5.
-      </p>
-      <div style="display: flex; flex-wrap: wrap; gap: 14px">
-        <a class="btn btn-pink" href="#">Pink</a>
-        <a class="btn btn-blue" href="#">Blue</a>
-        <a class="btn btn-ghost" href="#">Ghost</a>
-        <a class="btn btn-pink btn-sm" href="#">Small</a>
-        <a class="btn btn-pink btn-lg" href="#">Large</a>
-        <span style="--event: #DF6902"><a class="btn btn-event" href="#">Turkey</a></span>
-        <span style="--event: #3CA8E4"><a class="btn btn-event" href="#">Frostbite</a></span>
+<Layout
+  data={data}
+  now={now}
+  footer="full"
+  title={h.seo?.title}
+  description={h.seo?.description}
+  ogImage={h.seo?.image}
+>
+  {
+    showAnnouncement && (
+      <div slot="before-header" class="announce">
+        <div class="wrap announce-row">
+          {announcement!.mode === 'custom' ? (
+            <>
+              <span>{announcement!.text}</span>
+              {announcement!.link && announcement!.linkLabel && <a href={announcement!.link}>{announcement!.linkLabel}</a>}
+            </>
+          ) : (
+            <>
+              <span>
+                {latestPast!.title} is a wrap.
+                {cityFromAddress(latestPast!.venue?.address) && ` Thank you, ${cityFromAddress(latestPast!.venue?.address)}!`}
+              </span>
+              <a href={tournamentPath(latestPast!)}>See photos and results</a>
+            </>
+          )}
+        </div>
       </div>
-    </div>
-  </section>
+    )
+  }
+
+  <HomeHero
+    state={hero.state}
+    tournament={heroEvent}
+    settings={settings}
+    heroText={h.heroText}
+    now={now}
+  />
+
+  {
+    (h.quickFacts?.length ?? 0) > 0 && (
+      <section class="facts">
+        <div class="wrap facts-grid">
+          {h.quickFacts.map((f: any) => (
+            <div class="fact">
+              <span class="fact-value">{f.value}</span>
+              {f.label && <span class="fact-label">{f.label}</span>}
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    h.whatIs && (
+      <section class="section">
+        <div class="wrap what">
+          <div class="what-text">
+            {h.whatIs.eyebrow && <span class="eyebrow" style="color: var(--magenta)">{h.whatIs.eyebrow}</span>}
+            <h2 class="h-lg"><Highlight text={h.whatIs.headline} /></h2>
+            {h.whatIs.body && <p class="body-lg">{h.whatIs.body}</p>}
+            {(h.whatIs.points?.length ?? 0) > 0 && (
+              <ul class="points" role="list">
+                {h.whatIs.points.map((p: string) => <li>{p}</li>)}
+              </ul>
+            )}
+          </div>
+          {photos.length > 0 && (
+            <div class="what-photos">
+              {photos.map((photo: any, i: number) => (
+                <SanityImage
+                  image={photo}
+                  aspect={i === 0 ? 1.8 : 1.4}
+                  sizes={i === 0 ? '(min-width: 1000px) 570px, 100vw' : '(min-width: 1000px) 280px, 50vw'}
+                  maxWidth={1200}
+                  class:list={['what-photo', i === 0 && photos.length > 1 ? 'what-photo-big' : '']}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    (h.reels?.videos?.length ?? 0) > 0 && (
+      <section class="section reels">
+        <div class="wrap stack-28">
+          <div class="section-head">
+            <div class="head-text">
+              {h.reels.eyebrow && <span class="eyebrow" style="color: var(--blue)">{h.reels.eyebrow}</span>}
+              <h2 class="h-md"><Highlight text={h.reels.headline} /></h2>
+            </div>
+            {settings.instagramUrl && (
+              <a class="btn btn-ghost btn-sm" href={settings.instagramUrl}>
+                {h.reels.instagramLabel || 'More on Instagram'}
+              </a>
+            )}
+          </div>
+          <div class="reel-grid">
+            {h.reels.videos.map((v: any) => (
+              <AutoplayVideo
+                src={v.videoUrl}
+                poster={v.poster}
+                label={v.title}
+                aspect={9 / 16}
+                posterWidth={540}
+                sizes="(min-width: 1000px) 280px, 50vw"
+                class="reel"
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    current.length > 0 && (
+      <section id="tournaments" class="section raised">
+        <div class="wrap stack-40">
+          <div class="section-head">
+            <div class="head-text">
+              {h.upcoming?.eyebrow && <span class="eyebrow" style="color: var(--blue)">{h.upcoming.eyebrow}</span>}
+              <h2 class="h-lg"><Highlight text={h.upcoming?.headline || 'Upcoming Tournaments'} /></h2>
+            </div>
+            {h.upcoming?.intro && <p class="head-intro">{h.upcoming.intro}</p>}
+          </div>
+          <div class="t-grid">
+            {current.map((t, i) => (
+              <TournamentCard tournament={t} now={now} defaultRegisterUrl={settings.registerUrl} next={i === 0} />
+            ))}
+          </div>
+          {upcomingOnly.length >= 2 && h.bundle?.headline && (
+            <div class="bundle">
+              <div class="bundle-text">
+                <span class="bundle-headline">{h.bundle.headline}</span>
+                {h.bundle.text && <span class="bundle-body">{h.bundle.text}</span>}
+              </div>
+              <a class="btn bundle-btn" href={registerUrl(upcomingOnly[0], settings.registerUrl)}>
+                {h.bundle.buttonLabel || 'Get the Bundle'}
+              </a>
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    bannersAfterTournaments.map((s, i) => (
+      <section
+        class:list={['banner-section', 'raised', { 'banner-section-top': current.length === 0 && i === 0 }]}
+        id={slug(s.name)}
+      >
+        <div class="wrap">
+          <SponsorBanner sponsor={s} />
+        </div>
+      </section>
+    ))
+  }
+
+  {
+    (h.rulesSection?.tiles?.length ?? 0) > 0 && (
+      <section id="rules" class="section">
+        <div class="wrap stack-40">
+          <div class="section-head">
+            <div class="head-text">
+              {h.rulesSection.eyebrow && <span class="eyebrow" style="color: var(--magenta)">{h.rulesSection.eyebrow}</span>}
+              <h2 class="h-lg"><Highlight text={h.rulesSection.headline} /></h2>
+            </div>
+            <a class="btn btn-ghost" href="/rules">
+              {h.rulesSection.buttonLabel || 'Read the Full Rulebook'}
+            </a>
+          </div>
+          <ol class="rule-grid" role="list">
+            {h.rulesSection.tiles.map((tile: any, i: number) => (
+              <li class="rule-tile">
+                <span class="rule-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                <h3>{tile.title}</h3>
+                <p>
+                  {tile.text}
+                  {tile.linkPath && tile.linkLabel && (
+                    <>
+                      {' '}
+                      <a href={tile.linkPath}>{tile.linkLabel}</a>.
+                    </>
+                  )}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    past.length > 0 && (
+      <section id="past" class="section raised">
+        <div class="wrap stack-40">
+          <div class="section-head">
+            <div class="head-text">
+              {h.past?.eyebrow && <span class="eyebrow" style="color: var(--blue)">{h.past.eyebrow}</span>}
+              <h2 class="h-lg"><Highlight text={h.past?.headline || 'Past Tournaments'} /></h2>
+            </div>
+            <a class="btn btn-ghost" href="/past-events">See all past events</a>
+          </div>
+          <div class="past-grid">
+            {past.slice(0, 3).map((t) => (
+              <article class="card past-card">
+                <SanityImage
+                  image={t.cardImage ?? t.recap?.coverImage}
+                  aspect={1.7}
+                  sizes="(min-width: 1000px) 380px, 100vw"
+                  maxWidth={1080}
+                  class="past-photo"
+                />
+                <div class="past-body">
+                  <span class="eyebrow" style="color: var(--faint); font-size: 12px">
+                    {[dateRange(t.startDate, t.endDate), cityFromAddress(t.venue?.address)].filter(Boolean).join(' · ')}
+                  </span>
+                  <h3>{t.title}</h3>
+                  {t.venue?.name && <p style="color: var(--muted); font-size: 15px">{t.venue.name}</p>}
+                  <div class="past-actions">
+                    <a class="btn btn-blue btn-sm" href={tournamentPath(t)} aria-label={`${t.title} photos and videos`}>
+                      Photos and Videos
+                    </a>
+                    {t.links?.resultsUrl && (
+                      <a class="btn btn-ghost btn-sm" href={t.links.resultsUrl} aria-label={`${t.title} results`}>
+                        View Results
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    bannersAfterPast.map((s, i) => (
+      <section class="section" id={i === 0 ? 'photos' : slug(s.name)}>
+        <div class="wrap">
+          <SponsorBanner sponsor={s} />
+        </div>
+      </section>
+    ))
+  }
+
+  {
+    h.finalCta && (
+      <section slot="after-sponsors" class="final">
+        <div class="wrap final-inner">
+          <SanityImage
+            image={settings.logo}
+            alt=""
+            maxWidth={840}
+            widths={[420, 840]}
+            sizes="420px"
+            style="width: min(420px, 80%); height: auto; display: block"
+          />
+          {ctaEvent && (
+            <span class="eyebrow" style="color: var(--blue)">
+              {[dateRange(ctaEvent.startDate, ctaEvent.endDate, { year: false }), ctaEvent.venue?.name].filter(Boolean).join(' · ')}
+            </span>
+          )}
+          <h2 class="h-xl"><Highlight text={h.finalCta.headline} /></h2>
+          {h.finalCta.text && <p class="final-text">{h.finalCta.text}</p>}
+          <div class="final-actions">
+            {ctaEvent ? (
+              <>
+                <a class="btn btn-pink btn-lg" href={registerUrl(ctaEvent, settings.registerUrl)}>
+                  {h.finalCta.primaryLabel || 'Register Your Team'}
+                </a>
+                {soloUrl(ctaEvent, settings.individualSignupUrl) && (
+                  <a class="btn btn-ghost btn-lg final-ghost" href={soloUrl(ctaEvent, settings.individualSignupUrl)}>
+                    {h.finalCta.secondaryLabel || 'Register as an Individual'}
+                  </a>
+                )}
+              </>
+            ) : (
+              settings.instagramUrl && (
+                <a class="btn btn-pink btn-lg" href={settings.instagramUrl}>
+                  Follow on Instagram
+                </a>
+              )
+            )}
+          </div>
+        </div>
+      </section>
+    )
+  }
 </Layout>
+
+<style>
+  .announce {
+    background: var(--blue);
+    color: var(--ink);
+  }
+  .announce-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    text-align: center;
+  }
+  .announce a {
+    color: var(--ink);
+    text-decoration: underline;
+    font-weight: 800;
+  }
+
+  .section {
+    padding: 112px 0;
+  }
+  .raised {
+    background: var(--raised);
+  }
+  .section.raised {
+    border-top: 1px solid var(--divider);
+  }
+  .stack-28 {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .stack-40 {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+  }
+  .head-text {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .reels .head-text {
+    gap: 12px;
+  }
+  .head-intro {
+    max-width: 420px;
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.55;
+  }
+  .h-md {
+    font-size: clamp(32px, 4vw, 48px);
+  }
+  .h-lg {
+    font-size: clamp(36px, 5vw, 60px);
+  }
+  .h-xl {
+    font-size: clamp(44px, 7vw, 96px);
+  }
+  .body-lg {
+    font-size: 19px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .facts {
+    border-top: 1px solid var(--divider);
+    border-bottom: 1px solid var(--divider);
+    background: var(--raised);
+  }
+  .facts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+    gap: 24px;
+    padding-top: 36px;
+    padding-bottom: 36px;
+  }
+  .fact {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .fact-value {
+    font-family: var(--font-display);
+    font-size: 34px;
+    color: var(--blue);
+  }
+  .fact-label {
+    color: var(--faint);
+    font-weight: 600;
+  }
+
+  .what {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 56px;
+    align-items: center;
+  }
+  .what-text {
+    flex: 1 1 420px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .points {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+    gap: 14px;
+  }
+  .points li {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    font-weight: 700;
+  }
+  .what-photos {
+    flex: 1 1 420px;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .what-photos :global(.what-photo) {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 20px;
+    display: block;
+  }
+  .what-photos :global(.what-photo-big) {
+    grid-column: span 2;
+    height: 320px;
+  }
+
+  .reels {
+    padding-top: 0;
+  }
+  .reel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+    gap: 14px;
+  }
+  /* Two reels across on phones instead of four full-height videos in a row. */
+  @media (max-width: 559px) {
+    .reel-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+  }
+  .reel-grid :global(.reel) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 9 / 16;
+    object-fit: cover;
+    border-radius: 18px;
+    display: block;
+    background: var(--card);
+  }
+
+  .t-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr));
+    gap: 24px;
+  }
+  .bundle {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 28px 32px;
+    border-radius: 20px;
+    background: var(--magenta);
+    color: var(--ink);
+  }
+  .bundle-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .bundle-headline {
+    font-family: var(--font-display);
+    font-size: 28px;
+  }
+  .bundle-body {
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .bundle-btn {
+    background: var(--ink);
+    color: var(--text);
+  }
+  .bundle-btn:hover {
+    background: #22222e;
+    color: var(--text);
+  }
+
+  .banner-section {
+    padding: 0 0 112px;
+  }
+  .banner-section-top {
+    padding-top: 112px;
+    border-top: 1px solid var(--divider);
+  }
+
+  .rule-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+    gap: 16px;
+  }
+  .rule-tile {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .rule-num {
+    font-family: var(--font-display);
+    font-size: 40px;
+    color: var(--blue);
+  }
+  .rule-tile h3 {
+    font-size: 22px;
+  }
+  .rule-tile p {
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .rule-tile a {
+    font-weight: 700;
+  }
+
+  .past-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+    gap: 24px;
+  }
+  .past-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .past-card :global(.past-photo) {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+  .past-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 1;
+  }
+  .past-body h3 {
+    font-size: 26px;
+  }
+  .past-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: auto;
+  }
+
+  .final {
+    padding: 128px 0;
+    position: relative;
+  }
+  .final-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 24px;
+  }
+  .final-text {
+    font-size: 19px;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.55;
+  }
+  .final-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+  }
+  .final-ghost {
+    padding: 0 28px;
+    font-size: 16px;
+  }
+  @media (max-width: 600px) {
+    .final-actions .btn,
+    .bundle-btn {
+      white-space: normal;
+      text-align: center;
+    }
+  }
+</style>

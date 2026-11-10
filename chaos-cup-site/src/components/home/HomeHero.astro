@@ -1,0 +1,322 @@
+---
+/**
+ * Home hero. Picks, in order:
+ * 1. live:     a tournament happening today, with standings buttons
+ * 2. upcoming: the next tournament (Main.dc.html hero)
+ * 3. comingSoon: the "Stay tuned" hero from Site settings
+ */
+import AutoplayVideo from '../AutoplayVideo.astro';
+import SanityImage from '../SanityImage.astro';
+import Highlight from '../Highlight.astro';
+import { cityFromAddress, dateRange, formatPrice, shortDate, shortSchool, splitLastWord } from '../../lib/format';
+import { currentPrice, isEarlyBird, isRegistrationOpen } from '../../lib/status';
+import {
+  presentedTitle,
+  registerUrl,
+  soloUrl,
+  tournamentPath,
+  type Tournament,
+} from '../../lib/tournaments';
+import type { SiteSettings } from '../../lib/site';
+
+interface Props {
+  state: 'live' | 'upcoming' | 'comingSoon';
+  tournament?: Tournament;
+  settings: SiteSettings;
+  heroText?: string;
+  now: Date;
+}
+
+const { state, tournament: t, settings, heroText, now } = Astro.props;
+
+const media = t ? { video: t.heroVideo?.url, poster: t.heroVideo?.poster ?? t.heroImage } : undefined;
+const vars = t ? `--event: ${t.primaryColor}; --event-accent: ${t.accentColor || t.primaryColor}` : '';
+const [titleStart, titleEnd] = t ? splitLastWord(t.title) : ['', ''];
+const city = cityFromAddress(t?.venue?.address);
+const earlyBird = t && isEarlyBird(t, now);
+const price = t && currentPrice(t, now);
+const registrationOpen = t && isRegistrationOpen(t, now);
+const solo = t && soloUrl(t, settings.individualSignupUrl);
+const school = t?.beneficiary?.schoolName;
+const program = t?.beneficiary?.programName?.replace(/\s+Program$/i, '');
+const instagramHandle = settings.instagramUrl?.match(/instagram\.com\/([^/?#]+)/)?.[1];
+const coming = settings.comingSoon ?? {};
+---
+
+<section class="hero" style={vars}>
+  {
+    state === 'comingSoon' ? (
+      <SanityImage image={coming.image} sizes="100vw" alt="" loading="eager" fetchpriority="high" class="hero-media" />
+    ) : (
+      <AutoplayVideo src={media?.video} poster={media?.poster} eager sizes="100vw" class="hero-media" />
+    )
+  }
+  <div aria-hidden="true" class="hero-shade"></div>
+
+  <div class="wrap hero-body">
+    {
+      state === 'live' && t && (
+        <>
+          <div class="badges">
+            <span class="eyebrow badge live-badge">
+              <span class="live-dot" aria-hidden="true" />
+              Live now
+            </span>
+            {t.seriesLabel && <span class="eyebrow badge badge-outline">{t.seriesLabel}</span>}
+          </div>
+          <div class="title-block">
+            <span class="eyebrow event-eyebrow">{presentedTitle(t)}</span>
+            <h1>
+              {titleStart}
+              <span style="color: var(--event)">{titleEnd}</span>
+            </h1>
+          </div>
+          <div class="meta">
+            <span>{dateRange(t.startDate, t.endDate, { weekday: true })}</span>
+            {t.venue?.name && <span style="color: var(--faint)">{[t.venue.name, city].filter(Boolean).join(', ')}</span>}
+          </div>
+          {(t.links?.divisionLinks?.length ?? 0) > 0 && (
+            <div class="standings">
+              <span class="eyebrow" style="color: var(--muted)">Live standings on PlayMetrics</span>
+              <div class="actions">
+                {t.links!.divisionLinks!.map((d) => (
+                  <a class="btn btn-event btn-sm" href={d.url}>
+                    {d.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+          <div class="actions">
+            <a class="btn btn-ghost btn-lg" href={tournamentPath(t)}>
+              Tournament details and checklist
+            </a>
+          </div>
+        </>
+      )
+    }
+
+    {
+      state === 'upcoming' && t && (
+        <>
+          <div class="badges">
+            <span class="eyebrow badge" style="background: var(--event); color: var(--ink)">
+              {registrationOpen ? 'Registration open' : 'Registration closed'}
+            </span>
+            {t.seriesLabel && <span class="eyebrow badge badge-outline">{t.seriesLabel}</span>}
+          </div>
+          <div class="title-block">
+            <span class="eyebrow event-eyebrow">{presentedTitle(t)}</span>
+            <h1>
+              {titleStart}
+              <span style="color: var(--event)">{titleEnd}</span>
+            </h1>
+          </div>
+          {heroText && <p class="lede">{heroText}</p>}
+          <div class="meta">
+            <span>{dateRange(t.startDate, t.endDate)}</span>
+            {t.venue?.name && <span style="color: var(--faint)">{[t.venue.name, city].filter(Boolean).join(', ')}</span>}
+            {registrationOpen && earlyBird && price != null && (
+              <span style="color: var(--event)">
+                Early bird {formatPrice(price)} ends {shortDate(t.pricing!.earlyBirdDeadline!)}
+              </span>
+            )}
+          </div>
+          <div class="actions">
+            {registrationOpen ? (
+              <>
+                <a class="btn btn-event btn-lg" href={registerUrl(t, settings.registerUrl)}>
+                  Register Your Team
+                </a>
+                <a class="btn btn-ghost btn-lg" href={tournamentPath(t)}>
+                  Event Details
+                </a>
+              </>
+            ) : (
+              <a class="btn btn-ghost btn-lg" href={tournamentPath(t)}>
+                Registration closed, view details
+              </a>
+            )}
+          </div>
+          {((registrationOpen && solo) || t.beneficiary?.donateUrl) && (
+            <div class="extras">
+              {registrationOpen && solo && (
+                <span>
+                  No team? <a href={solo}>Sign up solo and we will place you</a>
+                </span>
+              )}
+              {t.beneficiary?.donateUrl && (
+                <span>
+                  {school && program && <>Supporting {shortSchool(school, 'HS')} {program}. </>}
+                  <a href={t.beneficiary.donateUrl}>Donate</a>
+                </span>
+              )}
+            </div>
+          )}
+        </>
+      )
+    }
+
+    {
+      state === 'comingSoon' && (
+        <>
+          <div class="title-block">
+            <span class="eyebrow" style="color: var(--blue); font-size: 15px">Chaos Cup 3v3</span>
+            <h1>
+              <Highlight text={coming.headline || 'Stay tuned'} />
+            </h1>
+          </div>
+          <p class="lede">{coming.text || 'The next Chaos Cup is coming soon.'}</p>
+          <div class="actions">
+            {settings.instagramUrl && (
+              <a class="btn btn-pink btn-lg" href={settings.instagramUrl}>
+                Follow{instagramHandle ? ` @${instagramHandle}` : ' on Instagram'}
+              </a>
+            )}
+            {coming.emailSignupUrl && (
+              <a class="btn btn-ghost btn-lg" href={coming.emailSignupUrl}>
+                Get email updates
+              </a>
+            )}
+          </div>
+        </>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 640px;
+    display: flex;
+    align-items: center;
+  }
+  .hero :global(.hero-media) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    display: block;
+  }
+  .hero-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 10, 18, 0.15) 0%, rgba(10, 10, 18, 0.55) 45%, #0a0a12 100%);
+  }
+  .hero-body {
+    position: relative;
+    padding-top: 56px;
+    padding-bottom: 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    /* Keeps text readable over bright frames of the video or photo. */
+    text-shadow: 0 1px 14px rgba(10, 10, 18, 0.65);
+  }
+  .hero-body .btn,
+  .hero-body .badge {
+    text-shadow: none;
+  }
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  .badge {
+    padding: 8px 14px;
+    border-radius: 999px;
+  }
+  .badge-outline {
+    color: var(--text);
+    border: 1px solid rgba(244, 243, 248, 0.4);
+  }
+  .title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .event-eyebrow {
+    color: var(--event-accent);
+    font-size: 15px;
+  }
+  h1 {
+    font-size: clamp(48px, 7vw, 96px);
+    color: var(--text);
+  }
+  .lede {
+    font-size: 22px;
+    line-height: 1.45;
+    max-width: 640px;
+    color: #e2e1ec;
+    font-weight: 500;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 32px;
+    font-weight: 700;
+    font-size: 18px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+  }
+  .hero .btn-lg.btn-ghost {
+    padding: 0 28px;
+    font-size: 16px;
+  }
+  .extras {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    font-size: 15px;
+    color: var(--muted);
+  }
+  .extras a {
+    font-weight: 700;
+  }
+  .standings {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--event);
+    color: var(--ink);
+  }
+  .live-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--ink);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.35;
+      transform: scale(0.7);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .actions .btn {
+      white-space: normal;
+      text-align: center;
+    }
+  }
+</style>

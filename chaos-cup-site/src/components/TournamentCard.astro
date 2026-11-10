@@ -1,0 +1,211 @@
+---
+/** Upcoming or live tournament card from the home design, in the event's own colors. */
+import SanityImage from './SanityImage.astro';
+import { dateRange, formatPrice, shortDate, shortSchool, streetAndCity } from '../lib/format';
+import { currentPrice, isEarlyBird, isRegistrationOpen, type Status } from '../lib/status';
+import { presentedTitle, registerUrl, seriesShort, shoeSummary, tournamentPath, type Tournament } from '../lib/tournaments';
+
+interface Props {
+  tournament: Tournament & { status: Status };
+  now: Date;
+  defaultRegisterUrl: string;
+  /** The first card: "Next up" badge and a heavier border. */
+  next?: boolean;
+}
+
+const { tournament: t, now, defaultRegisterUrl, next = false } = Astro.props;
+const live = t.status === 'live';
+const open = !live && isRegistrationOpen(t, now);
+const earlyBird = isEarlyBird(t, now);
+const price = currentPrice(t, now);
+const accent = t.accentColor || t.primaryColor;
+const badge = live
+  ? 'Live now'
+  : next
+    ? `Next up · ${open ? 'Registering now' : 'Registration closed'}`
+    : (seriesShort(t) ?? 'Coming up');
+const where = [t.venue?.name, streetAndCity(t.venue?.address)].filter(Boolean).join(' · ');
+const surface = [t.surface?.areaName, t.surface?.headline].filter(Boolean).join(' · ');
+const shoes = shoeSummary(t.shoes);
+const school = t.beneficiary?.schoolName;
+---
+
+<article
+  class:list={['card', 't-card', { 't-card-next': next }]}
+  style={`--event: ${t.primaryColor}; --event-accent: ${accent}`}
+>
+  <div class="t-media">
+    <SanityImage image={t.cardImage} aspect={1.95} sizes="(min-width: 1000px) 590px, 100vw" maxWidth={1200} class="t-photo" />
+    <div aria-hidden="true" class="t-shade"></div>
+    <SanityImage image={t.logo} alt="" maxWidth={640} widths={[320, 640]} sizes="320px" class="t-logo" />
+    <span class="eyebrow t-badge">{badge}</span>
+  </div>
+  <div class="t-body">
+    <div class="t-title">
+      <span class="eyebrow" style="color: var(--event-accent); font-size: 12px">{presentedTitle(t)}</span>
+      <h3><a href={tournamentPath(t)}>{t.title}</a></h3>
+    </div>
+    <div class="t-facts">
+      <span style="font-weight: 700">{dateRange(t.startDate, t.endDate, { weekday: true })}</span>
+      {where && <span style="color: var(--muted)">{where}</span>}
+      {surface && <span style="color: var(--muted)">{surface}</span>}
+      {shoes && <span style="color: var(--event-accent); font-weight: 700">{shoes}</span>}
+    </div>
+    {
+      !live && price != null && (
+        <div class="t-price">
+          <span class="t-amount">{formatPrice(price)}</span>
+          {earlyBird ? (
+            <>
+              <span style="font-weight: 700">Early bird per team through {shortDate(t.pricing!.earlyBirdDeadline!)}</span>
+              {t.pricing?.regularPrice != null && (
+                <span style="color: var(--faint); text-decoration: line-through">
+                  <span class="visually-hidden">Regular price </span>
+                  {formatPrice(t.pricing.regularPrice)}
+                </span>
+              )}
+            </>
+          ) : (
+            <span style="font-weight: 700">Per team</span>
+          )}
+        </div>
+      )
+    }
+    {
+      school && (
+        <p style="color: var(--muted); font-size: 15px">
+          Supporting the{' '}
+          <strong style="color: var(--text)">
+            {shortSchool(school, 'HS')} {t.beneficiary?.programName}
+          </strong>
+        </p>
+      )
+    }
+    <div class="t-actions">
+      {live ? (
+        <a class="btn btn-event" href={tournamentPath(t)}>
+          Live standings and details
+        </a>
+      ) : open ? (
+        <a class="btn btn-event" href={registerUrl(t, defaultRegisterUrl)}>
+          Register Team
+        </a>
+      ) : (
+        <a class="btn btn-event" href={tournamentPath(t)}>
+          Registration closed, view details
+        </a>
+      )}
+      {t.beneficiary?.donateUrl && (
+        <a class="btn btn-ghost" href={t.beneficiary.donateUrl}>
+          Donate{school ? ` to ${shortSchool(school)}` : ''}
+        </a>
+      )}
+      {/* The main button already goes to the details page when registration is closed or the event is live. */}
+      {open && (
+        <a class="btn t-details" href={tournamentPath(t)} aria-label={`${t.title} details`}>
+          Details
+        </a>
+      )}
+    </div>
+  </div>
+</article>
+
+<style>
+  .t-card {
+    display: flex;
+    flex-direction: column;
+    border-color: var(--event);
+  }
+  .t-card-next {
+    box-shadow: 0 0 0 1px var(--event);
+  }
+  .t-media {
+    position: relative;
+  }
+  .t-media :global(.t-photo) {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    display: block;
+  }
+  .t-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 10, 18, 0) 30%, rgba(10, 10, 18, 0.85) 100%);
+  }
+  .t-media :global(.t-logo) {
+    position: absolute;
+    right: 16px;
+    bottom: 12px;
+    width: 62%;
+    max-width: 320px;
+    height: auto;
+    display: block;
+  }
+  .t-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: var(--event);
+    color: var(--ink);
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+  }
+  .t-body {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    flex: 1;
+  }
+  .t-title {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .t-title h3 {
+    font-size: 34px;
+  }
+  .t-title h3 a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .t-title h3 a:hover {
+    color: var(--event-accent);
+  }
+  .t-facts {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 16px;
+    line-height: 1.45;
+  }
+  .t-price {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    align-items: baseline;
+    padding: 14px 16px;
+    background: var(--bg);
+    border-radius: 12px;
+  }
+  .t-amount {
+    font-family: var(--font-display);
+    font-size: 26px;
+    color: var(--event);
+  }
+  .t-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: auto;
+  }
+  .t-details {
+    color: var(--event-accent);
+    padding: 0 12px;
+  }
+  .t-details:hover {
+    color: var(--text);
+  }
+</style>
