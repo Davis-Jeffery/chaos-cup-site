@@ -1,23 +1,33 @@
 ---
-import { sanityClient } from 'sanity:client';
+/**
+ * TEMPORARY (Phase 4): shows the shared layout and button styles.
+ * Phase 5 replaces this with the real home page.
+ */
+import Layout from '../layouts/Layout.astro';
+import { getLayoutData } from '../lib/site';
+import { nowForRequest } from '../lib/status';
 
-// Quick connection test: counts every document in your dataset.
-let count: number | string = 'not connected';
-try {
-  count = await sanityClient.fetch('count(*)');
-} catch (e) {
-  count = 'not connected (check your .env values)';
-}
+const now = nowForRequest(Astro.url);
+const data = await getLayoutData();
 ---
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Chaos Cup</title>
-  </head>
-  <body style="font-family: system-ui; background: #0A0A12; color: #F4F3F8; padding: 40px">
-    <h1>Chaos Cup site is running</h1>
-    <p>Sanity documents found: <strong>{count}</strong></p>
-    <p><a href="/studio" style="color: #2EA9F6">Open Sanity Studio</a></p>
-  </body>
-</html>
+
+<Layout data={data} now={now} footer="full">
+  <section style="padding: 96px 0">
+    <div class="wrap" style="display: flex; flex-direction: column; gap: 32px">
+      <span class="eyebrow" style="color: var(--blue)">Phase 4 preview</span>
+      <h1 style="font-size: clamp(44px, 7vw, 96px)">Shared <span style="color: var(--magenta)">layout.</span></h1>
+      <p style="font-size: 19px; color: var(--muted); max-width: 640px; line-height: 1.55">
+        Header, sponsors and footer are live from Sanity. The home page sections arrive in Phase 5.
+      </p>
+      <div style="display: flex; flex-wrap: wrap; gap: 14px">
+        <a class="btn btn-pink" href="#">Pink</a>
+        <a class="btn btn-blue" href="#">Blue</a>
+        <a class="btn btn-ghost" href="#">Ghost</a>
+        <a class="btn btn-pink btn-sm" href="#">Small</a>
+        <a class="btn btn-pink btn-lg" href="#">Large</a>
+        <span style="--event: #DF6902"><a class="btn btn-event" href="#">Turkey</a></span>
+        <span style="--event: #3CA8E4"><a class="btn btn-event" href="#">Frostbite</a></span>
+      </div>
+    </div>
+  </section>
+</Layout>

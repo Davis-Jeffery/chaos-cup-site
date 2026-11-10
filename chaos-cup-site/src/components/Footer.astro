@@ -1,0 +1,94 @@
+---
+/**
+ * Two footers from the designs:
+ * - "full" (home page): logo, tagline and link columns from site settings.
+ * - "compact" (every other page): one line with the Instagram link.
+ */
+import SanityImage from './SanityImage.astro';
+import { linkHref, type SiteSettings } from '../lib/site';
+
+interface Props {
+  settings: SiteSettings;
+  variant?: 'full' | 'compact';
+}
+
+const { settings, variant = 'compact' } = Astro.props;
+const instagramHandle = settings.instagramUrl?.match(/instagram\.com\/([^/?#]+)/)?.[1];
+---
+
+<footer class="foot">
+  {
+    variant === 'full' ? (
+      <div class="wrap foot-full">
+        <div class="foot-col">
+          <SanityImage
+            image={settings.logo}
+            maxWidth={400}
+            widths={[200, 400]}
+            sizes="200px"
+            style="width: 200px; height: auto; display: block"
+          />
+          {settings.tagline && <span class="foot-tagline">{settings.tagline}</span>}
+        </div>
+        {(settings.footerColumns ?? []).map((column) => (
+          <div class="foot-col">
+            <h2 class="eyebrow foot-heading">{column.heading}</h2>
+            {(column.links ?? []).map((link) => (
+              <a href={linkHref(link)}>{link.label}</a>
+            ))}
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="wrap foot-compact">
+        <span>Chaos Cup by Atomic Athletics</span>
+        {settings.instagramUrl && <a href={settings.instagramUrl}>Instagram{instagramHandle && ` @${instagramHandle}`}</a>}
+      </div>
+    )
+  }
+</footer>
+
+<style>
+  .foot {
+    border-top: 1px solid var(--divider);
+    background: var(--footer-bg);
+  }
+  .foot-full {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+    gap: 32px;
+    padding-top: 56px;
+    padding-bottom: 56px;
+    font-size: 15px;
+  }
+  .foot-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .foot-tagline {
+    color: var(--faint);
+    line-height: 1.5;
+  }
+  .foot-heading {
+    color: var(--faint);
+    font-size: 12px;
+  }
+  .foot-full a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .foot-full a:hover {
+    color: var(--magenta);
+  }
+  .foot-compact {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    color: var(--faint);
+    font-size: 14px;
+  }
+</style>

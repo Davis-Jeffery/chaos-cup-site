@@ -1,0 +1,51 @@
+---
+/**
+ * Responsive Sanity image: CDN URL with auto format, width-based srcset and
+ * hotspot crop when `aspect` is given. Width and height come from the asset
+ * metadata so the browser reserves space before it loads.
+ */
+import { imageSet } from '../lib/sanity';
+
+interface Props {
+  image: any;
+  sizes?: string;
+  /** width / height. Crops around the hotspot. Leave out for logos. */
+  aspect?: number;
+  /** Largest width ever needed, to keep the srcset short. */
+  maxWidth?: number;
+  widths?: number[];
+  /** Overrides the alt text stored in Sanity. Pass "" for decorative images. */
+  alt?: string;
+  loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  class?: string;
+  style?: string;
+}
+
+const { image, sizes = '100vw', aspect, maxWidth, widths, alt, loading = 'lazy', fetchpriority, class: className, style } =
+  Astro.props;
+
+const hasAsset = Boolean(image?.asset);
+const set = hasAsset ? imageSet(image, { aspect, maxWidth, widths }) : null;
+const dims = image?.asset?.metadata?.dimensions;
+const width = dims?.width;
+const height = aspect && width ? Math.round(width / aspect) : dims?.height;
+---
+
+{
+  set && (
+    <img
+      src={set.src}
+      srcset={set.srcset}
+      sizes={sizes}
+      alt={alt ?? image.alt ?? ''}
+      width={width}
+      height={height}
+      loading={loading}
+      decoding="async"
+      fetchpriority={fetchpriority}
+      class={className}
+      style={style}
+    />
+  )
+}

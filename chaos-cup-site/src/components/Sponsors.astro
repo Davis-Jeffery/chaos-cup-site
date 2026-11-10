@@ -1,0 +1,212 @@
+---
+/**
+ * "Our Sponsors" section that ends every page. Only sponsors inside their
+ * contract dates show.
+ *
+ * - Primary sponsors with a dark tile get the full-width feature card
+ *   ("Title sponsor · Turkey Takedown").
+ * - Primary sponsors with a light tile (SmugMug, whose only logo is black)
+ *   join the end of the logo grid with their designation under the logo,
+ *   exactly as the design shows.
+ * - Secondary sponsors fill the logo grid in display order.
+ *
+ * Logos are shown exactly as uploaded: never recolored or filtered.
+ */
+import SanityImage from './SanityImage.astro';
+import { activeSponsors, featuredEventFor, type LayoutData, type Sponsor } from '../lib/site';
+
+interface Props {
+  data: LayoutData;
+  now: Date;
+  /** On a tournament page, so its own presenting sponsor names it. */
+  currentTournamentId?: string;
+}
+
+const { data, now, currentTournamentId } = Astro.props;
+const sponsors = activeSponsors(data.sponsors, now);
+
+const featured = sponsors.filter((s) => s.tier === 'primary' && s.tileStyle !== 'light');
+const grid = [
+  ...sponsors.filter((s) => s.tier !== 'primary'),
+  ...sponsors.filter((s) => s.tier === 'primary' && s.tileStyle === 'light'),
+];
+
+const href = (s: Sponsor) => (s.linkEnabled !== false && s.url ? s.url : undefined);
+const eyebrow = (s: Sponsor) => {
+  const event = featuredEventFor(s, data.tournaments, now, currentTournamentId);
+  return [s.designation, event?.title].filter(Boolean).join(' · ');
+};
+const pdfUrl = data.settings.sponsorshipPdfUrl;
+---
+
+<section id="sponsors" class="sponsors">
+  <div class="wrap sponsors-inner">
+    <div class="sponsors-head">
+      <div class="sponsors-title">
+        <span class="eyebrow" style="color: var(--magenta)">Thank you</span>
+        <h2>Our Sponsors</h2>
+      </div>
+      {pdfUrl && <a class="btn btn-ghost" href={pdfUrl}>Become a Sponsor</a>}
+    </div>
+
+    {
+      featured.map((s) => {
+        const Tag = href(s) ? 'a' : 'div';
+        return (
+          <Tag href={href(s)} class="feature">
+            <div class="feature-text">
+              {eyebrow(s) && (
+                <span class="eyebrow" style="color: var(--blue)">
+                  {eyebrow(s)}
+                </span>
+              )}
+              <span class="feature-name">{s.name}</span>
+            </div>
+            <SanityImage
+              image={s.logoOnDark}
+              alt=""
+              maxWidth={520}
+              widths={[260, 520]}
+              sizes="260px"
+              style="width: 260px; height: auto; display: block"
+            />
+          </Tag>
+        );
+      })
+    }
+
+    {
+      grid.length > 0 && (
+        <ul class="logo-grid" role="list">
+          {grid.map((s) => {
+            const light = s.tileStyle === 'light';
+            const logo = light ? (s.logoOnLight ?? s.logoOnDark) : s.logoOnDark;
+            const caption = s.tier === 'primary' ? s.designation : undefined;
+            const Tag = href(s) ? 'a' : 'div';
+            return (
+              <li>
+                <Tag href={href(s)} class:list={['tile', light ? 'tile-light' : 'tile-dark']}>
+                  <SanityImage
+                    image={logo}
+                    alt={s.name}
+                    maxWidth={480}
+                    widths={[240, 480]}
+                    sizes="240px"
+                    class:list={['tile-logo', caption && 'tile-logo-captioned']}
+                  />
+                  {caption && <span class="tile-caption">{caption}</span>}
+                </Tag>
+              </li>
+            );
+          })}
+        </ul>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .sponsors {
+    padding: 112px 0;
+    background: var(--raised);
+    border-top: 1px solid var(--divider);
+  }
+  .sponsors-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  .sponsors-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+  }
+  .sponsors-title {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .sponsors-title h2 {
+    font-size: clamp(36px, 5vw, 60px);
+  }
+
+  .feature {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px 40px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 32px;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--blue);
+    background: var(--feature);
+    text-decoration: none;
+    color: var(--text);
+  }
+  a.feature:hover {
+    color: var(--text);
+    border-color: var(--link-hover);
+  }
+  .feature-text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .feature-name {
+    font-family: var(--font-display);
+    font-size: 30px;
+  }
+
+  .logo-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+    gap: 16px;
+  }
+  .tile {
+    height: 120px;
+    border-radius: var(--radius-tile);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+  .tile-light {
+    background: #ffffff;
+    padding: 18px;
+  }
+  .tile-dark {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 12px;
+  }
+  a.tile-dark:hover {
+    border-color: var(--border-strong);
+  }
+  .tile :global(.tile-logo) {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    display: block;
+    object-fit: contain;
+  }
+  .tile :global(.tile-logo-captioned) {
+    max-height: 44px;
+  }
+  .tile-caption {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #2b2b33;
+    text-align: center;
+  }
+</style>

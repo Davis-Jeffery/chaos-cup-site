@@ -1,0 +1,217 @@
+---
+/**
+ * Site header from the designs: logo, main nav and Register button.
+ * Below 900px the nav folds into a hamburger menu.
+ */
+import SanityImage from './SanityImage.astro';
+import { isExternal, linkHref, type SiteSettings } from '../lib/site';
+
+interface Props {
+  settings: SiteSettings;
+}
+
+const { settings } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const registerLabel = settings.registerLabel || 'Register a Team';
+
+// A nav link is the current page when its path (without any #hash) matches.
+const isCurrent = (href: string) => {
+  if (isExternal(href) || href.includes('#')) return false;
+  const p = href.replace(/\/$/, '') || '/';
+  return p !== '/' && (path === p || path.startsWith(`${p}/`));
+};
+---
+
+<header class="nav">
+  <div class="wrap nav-row">
+    <a href="/" class="nav-logo">
+      <SanityImage
+        image={settings.logo}
+        maxWidth={400}
+        widths={[160, 240, 320, 400]}
+        sizes="200px"
+        loading="eager"
+        class="logo-img"
+      />
+    </a>
+
+    <div class="mobile-actions">
+      <a class="btn btn-pink btn-sm" href={settings.registerUrl}>Register</a>
+      <button
+        type="button"
+        class="menu-btn"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="site-menu"
+        data-menu-button
+      >
+        <svg class="icon-open" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line>
+        </svg>
+        <svg class="icon-close" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <nav aria-label="Main" id="site-menu" class="mainnav">
+      {
+        (settings.navLinks ?? []).map((link) => {
+          const href = linkHref(link);
+          const current = isCurrent(href);
+          return (
+            <a class="navlink" href={href} aria-current={current ? 'page' : undefined}>
+              {link.label}
+            </a>
+          );
+        })
+      }
+      <a class="btn btn-pink btn-sm" href={settings.registerUrl}>{registerLabel}</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-menu-button]');
+  const menu = document.getElementById('site-menu');
+
+  if (button && menu) {
+    const setOpen = (open: boolean) => {
+      menu.classList.toggle('open', open);
+      button.setAttribute('aria-expanded', String(open));
+      button.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    };
+
+    button.addEventListener('click', () => setOpen(button.getAttribute('aria-expanded') !== 'true'));
+    // Close after tapping a link (including #anchors on the same page).
+    menu.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) setOpen(false);
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        button.focus();
+      }
+    });
+    // Reset when the window grows past the mobile breakpoint.
+    window.matchMedia('(min-width: 900px)').addEventListener('change', (e) => e.matches && setOpen(false));
+  }
+</script>
+
+<style>
+  .nav {
+    border-bottom: 1px solid var(--divider);
+  }
+  .nav-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+  .nav-logo :global(.logo-img) {
+    height: 64px;
+    width: auto;
+    display: block;
+  }
+  /* Keeps logo, Register and menu on one row on the narrowest phones. */
+  @media (max-width: 400px) {
+    .nav-logo :global(.logo-img) {
+      height: 54px;
+    }
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .mainnav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 28px;
+  }
+  .navlink {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .navlink:hover,
+  .navlink[aria-current='page'] {
+    color: var(--magenta);
+  }
+  .mobile-actions {
+    display: none;
+    gap: 10px;
+    align-items: center;
+  }
+  .menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    padding: 0;
+  }
+  .menu-btn:hover {
+    border-color: var(--text);
+  }
+  .icon-close {
+    display: none;
+  }
+  .menu-btn[aria-expanded='true'] .icon-open {
+    display: none;
+  }
+  .menu-btn[aria-expanded='true'] .icon-close {
+    display: block;
+  }
+
+  @media (max-width: 899px) {
+    .mobile-actions {
+      display: flex;
+      margin-left: auto;
+    }
+    .mainnav {
+      display: none;
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 8px 0 12px;
+      border-top: 1px solid var(--divider);
+    }
+    .mainnav.open {
+      display: flex;
+    }
+    .mainnav .navlink {
+      display: flex;
+      align-items: center;
+      min-height: 52px;
+      font-size: 18px;
+      border-bottom: 1px solid var(--divider);
+    }
+    .mainnav .btn {
+      margin-top: 16px;
+      width: 100%;
+      min-height: 52px;
+    }
+  }
+
+  /* Without JavaScript the menu button can't work, so show the links instead. */
+  :global(html:not(.js)) .mainnav {
+    display: flex;
+  }
+  :global(html:not(.js)) .menu-btn {
+    display: none;
+  }
+</style>
