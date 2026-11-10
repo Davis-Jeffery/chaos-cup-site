@@ -36,7 +36,6 @@ const SMUGMUG_OFFER_URL = 'https://www.smugmug.com/signup?coupon=Chaos2026';
 const RELYTE_URL = 'https://glnk.io/oq72y/atomic-athletics-soccer';
 // Still on the old WordPress site. Phase 10 sets up redirects for these.
 const SPONSORSHIP_PDF_URL = 'https://thechaoscup.com/wp-content/uploads/2026/07/SPONSORSHIP-OPPORTUNITIES.pdf';
-const GET_INVOLVED_URL = 'https://thechaoscup.com/get-involved/';
 const CONTACT_URL = 'https://thechaoscup.com/contact-2/';
 
 // ---------- helpers ----------
@@ -645,7 +644,7 @@ async function siteSettingsDoc() {
       internal('past', 'Past Events', '/past-events'),
       internal('photos', 'Photos', '/#photos'),
       internal('sponsors', 'Sponsors', '/#sponsors'),
-      external('involved', 'Get Involved', GET_INVOLVED_URL),
+      internal('involved', 'Get Involved', '/get-involved'),
     ],
     registerLabel: 'Register a Team',
     registerUrl: REGISTER_URL,
@@ -672,7 +671,7 @@ async function siteSettingsDoc() {
         _type: 'footerColumn',
         heading: 'Partner',
         links: [
-          external('host', 'Host a Chaos Cup', GET_INVOLVED_URL),
+          internal('host', 'Host a Chaos Cup', '/get-involved#schools'),
           external('packages', 'Sponsorship Packages', SPONSORSHIP_PDF_URL),
           external('contact', 'Contact Us', CONTACT_URL),
         ],
@@ -806,6 +805,53 @@ function pastEventsPageDoc() {
   };
 }
 
+async function getInvolvedPageDoc() {
+  const step = (key: string, title: string, text: string) => ({ _key: key, _type: 'step', title, text });
+  return {
+    _id: 'getInvolvedPage',
+    _type: 'getInvolvedPage',
+    hero: {
+      eyebrow: 'Get involved',
+      headline: 'Build the future of *local athletics.*',
+      text: 'The Chaos Cup brings local businesses, high school programs and the community together. Every event directly funds student-athletes and builds something that lasts.',
+      image: await img('aerial.jpg', 'Aerial view of eight inflatable pitches on a stadium field'),
+    },
+    video: {
+      eyebrow: 'How it works',
+      headline: 'See how a Chaos Cup comes together',
+      text: 'A quick look at how a school, its sponsors and the Chaos Cup team turn one event into money for the season.',
+    },
+    schools: {
+      eyebrow: 'For school programs',
+      headline: 'Join the Chaos Cup circuit',
+      text: 'Looking for a turnkey fundraiser? You bring the venue and the players. We handle the rest, so your program can fund its season and rally its community.',
+      schoolProvides: ['A venue for the event', 'Your players, families and community'],
+      weProvide: ['Event logistics and coordination', 'Registration and team placement', 'Administration, from schedules to standings', 'Everything else on game day'],
+      buttonLabel: 'Host a Chaos Cup',
+      buttonUrl: CONTACT_URL,
+      image: await img('mm-champs-3.jpg', 'Players showing off their Chaos Cup rings'),
+    },
+    partners: {
+      eyebrow: 'For community partners',
+      headline: 'Sponsor a school, build your brand',
+      text: 'Connect your business with the families who already support it, and put your brand in front of thousands of active community members.',
+      steps: [
+        step('school', 'Pick a school', 'Choose the high school program you want to support.'),
+        step('tier', 'Choose your impact', 'Select the sponsorship tier that fits your goals.'),
+        step('reach', 'Reach local families', 'Get your brand in front of thousands of active community members.'),
+      ],
+      buttonLabel: 'See Sponsorship Packages',
+      image: await img('dev6.jpg', 'Two players racing along the wall for the ball'),
+    },
+    cta: {
+      headline: 'Ready to *get involved?*',
+      text: 'Tell us about your school or business and we will help you find the right fit.',
+      buttonLabel: 'Contact Us',
+      buttonUrl: CONTACT_URL,
+    },
+  };
+}
+
 async function developmentPageDoc() {
   const card = (icon: string, title: string, text: string) => ({ _type: 'benefitCard', icon, title, text });
   const row = (label: string, value: number, highlight = false) => ({ _type: 'chartRow', label, value, highlight });
@@ -815,7 +861,7 @@ async function developmentPageDoc() {
     _type: 'developmentPage',
     hero: {
       eyebrow: 'Why 3v3 works',
-      headline: 'Small field. Big development.',
+      headline: 'Small field. *Big development.*',
       text: '3v3 inside inflatable walls gives every player more touches, more decisions and more goals than a full-field game, and it keeps soccer fun.',
       image: await img('dev3.jpg', 'Players in blue and red Re-Lyte pinnies battling for the ball inside the inflatable walls'),
     },
@@ -922,7 +968,7 @@ async function developmentPageDoc() {
       ],
     },
     cta: {
-      headline: 'More touches. More fun. More soccer.',
+      headline: 'More touches. More fun. *More soccer.*',
       text: 'Give your player a day full of touches, goals and decisions they will remember.',
     },
   };
@@ -943,6 +989,7 @@ async function main() {
     await homePageDoc(videos),
     await rulebookPageDoc(),
     await developmentPageDoc(),
+    await getInvolvedPageDoc(),
     pastEventsPageDoc(),
     ...(await sponsorDocs()),
     ...(await tournamentDocs(videos)),

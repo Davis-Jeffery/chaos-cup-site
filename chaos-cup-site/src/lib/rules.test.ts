@@ -38,7 +38,7 @@ describe('numberRules', () => {
   });
   it('renumbers when rules move', () => {
     const moved = structuredClone(sections);
-    moved[1].rules.reverse();
+    moved[1].rules!.reverse();
     expect(numberRules(moved).numbers.get('placement')).toBe('1.1');
   });
 });

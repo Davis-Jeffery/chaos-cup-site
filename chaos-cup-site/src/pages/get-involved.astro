@@ -1,0 +1,464 @@
+---
+/**
+ * Get involved: schools that want to host and businesses that want to sponsor.
+ * No design file; built from the site's design system and the old WordPress page's content.
+ */
+import Layout from '../layouts/Layout.astro';
+import SanityImage from '../components/SanityImage.astro';
+import Highlight from '../components/Highlight.astro';
+import { sanityClient, imageSet } from '../lib/sanity';
+import { getLayoutData, IMAGE } from '../lib/site';
+import { nowForRequest } from '../lib/status';
+import { stripHighlights } from '../lib/format';
+import { videoSource } from '../lib/video';
+
+const now = nowForRequest(Astro.url);
+const [data, page] = await Promise.all([
+  getLayoutData(),
+  sanityClient.fetch<any>(`*[_id == "getInvolvedPage"][0]{
+    ...,
+    hero { ..., image ${IMAGE} },
+    video { ..., poster ${IMAGE} },
+    schools { ..., image ${IMAGE} },
+    partners { ..., image ${IMAGE} },
+    seo { ..., image ${IMAGE} }
+  }`),
+]);
+const p = page ?? {};
+const video = videoSource(p.video?.videoUrl);
+const posterUrl = p.video?.poster?.asset ? imageSet(p.video.poster, { aspect: 16 / 9, widths: [1280] }).src : undefined;
+const pdfUrl = data.settings.sponsorshipPdfUrl;
+---
+
+<Layout
+  data={data}
+  now={now}
+  title={p.seo?.title || 'Get Involved'}
+  description={p.seo?.description || p.hero?.text}
+  ogImage={p.seo?.image ?? p.hero?.image}
+>
+  <section class="hero">
+    <SanityImage image={p.hero?.image} sizes="100vw" loading="eager" fetchpriority="high" class="hero-img" />
+    <div aria-hidden="true" class="hero-shade"></div>
+    <div class="wrap hero-body">
+      {p.hero?.eyebrow && <span class="eyebrow" style="color: var(--blue); font-size: 15px">{p.hero.eyebrow}</span>}
+      <h1><Highlight text={p.hero?.headline || 'Get involved'} /></h1>
+      {p.hero?.text && <p class="hero-text">{p.hero.text}</p>}
+      <div class="actions">
+        <a class="btn btn-pink" href="#schools">For Schools</a>
+        <a class="btn btn-ghost" href="#sponsors-path">For Sponsors</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec video-sec" id="how-it-works">
+    <div class="wrap video-layout">
+      <div class="head">
+        {p.video?.eyebrow && <span class="eyebrow" style="color: var(--magenta)">{p.video.eyebrow}</span>}
+        <h2><Highlight text={p.video?.headline || 'How it works'} /></h2>
+        {p.video?.text && <p class="head-intro">{p.video.text}</p>}
+      </div>
+      <div class="video-frame">
+        {
+          video?.kind === 'embed' ? (
+            <iframe
+              src={video.src}
+              title={stripHighlights(p.video?.headline) || 'How it works video'}
+              loading="lazy"
+              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+              allowfullscreen
+            />
+          ) : video?.kind === 'file' ? (
+            <video src={video.src} poster={posterUrl} controls preload="none" playsinline>
+              <track kind="captions" />
+            </video>
+          ) : (
+            <div class="ph video-ph" role="img" aria-label="How it works video coming soon">
+              <span class="play" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="#0A0A12"><path d="M8 5.5v13l11-6.5z" /></svg>
+              </span>
+              <span>How it works video coming soon</span>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="sec raised">
+    <div class="wrap paths">
+      {
+        p.schools && (
+          <article id="schools" class="path">
+            <SanityImage image={p.schools.image} aspect={1.9} sizes="(min-width: 1000px) 570px, 100vw" maxWidth={1200} class="path-img" />
+            <div class="path-body">
+              {p.schools.eyebrow && <span class="eyebrow" style="color: var(--magenta)">{p.schools.eyebrow}</span>}
+              <h2 class="path-title"><Highlight text={p.schools.headline} /></h2>
+              {p.schools.text && <p class="path-text">{p.schools.text}</p>}
+              <div class="split">
+                {(p.schools.schoolProvides?.length ?? 0) > 0 && (
+                  <div class="split-col">
+                    <span class="eyebrow split-label">Your school brings</span>
+                    <ul class="checks" role="list">
+                      {p.schools.schoolProvides.map((item: string) => (
+                        <li>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {(p.schools.weProvide?.length ?? 0) > 0 && (
+                  <div class="split-col split-us">
+                    <span class="eyebrow split-label" style="color: var(--magenta)">We handle</span>
+                    <ul class="checks checks-pink" role="list">
+                      {p.schools.weProvide.map((item: string) => (
+                        <li>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              {p.schools.buttonLabel && p.schools.buttonUrl && (
+                <a class="btn btn-pink path-btn" href={p.schools.buttonUrl}>
+                  {p.schools.buttonLabel}
+                </a>
+              )}
+            </div>
+          </article>
+        )
+      }
+
+      {
+        p.partners && (
+          <article id="sponsors-path" class="path">
+            <SanityImage image={p.partners.image} aspect={1.9} sizes="(min-width: 1000px) 570px, 100vw" maxWidth={1200} class="path-img" />
+            <div class="path-body">
+              {p.partners.eyebrow && <span class="eyebrow" style="color: var(--blue)">{p.partners.eyebrow}</span>}
+              <h2 class="path-title"><Highlight text={p.partners.headline} color="var(--blue)" /></h2>
+              {p.partners.text && <p class="path-text">{p.partners.text}</p>}
+              {(p.partners.steps?.length ?? 0) > 0 && (
+                <ol class="steps" role="list">
+                  {p.partners.steps.map((s: any, i: number) => (
+                    <li class="step">
+                      <span class="step-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                      <span class="step-text">
+                        <b>{s.title}</b>
+                        {s.text && <span>{s.text}</span>}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+              {pdfUrl && (
+                <a class="btn btn-blue path-btn" href={pdfUrl}>
+                  {p.partners.buttonLabel || 'See Sponsorship Packages'}
+                </a>
+              )}
+            </div>
+          </article>
+        )
+      }
+    </div>
+  </section>
+
+  {
+    p.cta && (
+      <section class="cta">
+        <div class="wrap cta-inner">
+          <h2><Highlight text={p.cta.headline} /></h2>
+          {p.cta.text && <p>{p.cta.text}</p>}
+          <div class="actions" style="justify-content: center">
+            {p.cta.buttonLabel && p.cta.buttonUrl && (
+              <a class="btn btn-pink btn-lg" href={p.cta.buttonUrl}>
+                {p.cta.buttonLabel}
+              </a>
+            )}
+            {pdfUrl && (
+              <a class="btn btn-ghost btn-lg cta-ghost" href={pdfUrl}>
+                Sponsorship Packages
+              </a>
+            )}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</Layout>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 560px;
+    display: flex;
+    align-items: flex-end;
+  }
+  .hero :global(.hero-img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    display: block;
+  }
+  .hero-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 10, 18, 0.2) 0%, rgba(10, 10, 18, 0.6) 45%, #0a0a12 100%);
+  }
+  .hero-body {
+    position: relative;
+    padding-top: 140px;
+    padding-bottom: 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    text-shadow: 0 1px 14px rgba(10, 10, 18, 0.6);
+  }
+  .hero-body h1 {
+    font-size: clamp(44px, 7vw, 92px);
+    max-width: 900px;
+  }
+  .hero-text {
+    font-size: 20px;
+    line-height: 1.55;
+    max-width: 680px;
+    color: #e2e1ec;
+    font-weight: 500;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    text-shadow: none;
+  }
+
+  .sec {
+    padding: 96px 0;
+  }
+  .raised {
+    background: var(--raised);
+    border-top: 1px solid var(--divider);
+  }
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  h2 {
+    font-size: clamp(34px, 5vw, 56px);
+  }
+  .head-intro {
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.6;
+  }
+
+  .video-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px 56px;
+    align-items: center;
+  }
+  .video-layout .head {
+    flex: 1 1 340px;
+    min-width: 0;
+  }
+  .video-frame {
+    flex: 999 1 560px;
+    min-width: 0;
+    aspect-ratio: 16 / 9;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+  .video-frame iframe,
+  .video-frame video {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    object-fit: cover;
+  }
+  .video-ph {
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    gap: 16px;
+    border-radius: 24px;
+  }
+  .play {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--magenta);
+    padding-left: 4px;
+  }
+
+  .paths {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr));
+    gap: 24px;
+    align-items: stretch;
+  }
+  .path {
+    display: flex;
+    flex-direction: column;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    overflow: hidden;
+    scroll-margin-top: 24px;
+  }
+  .path :global(.path-img) {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    display: block;
+  }
+  .path-body {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    flex: 1;
+  }
+  .path-title {
+    font-size: clamp(30px, 3.4vw, 40px);
+  }
+  .path-text {
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  .path-btn {
+    align-self: flex-start;
+    margin-top: auto;
+  }
+  @media (max-width: 599px) {
+    .path-body {
+      padding: 24px;
+    }
+    .path :global(.path-img) {
+      height: 200px;
+    }
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+    gap: 14px;
+  }
+  .split-col {
+    padding: 20px;
+    border-radius: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .split-us {
+    border-color: rgba(249, 14, 231, 0.45);
+  }
+  .split-label {
+    font-size: 11px;
+    color: var(--faint);
+  }
+  .checks {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .checks li {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    gap: 10px;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+  .checks li::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: var(--blue)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230A0A12' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 12 10 17 19 7'/%3E%3C/svg%3E")
+      center / 12px no-repeat;
+  }
+  .checks-pink li::before {
+    background-color: var(--magenta);
+  }
+
+  .steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 14px;
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+  }
+  .step:last-child {
+    border-bottom: 1px solid var(--border);
+  }
+  .step-num {
+    font-family: var(--font-display);
+    font-size: 28px;
+    color: var(--blue);
+    line-height: 1;
+  }
+  .step-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    line-height: 1.5;
+  }
+  .step-text b {
+    font-size: 18px;
+  }
+  .step-text span {
+    color: var(--muted);
+  }
+
+  .cta {
+    padding: 112px 0;
+  }
+  .cta-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 22px;
+  }
+  .cta-inner h2 {
+    font-size: clamp(40px, 6vw, 80px);
+  }
+  .cta-inner p {
+    font-size: 19px;
+    color: var(--muted);
+    max-width: 600px;
+    line-height: 1.55;
+  }
+  .cta-ghost {
+    padding: 0 28px;
+    font-size: 16px;
+  }
+  @media (max-width: 600px) {
+    .actions .btn {
+      white-space: normal;
+      text-align: center;
+    }
+  }
+</style>

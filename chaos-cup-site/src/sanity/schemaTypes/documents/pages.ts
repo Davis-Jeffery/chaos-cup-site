@@ -2,6 +2,7 @@ import { BookIcon } from '@sanity/icons/Book';
 import { HomeIcon } from '@sanity/icons/Home';
 import { ArchiveIcon } from '@sanity/icons/Archive';
 import { BarChartIcon } from '@sanity/icons/BarChart';
+import { UsersIcon } from '@sanity/icons/Users';
 import { defineArrayMember, defineField, defineType } from 'sanity';
 import { imageField } from '../../lib/fields';
 
@@ -434,11 +435,109 @@ export const developmentPage = defineType({
       type: 'object',
       group: 'cta',
       fields: [
-        defineField({ name: 'headline', title: 'Headline', type: 'string' }),
+        defineField({
+          name: 'headline',
+          title: 'Headline',
+          type: 'string',
+          description: 'Wrap words in *asterisks* to color them, like "More fun. *More soccer.*"',
+        }),
         defineField({ name: 'text', title: 'Text', type: 'text', rows: 2 }),
       ],
     }),
     seoField,
   ],
   preview: { prepare: () => ({ title: 'Why 3v3 page' }) },
+});
+
+const pathFields = [
+  ...sectionHeading,
+  defineField({ name: 'text', title: 'Text', type: 'text', rows: 3 }),
+  defineField({ name: 'buttonLabel', title: 'Button label', type: 'string' }),
+  defineField({
+    name: 'buttonUrl',
+    title: 'Button link',
+    type: 'string',
+    description: 'A page path like /contact, a full web address, or mailto:you@example.com.',
+  }),
+];
+
+export const getInvolvedPage = defineType({
+  name: 'getInvolvedPage',
+  title: 'Get involved page',
+  type: 'document',
+  icon: UsersIcon,
+  groups: [
+    { name: 'hero', title: 'Hero', default: true },
+    { name: 'video', title: 'Video' },
+    { name: 'schools', title: 'Schools' },
+    { name: 'partners', title: 'Sponsors' },
+    { name: 'cta', title: 'Call to action' },
+    { name: 'seo', title: 'SEO' },
+  ],
+  fields: [
+    defineField({
+      name: 'hero',
+      title: 'Hero',
+      type: 'object',
+      group: 'hero',
+      fields: [...sectionHeading, defineField({ name: 'text', title: 'Text', type: 'text', rows: 3 }), imageField({ name: 'image', title: 'Image' })],
+    }),
+    defineField({
+      name: 'video',
+      title: 'How it works video',
+      type: 'object',
+      group: 'video',
+      description: 'Until a video address is added, the page shows a placeholder box.',
+      fields: [
+        ...sectionHeading,
+        defineField({ name: 'text', title: 'Text', type: 'text', rows: 3 }),
+        defineField({
+          name: 'videoUrl',
+          title: 'Video address',
+          type: 'url',
+          description: 'An MP4 on Vercel Blob or Mux, or a YouTube or Vimeo link.',
+        }),
+        imageField({ name: 'poster', title: 'Poster image', description: 'Shown before the video plays.' }),
+      ],
+    }),
+    defineField({
+      name: 'schools',
+      title: 'For school programs',
+      type: 'object',
+      group: 'schools',
+      fields: [
+        ...pathFields,
+        defineField({ name: 'schoolProvides', title: 'The school brings', type: 'array', of: [defineArrayMember({ type: 'string' })] }),
+        defineField({ name: 'weProvide', title: 'Chaos Cup handles', type: 'array', of: [defineArrayMember({ type: 'string' })] }),
+        imageField({ name: 'image', title: 'Image' }),
+      ],
+    }),
+    defineField({
+      name: 'partners',
+      title: 'For community partners',
+      type: 'object',
+      group: 'partners',
+      fields: [
+        ...pathFields.filter((f) => f.name !== 'buttonUrl'),
+        defineField({
+          name: 'steps',
+          title: 'Steps',
+          type: 'array',
+          of: [titleText('step', 'Step')],
+          description: 'Numbered on the page in this order.',
+        }),
+        imageField({ name: 'image', title: 'Image' }),
+      ],
+      description: 'The button opens the sponsorship PDF from Site settings.',
+    }),
+    defineField({
+      name: 'cta',
+      title: 'Call to action',
+      type: 'object',
+      group: 'cta',
+      fields: pathFields,
+    }),
+    seoField,
+  ],
+  preview: { prepare: () => ({ title: 'Get involved page' }) },
 });

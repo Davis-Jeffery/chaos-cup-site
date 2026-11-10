@@ -1,0 +1,622 @@
+---
+/** Why 3v3, from design-reference/Development.dc.html, driven by the developmentPage document. */
+import Layout from '../layouts/Layout.astro';
+import SanityImage from '../components/SanityImage.astro';
+import Highlight from '../components/Highlight.astro';
+import BenefitIcon from '../components/BenefitIcon.astro';
+import { sanityClient } from '../lib/sanity';
+import { getLayoutData, IMAGE } from '../lib/site';
+import { nowForRequest } from '../lib/status';
+import { stripHighlights } from '../lib/format';
+import { barWidth, formatChartValue } from '../lib/charts';
+import { ALL_TOURNAMENTS_QUERY, canRegister, currentAndUpcoming, registerUrl, type Tournament } from '../lib/tournaments';
+
+const now = nowForRequest(Astro.url);
+const [data, { page, tournaments }] = await Promise.all([
+  getLayoutData(),
+  sanityClient.fetch<{ page: any; tournaments: Tournament[] }>(`{
+    "page": *[_id == "developmentPage"][0]{
+      ...,
+      hero { ..., image ${IMAGE} },
+      benefits { ..., photos[] ${IMAGE} },
+      lifelong { ..., photos[] ${IMAGE} },
+      seo { ..., image ${IMAGE} }
+    },
+    "tournaments": ${ALL_TOURNAMENTS_QUERY}
+  }`),
+]);
+const p = page ?? {};
+const next = currentAndUpcoming(tournaments, now).find((t) => canRegister(t, now));
+const STAT_STYLES = ['stat-pink', 'stat-blue', 'stat-card'];
+const lifePhotos = p.lifelong?.photos ?? [];
+---
+
+<Layout
+  data={data}
+  now={now}
+  title={p.seo?.title || stripHighlights(p.hero?.eyebrow || 'Why 3v3')}
+  description={p.seo?.description || p.hero?.text}
+  ogImage={p.seo?.image ?? p.hero?.image}
+>
+  <section class="hero">
+    <SanityImage image={p.hero?.image} sizes="100vw" loading="eager" fetchpriority="high" class="hero-img" />
+    <div aria-hidden="true" class="hero-shade"></div>
+    <div class="wrap hero-body">
+      {p.hero?.eyebrow && <span class="eyebrow" style="color: var(--blue); font-size: 15px">{p.hero.eyebrow}</span>}
+      <h1><Highlight text={p.hero?.headline} /></h1>
+      {p.hero?.text && <p class="hero-text">{p.hero.text}</p>}
+    </div>
+  </section>
+
+  {
+    p.benefits && (
+      <section class="sec">
+        <div class="wrap stack-40">
+          <div class="head" style="max-width: 760px">
+            {p.benefits.eyebrow && <span class="eyebrow" style="color: var(--magenta)">{p.benefits.eyebrow}</span>}
+            <h2><Highlight text={p.benefits.headline} /></h2>
+            {p.benefits.intro && <p class="head-intro">{p.benefits.intro}</p>}
+          </div>
+          <ul class="cards" role="list">
+            {(p.benefits.cards ?? []).map((card: any) => (
+              <li class="benefit">
+                {card.icon && (
+                  <span class="icon">
+                    <BenefitIcon name={card.icon} />
+                  </span>
+                )}
+                <h3>{card.title}</h3>
+                {card.text && <p>{card.text}</p>}
+              </li>
+            ))}
+          </ul>
+          {(p.benefits.photos?.length ?? 0) > 0 && (
+            <div class="photo-row">
+              {p.benefits.photos.map((photo: any) => (
+                <SanityImage image={photo} aspect={1.25} sizes="(min-width: 1000px) 380px, 100vw" maxWidth={1080} class="photo" />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    p.research && (
+      <section id="numbers" class="sec raised">
+        <div class="wrap stack-36">
+          <div class="head" style="max-width: 820px">
+            {p.research.eyebrow && <span class="eyebrow" style="color: var(--blue)">{p.research.eyebrow}</span>}
+            <h2><Highlight text={p.research.headline} /></h2>
+            {p.research.intro && <p class="head-intro">{p.research.intro}</p>}
+          </div>
+          <div class="charts">
+            {(p.research.charts ?? []).map((chart: any) => {
+              const rows = chart.rows ?? [];
+              const max = Math.max(...rows.map((r: any) => r.value ?? 0));
+              return (
+                <figure class="chart">
+                  <figcaption class="chart-cap">
+                    <span class="chart-title">{chart.title}</span>
+                    {chart.subtitle && <span class="chart-sub">{chart.subtitle}</span>}
+                  </figcaption>
+                  <dl class="bars">
+                    {rows.map((row: any) => (
+                      <div class="bar-row">
+                        <dt class:list={['bar-label', { 'bar-label-hi': row.highlight }]}>{row.label}</dt>
+                        <dd class="bar-track" aria-hidden="true">
+                          <div
+                            class:list={['bar', { 'bar-hi': row.highlight }]}
+                            style={`width: ${barWidth(row.value, max)}%`}
+                            title={`${row.label}: ${formatChartValue(row.value, chart.unit)}`}
+                          />
+                        </dd>
+                        <dd class="bar-value">{formatChartValue(row.value, chart.unit)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  {chart.note && <span class="chart-sub">{chart.note}</span>}
+                </figure>
+              );
+            })}
+          </div>
+          {(p.research.statBoxes?.length ?? 0) > 0 && (
+            <div class="stats">
+              {p.research.statBoxes.map((box: any, i: number) => (
+                <div class:list={['stat', STAT_STYLES[Math.min(i, 2)]]}>
+                  <span class="stat-value">{box.value}</span>
+                  {box.label && <span class="stat-label">{box.label}</span>}
+                  {box.text && <span class="stat-text">{box.text}</span>}
+                </div>
+              ))}
+            </div>
+          )}
+          {p.research.sources && <p class="sources">{p.research.sources}</p>}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    (p.comparison?.rows?.length ?? 0) > 0 && (
+      <section class="sec">
+        <div class="wrap stack-32">
+          <div class="head">
+            {p.comparison.eyebrow && <span class="eyebrow" style="color: var(--magenta)">{p.comparison.eyebrow}</span>}
+            <h2><Highlight text={p.comparison.headline} /></h2>
+          </div>
+          <div class="table-wrap" role="region" aria-label={stripHighlights(p.comparison.headline) || 'Comparison'} tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col"><span class="visually-hidden">Compared</span></th>
+                  <th scope="col" class="col-a">{p.comparison.columnA || 'Chaos Cup 3v3'}</th>
+                  <th scope="col" class="col-b">{p.comparison.columnB || '11v11'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {p.comparison.rows.map((row: any) => (
+                  <tr>
+                    <th scope="row">{row.label}</th>
+                    <td class="cell-a">{row.a}</td>
+                    <td class="cell-b">{row.b}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    p.lifelong && (
+      <section class="sec raised">
+        <div class="wrap life">
+          <div class="life-text">
+            {p.lifelong.eyebrow && <span class="eyebrow" style="color: var(--blue)">{p.lifelong.eyebrow}</span>}
+            <h2 style="margin-bottom: 8px"><Highlight text={p.lifelong.headline} /></h2>
+            {p.lifelong.intro && (
+              <p class="head-intro" style="margin-bottom: 8px">
+                {p.lifelong.intro}
+              </p>
+            )}
+            {(p.lifelong.points ?? []).map((point: any) => (
+              <div class="point">
+                <h3>{point.title}</h3>
+                {point.text && <p>{point.text}</p>}
+              </div>
+            ))}
+          </div>
+          {lifePhotos.length > 0 && (
+            <div class="life-photos">
+              {lifePhotos.map((photo: any, i: number) => {
+                const wide = i === 2 || (lifePhotos.length === 1 && i === 0);
+                return (
+                  <SanityImage
+                    image={photo}
+                    aspect={wide ? 2.5 : 0.85}
+                    sizes={wide ? '(min-width: 1000px) 520px, 100vw' : '(min-width: 1000px) 260px, 50vw'}
+                    maxWidth={1080}
+                    class:list={['life-photo', { 'life-photo-wide': wide }]}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="cta">
+    <div class="wrap cta-inner">
+      <h2><Highlight text={p.cta?.headline || 'More touches. More fun. *More soccer.*'} /></h2>
+      {p.cta?.text && <p>{p.cta.text}</p>}
+      <div class="cta-actions">
+        {
+          next && (
+            <a class="btn btn-pink btn-lg" href={registerUrl(next, data.settings.registerUrl)}>
+              Register Your Team
+            </a>
+          )
+        }
+        <a class="btn btn-ghost btn-lg cta-ghost" href="/#tournaments">See Upcoming Tournaments</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 600px;
+    display: flex;
+    align-items: flex-end;
+  }
+  .hero :global(.hero-img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    display: block;
+  }
+  .hero-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 10, 18, 0.1) 0%, rgba(10, 10, 18, 0.55) 45%, #0a0a12 100%);
+  }
+  .hero-body {
+    position: relative;
+    padding-top: 140px;
+    padding-bottom: 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    text-shadow: 0 1px 14px rgba(10, 10, 18, 0.6);
+  }
+  .hero-body h1 {
+    font-size: clamp(44px, 7vw, 92px);
+    max-width: 900px;
+  }
+  .hero-text {
+    font-size: 20px;
+    line-height: 1.55;
+    max-width: 680px;
+    color: #e2e1ec;
+    font-weight: 500;
+  }
+
+  .sec {
+    padding: 96px 0;
+  }
+  .raised {
+    background: var(--raised);
+    border-top: 1px solid var(--divider);
+  }
+  .stack-40,
+  .stack-36,
+  .stack-32 {
+    display: flex;
+    flex-direction: column;
+  }
+  .stack-40 {
+    gap: 40px;
+  }
+  .stack-36 {
+    gap: 36px;
+  }
+  .stack-32 {
+    gap: 32px;
+  }
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  h2 {
+    font-size: clamp(34px, 5vw, 56px);
+  }
+  .head-intro {
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.6;
+  }
+
+  .cards {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+    gap: 16px;
+  }
+  .benefit {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: var(--magenta);
+    flex: none;
+  }
+  .benefit h3 {
+    font-size: 23px;
+  }
+  .benefit p {
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .photo-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: 16px;
+  }
+  .photo-row :global(.photo) {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 20px;
+    display: block;
+  }
+
+  .charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr));
+    gap: 16px;
+  }
+  .chart {
+    margin: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .chart-cap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .chart-title {
+    font-family: var(--font-display);
+    font-size: 19px;
+    color: var(--text);
+  }
+  .chart-sub {
+    color: var(--faint);
+    font-size: 13px;
+  }
+  .bars {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) 64px;
+    gap: 12px;
+    align-items: center;
+  }
+  .bar-row dd {
+    margin: 0;
+  }
+  .bar-label {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .bar-label-hi {
+    font-weight: 800;
+    color: var(--text);
+  }
+  .bar-track {
+    height: 22px;
+    background: var(--bg);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .bar {
+    height: 100%;
+    background: #8a8aa0;
+    border-radius: 0 6px 6px 0;
+  }
+  .bar-hi {
+    background: var(--magenta);
+  }
+  .bar-value {
+    font-weight: 800;
+    font-size: 15px;
+    text-align: right;
+    color: var(--text);
+  }
+  @media (max-width: 420px) {
+    .bar-row {
+      grid-template-columns: 92px minmax(0, 1fr) 48px;
+      gap: 8px;
+    }
+  }
+
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .stat {
+    flex: 1 1 280px;
+    min-width: 0;
+    border-radius: 20px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .stat-pink {
+    background: var(--magenta);
+    color: var(--ink);
+  }
+  .stat-blue {
+    background: var(--blue);
+    color: var(--ink);
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 56px;
+    line-height: 1;
+  }
+  .stat-label {
+    font-weight: 800;
+    font-size: 18px;
+  }
+  .stat-text {
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .stat-card .stat-text {
+    color: var(--muted);
+  }
+  .sources {
+    color: var(--faint);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+  table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    background: var(--card);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  thead th {
+    text-align: left;
+    padding: 18px;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 18px;
+  }
+  .col-a {
+    color: var(--magenta);
+    background: rgba(249, 14, 231, 0.08);
+  }
+  .col-b {
+    color: var(--muted);
+  }
+  tbody tr {
+    border-top: 1px solid var(--border);
+  }
+  tbody th {
+    text-align: left;
+    padding: 16px 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  td {
+    padding: 16px 18px;
+  }
+  .cell-a {
+    color: var(--text);
+    background: rgba(249, 14, 231, 0.08);
+  }
+  .cell-b {
+    color: var(--muted);
+  }
+
+  .life {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 56px;
+    align-items: flex-start;
+  }
+  .life-text {
+    flex: 1 1 460px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .point {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 22px 0;
+    border-top: 1px solid var(--border);
+  }
+  .point h3 {
+    font-size: 22px;
+  }
+  .point p {
+    color: var(--muted);
+    line-height: 1.65;
+    font-size: 17px;
+  }
+  .life-photos {
+    flex: 1 1 360px;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .life-photos :global(.life-photo) {
+    width: 100%;
+    height: 340px;
+    object-fit: cover;
+    border-radius: 20px;
+    display: block;
+  }
+  .life-photos :global(.life-photo-wide) {
+    grid-column: span 2;
+    height: 260px;
+  }
+  @media (max-width: 599px) {
+    .life-photos :global(.life-photo) {
+      height: 240px;
+    }
+    .life-photos :global(.life-photo-wide) {
+      height: 200px;
+    }
+  }
+
+  .cta {
+    padding: 112px 0;
+  }
+  .cta-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 22px;
+  }
+  .cta-inner h2 {
+    font-size: clamp(40px, 6vw, 80px);
+  }
+  .cta-inner p {
+    font-size: 19px;
+    color: var(--muted);
+    max-width: 600px;
+    line-height: 1.55;
+  }
+  .cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+  }
+  .cta-ghost {
+    padding: 0 28px;
+    font-size: 16px;
+  }
+  @media (max-width: 600px) {
+    .cta-actions .btn {
+      white-space: normal;
+      text-align: center;
+    }
+  }
+</style>
