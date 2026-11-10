@@ -4,6 +4,8 @@ import Layout from '../layouts/Layout.astro';
 import SanityImage from '../components/SanityImage.astro';
 import Diagram from '../components/rules/Diagram.astro';
 import RuleList from '../components/rules/RuleList.astro';
+import VideoEmbed from '../components/VideoEmbed.astro';
+import { stegaClean } from '@sanity/client/stega';
 import { sanityFetch } from '../lib/sanity';
 import { getLayoutData, IMAGE } from '../lib/site';
 import { nowForRequest } from '../lib/status';
@@ -16,7 +18,7 @@ const now = nowForRequest(Astro.url, { preview });
 const [data, { page, sections, tournaments }] = await Promise.all([
   getLayoutData(preview),
   sanityFetch<{ page: any; sections: RuleSectionData[]; tournaments: Tournament[] }>(`{
-    "page": *[_id == "rulebookPage"][0]{ ..., "pdfUrl": pdf.asset->url, seo { ..., image ${IMAGE} } },
+    "page": *[_id == "rulebookPage"][0]{ ..., "pdfUrl": pdf.asset->url, video { ..., poster ${IMAGE} }, seo { ..., image ${IMAGE} } },
     "sections": *[_type == "ruleSection" && !(_id in path("drafts.**"))]{ ..., image ${IMAGE} },
     "tournaments": ${ALL_TOURNAMENTS_QUERY}
   }`, { preview }),
@@ -25,6 +27,8 @@ const [data, { page, sections, tournaments }] = await Promise.all([
 const { ordered, numbers } = numberRules(sections ?? []);
 const pad = (n: number) => String(n).padStart(2, '0');
 const next = currentAndUpcoming(tournaments, now).find((t) => canRegister(t, now));
+const videoUrl = stegaClean(page?.video?.url);
+const videoTitle = stegaClean(page?.video?.title) || 'Chaos Cup rules explained';
 ---
 
 <Layout
@@ -41,11 +45,21 @@ const next = currentAndUpcoming(tournaments, now).find((t) => canRegister(t, now
         <h1>{page?.title || 'Chaos Cup Rulebook'}</h1>
         {page?.intro && <p>{page.intro}</p>}
       </div>
-      <div class="rb-title-actions">
-        <a class="btn btn-ghost btn-sm" href="/#rules">60-Second Version</a>
-        {page?.pdfUrl && <a class="btn btn-pink btn-sm" href={page.pdfUrl}>Download PDF</a>}
-      </div>
+      {
+        page?.pdfUrl && (
+          <div class="rb-title-actions">
+            <a class="btn btn-pink btn-sm" href={page.pdfUrl}>Download PDF</a>
+          </div>
+        )
+      }
     </div>
+    {
+      videoUrl && (
+        <div class="wrap rb-video">
+          <VideoEmbed url={videoUrl} title={videoTitle} poster={page.video.poster} duration={stegaClean(page.video.duration)} eager />
+        </div>
+      )
+    }
   </section>
 
   <section class="rb-body">
@@ -168,6 +182,12 @@ const next = currentAndUpcoming(tournaments, now).find((t) => canRegister(t, now
     color: var(--muted);
     line-height: 1.55;
     max-width: 640px;
+  }
+  .rb-video {
+    margin-top: 40px;
+  }
+  .rb-video :global(.vembed) {
+    max-width: 960px;
   }
   .rb-title-actions {
     display: flex;

@@ -63,6 +63,7 @@ The site works out each tournament's state from its dates, in Mountain time. You
 - **Home page, Rulebook page, Why 3v3 page, Past events page, Get involved page, Contact page**: the text for each page.
 - **Highlighting words**: in headlines, wrap words in `*asterisks*` to color them, like `Bring the *chaos.*`.
 - **Videos**: upload the MP4 in Vercel (Storage > `chaos-cup-media` > Upload) and paste its address into the video field. The Get involved page video also accepts YouTube or Vimeo links.
+- **Rules video**: Rulebook page > Rules video. Paste a YouTube or Vimeo link; it shows at the top of the rules page and only loads when someone presses play. Add a cover image for a sharper still than YouTube's thumbnail.
 - **Images**: every image needs alt text (a short description for people using screen readers). Drag the focus circle onto the important part of a photo so crops keep it in view.
 
 ---

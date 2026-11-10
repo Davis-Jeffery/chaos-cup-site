@@ -1,0 +1,151 @@
+---
+/**
+ * A YouTube or Vimeo video that loads only when the visitor presses play.
+ * Until then it is a still image and a play button, so the page stays fast
+ * (the YouTube player alone is close to 1 MB). Without JavaScript the button
+ * is a link to the video on its own site.
+ */
+import SanityImage from './SanityImage.astro';
+import { videoSource } from '../lib/video';
+
+interface Props {
+  url?: string;
+  /** Names the video for screen readers, like "Chaos Cup rules in 2 minutes". */
+  title: string;
+  /** Optional still from Sanity; YouTube's own thumbnail is used otherwise. */
+  poster?: any;
+  /** Shown on the play button, like "2 min". */
+  duration?: string;
+  eager?: boolean;
+  class?: string;
+}
+
+const { url, title, poster, duration, eager = false, class: className } = Astro.props;
+const video = videoSource(url);
+const embed = video?.kind === 'embed' ? video : undefined;
+const autoplaySrc = embed ? `${embed.src}${embed.src.includes('?') ? '&' : '?'}autoplay=1` : undefined;
+---
+
+{
+  embed ? (
+    <div class:list={['vembed', className]} data-vembed data-src={autoplaySrc} data-title={title}>
+      <a class="vembed-start" href={embed.watchUrl ?? embed.src} aria-label={`Play video: ${title}`}>
+        {poster?.asset ? (
+          <SanityImage image={poster} aspect={16 / 9} sizes="(min-width: 960px) 900px, 100vw" alt="" loading={eager ? 'eager' : 'lazy'} class="vembed-img" />
+        ) : (
+          embed.thumbnail && <img src={embed.thumbnail} alt="" width="640" height="480" loading={eager ? 'eager' : 'lazy'} decoding="async" class="vembed-img" />
+        )}
+        <span class="vembed-shade" aria-hidden="true" />
+        <span class="vembed-play" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="#0A0A12"><path d="M8 5.5v13l11-6.5z" /></svg>
+        </span>
+        <span class="vembed-label" aria-hidden="true">
+          Watch{duration && <span class="vembed-time">{duration}</span>}
+        </span>
+      </a>
+    </div>
+  ) : video?.kind === 'file' ? (
+    <div class:list={['vembed', className]}>
+      <video src={video.src} controls preload="none" playsinline aria-label={title} />
+    </div>
+  ) : null
+}
+
+<style>
+  .vembed {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+  .vembed :global(iframe),
+  .vembed video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  .vembed-start {
+    position: absolute;
+    inset: 0;
+    display: block;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .vembed-start :global(.vembed-img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .vembed-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 10, 18, 0.05) 40%, rgba(10, 10, 18, 0.7) 100%);
+  }
+  .vembed-play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: var(--magenta);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 4px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+    transition: transform 0.15s ease;
+  }
+  .vembed-start:hover .vembed-play,
+  .vembed-start:focus-visible .vembed-play {
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+  .vembed-label {
+    position: absolute;
+    left: 20px;
+    bottom: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 16px;
+  }
+  .vembed-time {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(10, 10, 18, 0.75);
+    font-size: 13px;
+  }
+  @media (max-width: 599px) {
+    .vembed {
+      border-radius: 16px;
+    }
+    .vembed-play {
+      width: 64px;
+      height: 64px;
+    }
+  }
+</style>
+
+<script>
+  // Swap the still for the real player on the first press, and start it playing.
+  document.querySelectorAll<HTMLElement>('[data-vembed]').forEach((box) => {
+    box.querySelector('a')?.addEventListener('click', (event) => {
+      event.preventDefault();
+      const frame = document.createElement('iframe');
+      frame.src = box.dataset.src ?? '';
+      frame.title = box.dataset.title ?? 'Video';
+      frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      frame.allowFullscreen = true;
+      box.replaceChildren(frame);
+      frame.focus();
+    });
+  });
+</script>

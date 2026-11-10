@@ -791,6 +791,7 @@ async function rulebookPageDoc() {
     title: 'Chaos Cup Rulebook',
     intro: 'Short version: play hard, play fair, have fun. The details below cover everything from rosters to tiebreakers so every team plays by the same rules.',
     // The design links the PDF to [RULEBOOK PDF LINK]. Upload it in the Studio when it exists.
+    video: { url: 'https://youtu.be/Qf3iqOOS_yA', title: 'Chaos Cup rules in 2 minutes', duration: '2 min' },
   };
 }
 
