@@ -135,7 +135,5 @@ Point thechaoscup.com at Vercel (Settings > Domains). The old WordPress addresse
 
 ### Before going live
 
-- Replace the placeholders still on the site: `[CONFIRM]` in rules 3.5 and 4.4, `[YOUR REFUND POLICY]` in 11.1, and `[SCHEDULE RELEASE DATE]`, `[PARKING LOT]`, `[CHECK-IN LOCATION]` on the tournament pages.
-- Upload the rulebook PDF (Rulebook page > Rulebook PDF) to show the Download PDF button.
 - Add the Get involved video when it is ready.
 - Submit `https://thechaoscup.com/sitemap.xml` in Google Search Console.

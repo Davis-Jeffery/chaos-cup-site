@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { signPreviewCookie, verifyPreviewCookie, stegaFilterKey } from './preview-cookie';
+import { safeRedirectPath, signPreviewCookie, verifyPreviewCookie, stegaFilterKey } from './preview-cookie';
 
 const secret = 'a'.repeat(64);
 const now = Date.UTC(2026, 10, 10, 12);
@@ -29,5 +29,17 @@ describe('stegaFilterKey', () => {
     expect(stegaFilterKey(['checklist', 2])).toBe('checklist');
     expect(stegaFilterKey(['rules', { _key: 'a' }, 'title'])).toBe('title');
     expect(stegaFilterKey([])).toBeUndefined();
+  });
+});
+
+describe('safeRedirectPath', () => {
+  it('keeps paths on this site', () => {
+    expect(safeRedirectPath('/rules?x=1#rule-a')).toBe('/rules?x=1#rule-a');
+    expect(safeRedirectPath('/')).toBe('/');
+  });
+  it('sends anything that could leave the site home', () => {
+    for (const bad of ['//evil.com', '/\\evil.com', '/\t/evil.com', 'https://evil.com', 'evil.com', '', null, undefined]) {
+      expect(safeRedirectPath(bad)).toBe('/');
+    }
   });
 });

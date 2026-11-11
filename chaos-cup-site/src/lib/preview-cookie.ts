@@ -83,3 +83,18 @@ export const STEGA_FIELDS = new Set([
   'a',
   'b',
 ]);
+
+/**
+ * A redirect target that can only stay on this site. Browsers read "/\x" and
+ * "/<tab>/x" as "//x" (another site), so anything but a plain path goes home.
+ */
+export function safeRedirectPath(target: string | null | undefined): string {
+  if (!target || !target.startsWith('/')) return '/';
+  if (/[\\\s\u0000-\u001f]/.test(target) || target.startsWith('//')) return '/';
+  try {
+    const url = new URL(target, 'https://example.invalid');
+    return url.origin === 'https://example.invalid' ? `${url.pathname}${url.search}${url.hash}` : '/';
+  } catch {
+    return '/';
+  }
+}

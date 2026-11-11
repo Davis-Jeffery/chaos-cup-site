@@ -6,7 +6,7 @@ import type { APIRoute } from 'astro';
 import { validatePreviewUrl } from '@sanity/preview-url-secret';
 import { sanityClient } from '../../../lib/sanity';
 import { serverEnv } from '../../../lib/env';
-import { PREVIEW_COOKIE, PREVIEW_HOURS, signPreviewCookie } from '../../../lib/preview-cookie';
+import { PREVIEW_COOKIE, PREVIEW_HOURS, safeRedirectPath, signPreviewCookie } from '../../../lib/preview-cookie';
 
 export const prerender = false;
 
@@ -31,6 +31,5 @@ export const GET: APIRoute = async ({ request, cookies, redirect, url }) => {
   cookies.set('__prerender_bypass', secret, options);
 
   // Only ever redirect within this site.
-  const target = redirectTo.startsWith('/') && !redirectTo.startsWith('//') ? redirectTo : '/';
-  return redirect(target, 307);
+  return redirect(safeRedirectPath(redirectTo), 307);
 };

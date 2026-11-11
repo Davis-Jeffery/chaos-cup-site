@@ -87,7 +87,7 @@ const description =
   ogImage={t.seo?.image ?? t.cardImage ?? t.recap?.coverImage}
   currentTournamentId={t._id}
 >
-  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />
   {
     isPast ? (
       <Recap tournament={t} nextEvent={nextEvent} photoPartner={photoPartner} now={now} defaultRegisterUrl={data.settings.registerUrl} />

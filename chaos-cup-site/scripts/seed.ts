@@ -168,7 +168,7 @@ const ruleSections: SectionSeed[] = [
       { key: 'guaranteed-games', title: 'Guaranteed games', text: 'Every team plays a minimum of 4 games within about a 5-hour block, with a chance to play a 5th game for the championship.' },
       { key: 'kickoff', title: 'Kickoff', text: 'A coin toss decides first possession, and the game starts with a kickoff from the center. After a goal, play restarts as described in {{after-a-goal}}.' },
       { key: 'after-a-goal', title: 'After a goal: touch your end line', diagram: 'afterGoal', text: 'After scoring, every player on the scoring team must run back and touch their own end line. Touching anywhere along the inflatable wall at their own goal end, or their own goal, counts. Meanwhile, the team that was scored on gets the ball out of the net and waits. Once the scoring team has touched back, the team that was scored on restarts with an indirect kick. If either team breaks this rule, any goal it scores is immediately disallowed and the ball is turned over to the other team.' },
-      { key: 'championship-game', title: 'Championship game', text: 'After the 4 guaranteed games, the top teams in each division play a 5th game for the championship. [CONFIRM: how teams qualify, e.g. top 2 in the standings.]' },
+      { key: 'championship-game', title: 'Championship game', text: 'After the 4 guaranteed games, the top teams in each division play a 5th game for the championship.' },
       { key: 'championship-ties', title: 'Ties in the championship: 1v1 golden goal', text: 'A tied championship game is decided by a 1v1 golden goal. Each team sends 1 player onto the field. The two players stand back to back at the center with the ball between them. On the whistle, the referee drops the ball and the two play it out. The first goal wins the championship. If the ball goes out or there is a foul, the referee restarts with a new ball drop at the center. If no one scores within 2 minutes, each team sends in a fresh player and the ball drops again, repeating until someone scores. Once every player on the roster has had a turn, the rotation starts over in the same order. The players on each team choose who plays the 1v1, not the coaches. We ask coaches to let the kids make the call.' },
     ],
   },
@@ -179,7 +179,7 @@ const ruleSections: SectionSeed[] = [
       { key: 'ball-out', title: 'Ball out of the field', diagram: 'kickIn', text: 'If the ball leaves the walls, the opposing team restarts with a kick-in from where it went out. Kick-ins are indirect: the ball must touch a second player before a goal counts. Opponents must stay at least 3 feet from the ball until it is kicked.' },
       { key: 'free-kicks', title: 'Free kicks', diagram: 'freeKicks', text: 'Free kicks are not taken from the spot of the foul. The ball is placed on the halfway mark (the white tick mark on the inflatable side wall) on either the left or right side, and play restarts from there. All free kicks are indirect: the ball must touch a second player before a goal counts. Defenders must give 3 yards. A free kick shot straight into the goal is a goal kick for the defense.' },
       { key: 'no-offside', title: 'No offside', diagram: 'noOffside', text: 'There is no offside in the Chaos Cup.' },
-      { key: 'goal-zone', title: 'The Goal Zone', text: 'Each goal has a half-circle zone marked in front of it, reaching about one goal-width (6 feet) out from the goal line. [CONFIRM zone size and how it is marked]' },
+      { key: 'goal-zone', title: 'The Goal Zone', text: 'Each goal has a half-circle zone marked in front of it, reaching about one goal-width (6 feet) out from the goal line.' },
       { key: 'nobody-in-zone', title: 'Nobody in the zone', text: 'Players from both teams must stay out of the zone. No one may stand, stop or touch the ball inside it. Running through it while chasing play is fine. Outside the zone, all normal defending is legal: pressure, cover, dropping back in front of the goal and blocking shots with your body.' },
       { key: 'zone-violations', title: 'Zone violations', text: 'If a player stands or stops in the zone, or an attacking player touches the ball inside it, the other team gets an indirect free kick, taken like any other free kick ({{free-kicks}}), and it counts as a team foul. A goal scored from inside the zone does not count. If a defending player touches the ball inside the zone, the attacking team is awarded a goal.' },
       { key: 'hands', title: 'Hands', text: 'Handling the ball anywhere on the field is a foul.' },
@@ -276,7 +276,6 @@ const ruleSections: SectionSeed[] = [
     id: 'ruleSection-refunds',
     title: 'Refunds and Weather',
     rules: [
-      { key: 'refunds', title: 'Refunds', text: '[YOUR REFUND POLICY]' },
       { key: 'indoor-events', title: 'Indoor events', text: 'Events are held indoors and run in any weather unless the venue closes.' },
       { key: 'schedule-changes', title: 'Schedule changes', text: 'The tournament director may adjust schedules or formats as needed. Updates are posted on PlayMetrics and Instagram @atomic_chaoscup.' },
     ],
@@ -371,7 +370,7 @@ async function shoes(surface: 'hardwood' | 'turf') {
 }
 
 const eventDetails = (venueNote: string) => ({
-  scheduleNote: 'Your team plays within one ~5-hour block. Times posted on PlayMetrics by [SCHEDULE RELEASE DATE].',
+  scheduleNote: 'Your team plays within one ~5-hour block. Times posted on PlayMetrics.',
   venueNote,
   divisionsNote:
     'Boys, girls and coed divisions by birth year. Rosters of 3 to 6 players. To keep games even, teams may be moved, but you will never play a team more than 1 year apart from your selected division.',
@@ -436,7 +435,7 @@ async function tournamentDocs(videos: Record<string, string>) {
         name: 'West Lake High School',
         address: '99 N 200 W, Saratoga Springs, UT',
         mapsUrl: 'https://www.google.com/maps/search/?api=1&query=West+Lake+High+School+99+N+200+W+Saratoga+Springs+UT',
-        parking: 'Park in [PARKING LOT] and follow the Chaos Cup signs to the check-in desk at [CHECK-IN LOCATION].',
+        parking: 'Follow the Chaos Cup signs to the check-in desk.',
       },
       surface: {
         type: 'hardwood',
@@ -492,7 +491,7 @@ async function tournamentDocs(videos: Record<string, string>) {
         name: 'Brighton High School',
         address: '2220 Bengal Blvd, Cottonwood Heights, UT',
         mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Brighton+High+School+2220+Bengal+Blvd+Cottonwood+Heights+UT',
-        parking: 'Park in [PARKING LOT] and follow the Chaos Cup signs to the check-in desk at [CHECK-IN LOCATION].',
+        parking: 'Follow the Chaos Cup signs to the check-in desk.',
       },
       surface: {
         type: 'turf',
