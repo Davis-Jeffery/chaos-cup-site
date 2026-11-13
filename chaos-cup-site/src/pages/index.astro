@@ -60,6 +60,40 @@ const showAnnouncement = announcement?.enabled && (announcement.mode === 'custom
 
 const ctaEvent = heroEvent && canRegister(heroEvent, now) ? heroEvent : upcomingOnly.find((t) => canRegister(t, now));
 const photos = h.whatIs?.photos ?? [];
+
+// Tells Google the site's name and logo for search results. The logo has white
+// lettering, so it goes on the brand's dark background as a square PNG (Google
+// shows logos on white and wants at least 112 x 112).
+const origin = (Astro.site ?? Astro.url).origin;
+const logoUrl = (() => {
+  const src = settings.logo?.asset?.url;
+  if (!src) return undefined;
+  const u = new URL(src);
+  Object.entries({ w: '512', h: '512', fit: 'fill', bg: '0A0A12', fm: 'png' }).forEach(([k, v]) => u.searchParams.set(k, v));
+  return u.href;
+})();
+const siteJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${origin}/#website`,
+      name: 'Chaos Cup',
+      url: `${origin}/`,
+      publisher: { '@id': `${origin}/#organization` },
+    },
+    {
+      '@type': 'SportsOrganization',
+      '@id': `${origin}/#organization`,
+      name: 'Chaos Cup',
+      url: `${origin}/`,
+      sport: 'Soccer',
+      ...(logoUrl ? { logo: logoUrl } : {}),
+      ...(settings.contactEmail ? { email: settings.contactEmail } : {}),
+      ...(settings.instagramUrl ? { sameAs: [settings.instagramUrl] } : {}),
+    },
+  ],
+};
 ---
 
 <Layout
@@ -70,6 +104,7 @@ const photos = h.whatIs?.photos ?? [];
   description={h.seo?.description}
   ogImage={h.seo?.image}
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(siteJsonLd).replace(/</g, '\\u003c')} />
   {
     showAnnouncement && (
       <div slot="before-header" class="announce">
