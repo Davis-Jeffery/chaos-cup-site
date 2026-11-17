@@ -213,7 +213,7 @@ const ruleSections: SectionSeed[] = [
         eyebrow: '3-Foul Rule',
         headline: 'Only after a team\'s 3rd foul',
         // Plain text field, so the "rule 4.2" here does not renumber itself.
-        intro: 'This special free kick from half happens *only* when a team reaches 3 fouls. Every other free kick is taken from the spot of the foul and is indirect, as in rule 4.2.',
+        intro: 'This special free kick from half happens *only* when a team reaches 3 fouls. Every other free kick is taken from the halfway mark and is indirect, as in rule 4.2.',
         rules: ['three-foul-rule', 'three-foul-kick'],
         diagramSet: 'threeFoul',
       },
