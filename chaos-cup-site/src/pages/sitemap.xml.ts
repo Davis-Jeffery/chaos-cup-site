@@ -2,7 +2,7 @@
 import type { APIRoute } from 'astro';
 import { sanityFetch } from '../lib/sanity';
 
-const STATIC_PAGES = ['/', '/why-3v3', '/rules', '/past-events', '/get-involved', '/contact'];
+const STATIC_PAGES = ['/', '/why-3v3', '/rules', '/past-events', '/get-involved', '/contact', '/event-safety'];
 
 export const GET: APIRoute = async ({ site, url }) => {
   const origin = (site ?? url).origin;

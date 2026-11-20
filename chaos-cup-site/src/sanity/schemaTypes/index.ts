@@ -4,7 +4,7 @@ import { siteSettings } from './documents/siteSettings';
 import { tournament } from './documents/tournament';
 import { sponsor } from './documents/sponsor';
 import { ruleSection } from './documents/ruleSection';
-import { homePage, rulebookPage, developmentPage, pastEventsPage, getInvolvedPage, contactPage } from './documents/pages';
+import { homePage, rulebookPage, developmentPage, pastEventsPage, getInvolvedPage, contactPage, eventSafetyPage } from './documents/pages';
 
 export const schemaTypes = [
   link,
@@ -16,10 +16,11 @@ export const schemaTypes = [
   pastEventsPage,
   getInvolvedPage,
   contactPage,
+  eventSafetyPage,
   tournament,
   sponsor,
   ruleSection,
 ];
 
 // One document each, with a fixed _id matching the type name.
-export const singletonTypes = new Set(['siteSettings', 'homePage', 'rulebookPage', 'developmentPage', 'pastEventsPage', 'getInvolvedPage', 'contactPage']);
+export const singletonTypes = new Set(['siteSettings', 'homePage', 'rulebookPage', 'developmentPage', 'pastEventsPage', 'getInvolvedPage', 'contactPage', 'eventSafetyPage']);

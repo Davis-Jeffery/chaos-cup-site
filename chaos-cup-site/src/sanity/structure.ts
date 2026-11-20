@@ -17,6 +17,7 @@ export const structure: StructureResolver = (S) =>
       singleton(S, 'pastEventsPage', 'Past events page'),
       singleton(S, 'getInvolvedPage', 'Get involved page'),
       singleton(S, 'contactPage', 'Contact page'),
+      singleton(S, 'eventSafetyPage', 'Event safety page'),
       S.divider(),
       S.listItem()
         .title('Tournaments')

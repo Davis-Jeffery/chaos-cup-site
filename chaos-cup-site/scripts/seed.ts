@@ -659,6 +659,7 @@ async function siteSettingsDoc() {
         links: [
           internal('upcoming', 'Upcoming Tournaments', '/#tournaments'),
           internal('rulebook', 'Rulebook', '/rules'),
+          internal('safety', 'Event Safety', '/event-safety'),
           internal('past', 'Past Tournaments', '/past-events'),
         ],
       },
@@ -827,6 +828,50 @@ function contactPageDoc() {
       topic('host', 'Host a Chaos Cup', 'High school programs can bring a Chaos Cup to their school to fund their season.', 'How hosting works', '/get-involved#schools'),
       topic('sponsor', 'Sponsor a school', 'Put your business in front of local families while supporting a high school program.', 'Sponsorship options', '/get-involved#sponsors-path'),
       topic('rules', 'Rules and game day', 'Shoes, check-in, the Goal Zone and everything else about how the games work.', 'Read the rulebook', '/rules'),
+    ],
+  };
+}
+
+function eventSafetyPageDoc() {
+  const item = (key: string, title: string, text: string, url?: string) => ({
+    _key: key,
+    _type: 'safetyItem',
+    title,
+    text,
+    ...(url ? { url, linkLabel: 'Open on CDC.gov' } : {}),
+  });
+  return {
+    _id: 'eventSafetyPage',
+    _type: 'eventSafetyPage',
+    eyebrow: 'Event Safety',
+    headline: 'Concussion Safety & *Action Plan*',
+    intro: 'Athlete safety is our top priority. In the event of a suspected concussion, our organization enforces a strict, multi-step safety protocol.',
+    sections: [
+      {
+        _key: 'action-plan',
+        _type: 'safetySection',
+        heading: 'Our action plan',
+        numbered: true,
+        items: [
+          item('removal', 'Immediate Removal', 'Any athlete suspected of sustaining a concussion is immediately removed from play or practice.'),
+          item('clearance', 'Medical Clearance Required', 'Athletes must remain out of play or practice until they provide written medical clearance from a licensed physician.'),
+          item('waivers', 'Verified Waivers', 'All participating athletes and parents/guardians have completed and signed sports liability and informed consent waivers as part of their team registration process.'),
+          item('education', 'Ongoing Education', 'We provide written and electronic educational resources to all participants, parents, and coaches covering concussion prevention, potential injury risks, symptom recognition, emergency response, and safe return-to-play guidelines.'),
+        ],
+      },
+      {
+        _key: 'resources',
+        _type: 'safetySection',
+        heading: 'Concussion Education Resources',
+        numbered: false,
+        items: [
+          item('heads-up', 'CDC HEADS UP Concussion Overview & Prevention', 'General information on concussion safety, prevention, and preparedness.', 'https://www.cdc.gov/heads-up/index.html'),
+          item('signs', 'Concussion Signs & Symptoms Checklist', 'How to recognize warning signs and danger symptoms requiring immediate emergency response.', 'https://www.cdc.gov/heads-up/signs-symptoms/index.html'),
+          item('fact-sheets', 'Parent & Athlete Fact Sheets (Printable & Digital)', 'Downloadable guides for families and players on injury risks and recovery.'),
+          item('coach-training', 'Coach Training & Response Action Plan', 'Free online training and step-by-step response protocols for coaches.', 'https://www.cdc.gov/heads-up/training/youth-sports.html'),
+          item('return-to-play', 'Safe Return-to-Play Progression Guidelines', 'Medical steps required before an athlete can safely resume full competition.', 'https://www.cdc.gov/heads-up/guidelines/returning-to-sports.html'),
+        ],
+      },
     ],
   };
 }
@@ -1021,6 +1066,7 @@ async function main() {
     await developmentPageDoc(),
     await getInvolvedPageDoc(),
     contactPageDoc(),
+    eventSafetyPageDoc(),
     pastEventsPageDoc(),
     ...(await sponsorDocs()),
     ...(await tournamentDocs(videos)),

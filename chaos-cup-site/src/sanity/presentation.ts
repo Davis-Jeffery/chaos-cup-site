@@ -16,6 +16,7 @@ export const resolve: PresentationPluginOptions['resolve'] = {
     { route: '/past-events', filter: `_id == "pastEventsPage"` },
     { route: '/get-involved', filter: `_id == "getInvolvedPage"` },
     { route: '/contact', filter: `_id == "contactPage"` },
+    { route: '/event-safety', filter: `_id == "eventSafetyPage"` },
   ]),
   locations: {
     homePage: defineLocations({ message: 'The home page', locations: [home] }),
@@ -28,6 +29,7 @@ export const resolve: PresentationPluginOptions['resolve'] = {
     pastEventsPage: defineLocations({ locations: [{ title: 'Past events', href: '/past-events' }] }),
     getInvolvedPage: defineLocations({ locations: [{ title: 'Get involved', href: '/get-involved' }] }),
     contactPage: defineLocations({ locations: [{ title: 'Contact', href: '/contact' }] }),
+    eventSafetyPage: defineLocations({ locations: [{ title: 'Event safety', href: '/event-safety' }] }),
     tournament: defineLocations({
       select: { title: 'title', slug: 'slug.current' },
       resolve: (doc) => ({

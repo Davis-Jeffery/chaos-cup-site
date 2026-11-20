@@ -4,6 +4,7 @@ import { ArchiveIcon } from '@sanity/icons/Archive';
 import { BarChartIcon } from '@sanity/icons/BarChart';
 import { UsersIcon } from '@sanity/icons/Users';
 import { EnvelopeIcon } from '@sanity/icons/Envelope';
+import { HeartIcon } from '@sanity/icons/Heart';
 import { defineArrayMember, defineField, defineType } from 'sanity';
 import { imageField } from '../../lib/fields';
 
@@ -593,4 +594,77 @@ export const contactPage = defineType({
     seoField,
   ],
   preview: { prepare: () => ({ title: 'Contact page' }) },
+});
+
+// ---------- Event safety ----------
+export const eventSafetyPage = defineType({
+  name: 'eventSafetyPage',
+  title: 'Event safety page',
+  type: 'document',
+  icon: HeartIcon,
+  groups: [
+    { name: 'content', title: 'Content', default: true },
+    { name: 'seo', title: 'SEO' },
+  ],
+  fields: [
+    ...sectionHeading.map((f) => ({ ...f, group: 'content' })),
+    defineField({ name: 'intro', title: 'Intro', type: 'text', rows: 3, group: 'content' }),
+    defineField({
+      name: 'sections',
+      title: 'Sections',
+      type: 'array',
+      group: 'content',
+      description: 'Each section is a heading with a set of cards, like the action plan steps or the education resources.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'safetySection',
+          fields: [
+            defineField({ name: 'heading', title: 'Heading', type: 'string', validation: (rule) => rule.required() }),
+            defineField({ name: 'intro', title: 'Intro', type: 'text', rows: 2 }),
+            defineField({
+              name: 'numbered',
+              title: 'Number the cards',
+              type: 'boolean',
+              initialValue: false,
+              description: 'Turn on for steps that happen in order.',
+            }),
+            defineField({
+              name: 'items',
+              title: 'Cards',
+              type: 'array',
+              of: [
+                defineArrayMember({
+                  type: 'object',
+                  name: 'safetyItem',
+                  fields: [
+                    defineField({ name: 'title', title: 'Title', type: 'string', validation: (rule) => rule.required() }),
+                    defineField({ name: 'text', title: 'Text', type: 'text', rows: 3 }),
+                    defineField({
+                      name: 'url',
+                      title: 'Link',
+                      type: 'url',
+                      description: 'Optional. A web address, like a CDC page or a PDF.',
+                      validation: (rule) => rule.uri({ scheme: ['http', 'https'] }),
+                    }),
+                    defineField({
+                      name: 'linkLabel',
+                      title: 'Link label',
+                      type: 'string',
+                      description: 'Optional. Defaults to "Open resource".',
+                      hidden: ({ parent }) => !parent?.url,
+                    }),
+                  ],
+                  preview: { select: { title: 'title', subtitle: 'url' } },
+                }),
+              ],
+            }),
+          ],
+          preview: { select: { title: 'heading' } },
+        }),
+      ],
+    }),
+    seoField,
+  ],
+  preview: { prepare: () => ({ title: 'Event safety page' }) },
 });

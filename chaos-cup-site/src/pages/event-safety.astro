@@ -1,0 +1,169 @@
+---
+/** Event safety: the concussion action plan and education resources, all edited in Sanity. */
+import Layout from '../layouts/Layout.astro';
+import Highlight from '../components/Highlight.astro';
+import { sanityFetch } from '../lib/sanity';
+import { getLayoutData, IMAGE } from '../lib/site';
+import { nowForRequest } from '../lib/status';
+import { stegaClean } from '@sanity/client/stega';
+
+const preview = Astro.locals.preview;
+const now = nowForRequest(Astro.url, { preview });
+const [data, page] = await Promise.all([
+  getLayoutData(preview),
+  sanityFetch<any>(`*[_id == "eventSafetyPage"][0]{ ..., seo { ..., image ${IMAGE} } }`, { preview }),
+]);
+const p = page ?? {};
+const sections: any[] = p.sections ?? [];
+---
+
+<Layout
+  data={data}
+  now={now}
+  title={p.seo?.title || 'Event Safety'}
+  description={p.seo?.description || p.intro}
+  ogImage={p.seo?.image}
+>
+  <section class="safety-hero">
+    <div class="wrap safety-hero-inner">
+      {p.eyebrow && <span class="eyebrow" style="color: var(--magenta)">{p.eyebrow}</span>}
+      <h1><Highlight text={p.headline || 'Event *safety.*'} /></h1>
+      {p.intro && <p class="intro">{p.intro}</p>}
+    </div>
+  </section>
+
+  {
+    sections.map((s, i) => (
+      <section class:list={['safety-sec', { alt: i % 2 === 1 }]}>
+        <div class="wrap safety-sec-inner">
+          <div class="sec-head">
+            <h2>{s.heading}</h2>
+            {s.intro && <p>{s.intro}</p>}
+          </div>
+          {(s.items?.length ?? 0) > 0 && (
+            <ol class:list={['cards', { numbered: s.numbered }]} role="list">
+              {s.items.map((item: any, n: number) => (
+                <li class="card">
+                  {s.numbered && (
+                    <span class="num" aria-hidden="true">
+                      {n + 1}
+                    </span>
+                  )}
+                  <h3>{item.title}</h3>
+                  {item.text && <p>{item.text}</p>}
+                  {item.url && (
+                    <a class="card-link" href={stegaClean(item.url)} rel="noopener">
+                      {item.linkLabel || 'Open resource'}
+                      <span aria-hidden="true"> &rarr;</span>
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      </section>
+    ))
+  }
+</Layout>
+
+<style>
+  .safety-hero {
+    padding: 96px 0 64px;
+  }
+  .safety-hero-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .safety-hero h1 {
+    font-size: clamp(48px, 8vw, 104px);
+  }
+  .intro {
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--muted);
+    max-width: 720px;
+  }
+
+  .safety-sec {
+    padding: 72px 0;
+    border-top: 1px solid var(--divider);
+  }
+  .safety-sec.alt {
+    background: var(--raised);
+  }
+  .safety-sec:last-of-type {
+    padding-bottom: 112px;
+  }
+  .safety-sec-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .sec-head {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 720px;
+  }
+  .sec-head h2 {
+    font-size: clamp(32px, 4vw, 48px);
+  }
+  .sec-head p {
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.55;
+  }
+
+  .cards {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+    gap: 16px;
+  }
+  /* Resource cards have longer titles: three across instead of four. */
+  .cards:not(.numbered) {
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .numbered .card {
+    border-color: var(--magenta);
+  }
+  .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--magenta);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .card h3 {
+    font-size: 21px;
+  }
+  .card p {
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .card-link {
+    margin-top: auto;
+    padding-top: 4px;
+    font-weight: 800;
+    text-decoration: none;
+  }
+</style>
