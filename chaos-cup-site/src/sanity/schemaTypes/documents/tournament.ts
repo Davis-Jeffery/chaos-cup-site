@@ -230,7 +230,12 @@ export const tournament = defineType({
             }),
           ],
         }),
-        defineField({ name: 'resultsUrl', title: 'Results link', type: 'url' }),
+        defineField({
+          name: 'resultsUrl',
+          title: 'Schedule and results link',
+          type: 'url',
+          description: 'The PlayMetrics schedule and results page. Shows a "View Schedule & Results" button while the tournament is live, and the results button afterwards.',
+        }),
         defineField({ name: 'smugmugGalleryUrl', title: 'SmugMug gallery link', type: 'url', description: 'Required on every past tournament by the SmugMug contract.' }),
       ],
     }),

@@ -88,6 +88,11 @@ const coming = settings.comingSoon ?? {};
             </div>
           )}
           <div class="actions">
+            {t.links?.resultsUrl && (
+              <a class="btn btn-event btn-lg" href={t.links.resultsUrl}>
+                View Schedule &amp; Results
+              </a>
+            )}
             <a class="btn btn-ghost btn-lg" href={tournamentPath(t)}>
               Tournament details and checklist
             </a>

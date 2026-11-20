@@ -423,6 +423,7 @@ async function tournamentDocs(videos: Record<string, string>) {
       startDate: '2026-11-20',
       endDate: '2026-11-21',
       statusOverride: 'auto',
+      links: { resultsUrl: 'https://playmetricssports.com/g/leagues/1327-2439-305c2504/league_view.html' },
       venue: {
         name: 'West Lake High School',
         address: '99 N 200 W, Saratoga Springs, UT',

@@ -45,6 +45,11 @@ const bundleSplit = bundleWith && bundleNote.includes(bundleWith.title) ? bundle
           Live now
         </span>
         <p class="reg-lead">Games are underway. Follow your division's schedule and standings on PlayMetrics.</p>
+        {t.links?.resultsUrl && (
+          <a class="btn btn-event full" href={t.links.resultsUrl}>
+            View Schedule &amp; Results
+          </a>
+        )}
         {(t.links?.divisionLinks?.length ?? 0) > 0 ? (
           <ul class="standings" role="list">
             {t.links!.divisionLinks!.map((d) => (
@@ -56,7 +61,7 @@ const bundleSplit = bundleWith && bundleNote.includes(bundleWith.title) ? bundle
             ))}
           </ul>
         ) : (
-          <p class="reg-note">Schedules and standings are in the PlayMetrics app.</p>
+          !t.links?.resultsUrl && <p class="reg-note">Schedules and standings are in the PlayMetrics app.</p>
         )}
         <a class="btn btn-ghost full" href="#checklist">
           Game day checklist
