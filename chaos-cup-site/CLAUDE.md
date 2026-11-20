@@ -9,4 +9,5 @@ Rules for working in this repo:
 - Never put an em dash in site copy.
 - Tournament status always comes from src/lib/status.ts, computed in America/Denver time. Never hard-code it.
 - Never recolor or filter sponsor logos.
+- There is no Goal Zone. The rule is "No goal blocking" (rules 4.4 to 4.6, referee discretion, anchor /rules#goalblocking). Never draw zone shapes in field diagrams or mention a Goal Zone in copy.
 - Keep secrets in .env (never commit it).

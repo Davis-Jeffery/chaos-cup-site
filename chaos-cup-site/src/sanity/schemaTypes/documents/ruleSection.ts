@@ -113,13 +113,13 @@ export const ruleSection = defineType({
       name: 'ruleGroups',
       title: 'Rule groups',
       type: 'array',
-      description: 'The magenta "explained" boxes, like Goal Zone (rules 4.4 to 4.6). The rule range in the label is generated.',
+      description: 'The magenta "explained" boxes, like No goal blocking (rules 4.4 to 4.6). The rule range in the label is generated.',
       of: [
         defineArrayMember({
           type: 'object',
           name: 'ruleGroup',
           fields: [
-            defineField({ name: 'eyebrow', title: 'Eyebrow', type: 'string', description: 'For example "Goal Zone".' }),
+            defineField({ name: 'eyebrow', title: 'Eyebrow', type: 'string', description: 'For example "No goal blocking".' }),
             defineField({ name: 'headline', title: 'Headline', type: 'string', validation: (rule) => rule.required() }),
             defineField({
               name: 'intro',
@@ -142,7 +142,7 @@ export const ruleSection = defineType({
               type: 'string',
               options: {
                 list: [
-                  { title: 'Goal Zone', value: 'goalZone' },
+                  { title: 'No goal blocking', value: 'goalBlocking' },
                   { title: '3-Foul Rule', value: 'threeFoul' },
                   { title: 'None', value: 'none' },
                 ],

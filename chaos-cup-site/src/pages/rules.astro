@@ -155,6 +155,31 @@ const videoTitle = stegaClean(page?.video?.title) || 'Chaos Cup rules explained'
   </section>
 </Layout>
 
+<script is:inline>
+  // The Goal Zone rule became No goal blocking. Old links (#goalzone and the old
+  // rule and section anchors) land on the new box instead of the top of the page.
+  (function () {
+    var aliases = {
+      goalzone: 'goalblocking',
+      'goal-zone-group': 'goalblocking',
+      'rule-goal-zone': 'goalblocking',
+      'rule-nobody-in-zone': 'goalblocking',
+      'rule-zone-violations': 'goalblocking',
+      'play-restarts-and-the-goal-zone': 'play-restarts-and-goal-blocking',
+    };
+    function go() {
+      var to = aliases[decodeURIComponent(location.hash.slice(1)).toLowerCase()];
+      var el = to && document.getElementById(to);
+      if (!el) return;
+      history.replaceState(null, '', '#' + to);
+      el.scrollIntoView();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
+    else go();
+    window.addEventListener('hashchange', go);
+  })();
+</script>
+
 <style>
   .rb-title {
     padding: 72px 0 48px;

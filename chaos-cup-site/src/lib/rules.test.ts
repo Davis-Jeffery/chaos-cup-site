@@ -18,10 +18,10 @@ const sections: RuleSectionData[] = [
   { _id: 's1', title: 'Teams and Eligibility', order: 10, rules: [rule('rosters'), rule('divisions'), rule('placement')] },
   {
     _id: 's3',
-    title: 'Play, Restarts and the Goal Zone',
+    title: 'Play, Restarts and Goal Blocking',
     order: 30,
-    rules: [rule('ball-out', 'kickIn'), rule('free-kicks'), rule('zone'), rule('nobody'), rule('violations'), rule('hands')],
-    ruleGroups: [{ _key: 'gz', headline: 'Goal Zone', rules: ['zone', 'nobody', 'violations'], diagramSet: 'goalZone' }],
+    rules: [rule('ball-out', 'kickIn'), rule('free-kicks'), rule('blocking'), rule('call'), rule('enforcement'), rule('hands')],
+    ruleGroups: [{ _key: 'gb', headline: 'Defend the player, not the goal.', rules: ['blocking', 'call', 'enforcement'], diagramSet: 'goalBlocking' }],
   },
 ];
 
@@ -46,9 +46,9 @@ describe('numberRules', () => {
 describe('groupRange', () => {
   const { numbers } = numberRules(sections);
   it('labels a range or a single rule', () => {
-    expect(groupRange(['zone', 'nobody', 'violations'], numbers)).toBe('Rules 3.3-3.5');
+    expect(groupRange(['blocking', 'call', 'enforcement'], numbers)).toBe('Rules 3.3-3.5');
     expect(groupRange(['hands'], numbers)).toBe('Rule 3.6');
-    expect(groupRange(['violations', 'zone'], numbers)).toBe('Rules 3.3-3.5');
+    expect(groupRange(['enforcement', 'blocking'], numbers)).toBe('Rules 3.3-3.5');
     expect(groupRange(['missing'], numbers)).toBe('');
   });
 });
@@ -63,7 +63,7 @@ describe('layoutSection', () => {
     const blocks = layoutSection(sections[2]);
     expect(blocks.map((b) => b.kind)).toEqual(['rules', 'diagram', 'rules', 'group', 'rules']);
     const group = blocks[3];
-    expect(group.kind === 'group' && group.rules.map((r) => r._key)).toEqual(['zone', 'nobody', 'violations']);
+    expect(group.kind === 'group' && group.rules.map((r) => r._key)).toEqual(['blocking', 'call', 'enforcement']);
     const last = blocks[4];
     expect(last.kind === 'rules' && last.rules.map((r) => r._key)).toEqual(['hands']);
   });
@@ -100,6 +100,6 @@ describe('renderRuleBody', () => {
 
 describe('sectionSlug', () => {
   it('makes a readable anchor', () => {
-    expect(sectionSlug('Play, Restarts and the Goal Zone')).toBe('play-restarts-and-the-goal-zone');
+    expect(sectionSlug('Play, Restarts and Goal Blocking')).toBe('play-restarts-and-goal-blocking');
   });
 });

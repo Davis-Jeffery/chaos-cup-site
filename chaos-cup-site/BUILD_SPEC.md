@@ -77,7 +77,8 @@ Groups: Basics, Dates and status, Venue and surface, Registration and pricing, L
 - Rule numbers are never typed. Section number = position of the section, rule number = position inside the section, rendered as `4.2`.
 - Cross references inside rule text use a Portable Text annotation that references another rule by its `_key`. Render it as "rule 4.2" with a link to `#rule-<key>`, so numbers update when rules move.
 - `diagram`: string list of coded diagram components: `none`, `whereToStand`, `kickIn`, `freeKicks`, `noOffside`, `threeFoulKick`. Diagrams are Astro components with inline SVG, copied from `Rulebook.dc.html`.
-- `ruleGroup` (object array on the section): `{ eyebrow, headline, intro, rules (array of rule keys), diagramSet }`. Renders the magenta "explained" boxes: Goal Zone (4.4 to 4.6) and 3-Foul Rule (5.5 to 5.6). The box label reads "Goal Zone · Rules 4.4-4.6 explained" with the range generated automatically.
+- `ruleGroup` (object array on the section): `{ eyebrow, headline, intro, rules (array of rule keys), diagramSet }`. Renders the magenta "explained" boxes: No goal blocking (4.4 to 4.6, anchor `#goalblocking`) and 3-Foul Rule (5.5 to 5.6). The box label reads "No goal blocking · Rules 4.4-4.6 explained" with the range generated automatically. `diagramSet` values: `goalBlocking`, `threeFoul`, `none`.
+- **No Goal Zone.** The Goal Zone rule was replaced by No goal blocking (referee discretion) because a zone cannot be marked on the field. Field diagrams draw no zone shapes. Old `#goalzone` and Goal Zone anchors on `/rules` are aliased to `#goalblocking`. Rule text lives in `scripts/content/goal-blocking.ts`.
 - Add a `rulebookPage` singleton for the page title, intro text, PDF download and the field image at the top of Section 02.
 
 ### 3.5 Page singletons

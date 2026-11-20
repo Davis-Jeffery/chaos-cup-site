@@ -15,6 +15,7 @@
  * Text containing [CONFIRM] or other [SQUARE BRACKET] placeholders is copied
  * as-is from the designs so it is easy to find and fill in.
  */
+import { PLAY_SECTION_TITLE, goalBlockingRules, goalBlockingGroup, homeRuleTile, contactRulesText } from './content/goal-blocking';
 import { createReadStream, readFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { getCliClient } from 'sanity/cli';
@@ -174,25 +175,16 @@ const ruleSections: SectionSeed[] = [
   },
   {
     id: 'ruleSection-play',
-    title: 'Play, Restarts and the Goal Zone',
+    title: PLAY_SECTION_TITLE,
     rules: [
       { key: 'ball-out', title: 'Ball out of the field', diagram: 'kickIn', text: 'If the ball leaves the walls, the opposing team restarts with a kick-in from where it went out. Kick-ins are indirect: the ball must touch a second player before a goal counts. Opponents must stay at least 3 feet from the ball until it is kicked.' },
       { key: 'free-kicks', title: 'Free kicks', diagram: 'freeKicks', text: 'Free kicks are not taken from the spot of the foul. The ball is placed on the halfway mark (the white tick mark on the inflatable side wall) on either the left or right side, and play restarts from there. All free kicks are indirect: the ball must touch a second player before a goal counts. Defenders must give 3 yards. A free kick shot straight into the goal is a goal kick for the defense.' },
       { key: 'no-offside', title: 'No offside', diagram: 'noOffside', text: 'There is no offside in the Chaos Cup.' },
-      { key: 'goal-zone', title: 'The Goal Zone', text: 'Each goal has a half-circle zone marked in front of it, reaching about one goal-width (6 feet) out from the goal line.' },
-      { key: 'nobody-in-zone', title: 'Nobody in the zone', text: 'Players from both teams must stay out of the zone. No one may stand, stop or touch the ball inside it. Running through it while chasing play is fine. Outside the zone, all normal defending is legal: pressure, cover, dropping back in front of the goal and blocking shots with your body.' },
-      { key: 'zone-violations', title: 'Zone violations', text: 'If a player stands or stops in the zone, or an attacking player touches the ball inside it, the other team gets an indirect free kick, taken like any other free kick ({{free-kicks}}), and it counts as a team foul. A goal scored from inside the zone does not count. If a defending player touches the ball inside the zone, the attacking team is awarded a goal.' },
+      ...goalBlockingRules,
       { key: 'hands', title: 'Hands', text: 'Handling the ball anywhere on the field is a foul.' },
     ],
     groups: [
-      {
-        key: 'goal-zone-group',
-        eyebrow: 'Goal Zone',
-        headline: 'Nobody plays in the zone. Outside it, defend however you want.',
-        intro: 'Every goal has a marked zone in front of it. Refs don\'t judge intent or where a player "should" be. They only ask one question: *is anyone playing inside the zone?* Pressure, cover, balance and dropping back to protect the goal are all good soccer, as long as it happens outside the line.',
-        rules: ['goal-zone', 'nobody-in-zone', 'zone-violations'],
-        diagramSet: 'goalZone',
-      },
+      goalBlockingGroup,
     ],
   },
   {
@@ -756,10 +748,7 @@ async function homePageDoc(videos: Record<string, string>) {
       tiles: keyed('tile', [
         {
           _type: 'ruleTile',
-          title: '3v3, stay out of the Goal Zone',
-          text: 'Three players per side, rosters of 3 to 6. Nobody plays inside the Goal Zone in front of each goal.',
-          linkLabel: 'See how it works',
-          linkPath: '/rules#rule-goal-zone',
+          ...homeRuleTile,
         },
         { _type: 'ruleTile', title: 'The walls are in play', text: 'Bank it, pass it, use it. If the ball leaves the field, the other team restarts with a kick-in.' },
         { _type: 'ruleTile', title: '12-minute running clock', text: 'One 12-minute game on a single clock shared by every field. It never stops.' },
@@ -827,7 +816,7 @@ function contactPageDoc() {
       topic('register', 'Registration and teams', 'Register a team or sign up solo on PlayMetrics. Schedules and standings live there too.', 'See tournaments', '/#tournaments'),
       topic('host', 'Host a Chaos Cup', 'High school programs can bring a Chaos Cup to their school to fund their season.', 'How hosting works', '/get-involved#schools'),
       topic('sponsor', 'Sponsor a school', 'Put your business in front of local families while supporting a high school program.', 'Sponsorship options', '/get-involved#sponsors-path'),
-      topic('rules', 'Rules and game day', 'Shoes, check-in, the Goal Zone and everything else about how the games work.', 'Read the rulebook', '/rules'),
+      topic('rules', 'Rules and game day', contactRulesText, 'Read the rulebook', '/rules'),
     ],
   };
 }

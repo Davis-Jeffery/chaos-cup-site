@@ -1,0 +1,239 @@
+---
+// No goal blocking (rules 4.4 to 4.6): legend, referee guide and four diagrams.
+// Same card and field style as the other rule diagrams. Edit the SVG here, not in Sanity.
+// Half-field view: halfway line on the left (x=12), goal on the right (x=388).
+
+const BLUE = '#3CA8E4';
+const RED = '#FF6B6B';
+
+const callIt = [
+  'Standing still in front of the goal while the ball is elsewhere',
+  'Staying there more than about 3 seconds without marking anyone',
+  'Running back to the same spot after every play',
+  'Facing out from the goal like a keeper, arms or body set wide',
+];
+const playOn = [
+  'Running back on defense and passing in front of the goal',
+  'Marking an attacker who is near the goal',
+  'Blocking a shot while moving to the ball',
+  'Players crowded in front of the goal during a scramble for the ball',
+];
+const blockingResult = 'First time: warning. Again: free kick from halfway + team foul.';
+---
+
+<div class="gb-legend">
+  <span><svg aria-hidden="true" width="16" height="16"><circle cx="8" cy="8" r="7" fill="#3CA8E4" stroke="#0A0A12"></circle></svg>Defending team</span>
+  <span><svg aria-hidden="true" width="16" height="16"><circle cx="8" cy="8" r="7" fill="#F4F3F8" stroke="#0A0A12"></circle></svg>Attacking team</span>
+  <span><svg aria-hidden="true" width="12" height="12"><circle cx="6" cy="6" r="5" fill="#F5D90A" stroke="#0A0A12"></circle></svg>Ball</span>
+  <span><svg aria-hidden="true" width="18" height="14"><line x1="1" y1="1" x2="1" y2="13" stroke="#4E7F66" stroke-width="2" stroke-dasharray="3 3"></line></svg>Halfway line</span>
+</div>
+
+<div class="gb-guide">
+  <div class="gb-guide-card" style={`border-color: ${RED}`}>
+    <span class="gb-guide-title" style={`color: ${RED}`}>Goal blocking: warn, then call</span>
+    <ul>{callIt.map((t) => <li>{t}</li>)}</ul>
+  </div>
+  <div class="gb-guide-card" style={`border-color: ${BLUE}`}>
+    <span class="gb-guide-title" style={`color: ${BLUE}`}>Not goal blocking: play on</span>
+    <ul>{playOn.map((t) => <li>{t}</li>)}</ul>
+  </div>
+</div>
+
+<div class="gb-grid">
+  <!-- a) Marking near the goal -->
+  <figure style={`border-color: ${BLUE}`}>
+    <svg role="img" aria-label="Marking near the goal: Legal" viewBox="0 0 400 240">
+      <rect x="4" y="4" width="392" height="232" rx="18" fill="none" stroke="#2D5A44" stroke-width="6"></rect>
+      <line x1="12" y1="10" x2="12" y2="230" stroke="#4E7F66" stroke-width="2" stroke-dasharray="6 6"></line>
+      <rect x="388" y="95" width="8" height="50" fill="#F4F3F8"></rect>
+      <circle cx="210" cy="104" r="11" fill="#F4F3F8" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="223" cy="110" r="5.5" fill="#F5D90A" stroke="#0A0A12" stroke-width="1.5"></circle>
+      <circle cx="244" cy="96" r="11" fill="#3CA8E4" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="338" cy="168" r="11" fill="#F4F3F8" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="356" cy="152" r="11" fill="#3CA8E4" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="356" cy="152" r="17" fill="none" stroke="#3CA8E4" stroke-width="3"></circle>
+    </svg>
+    <figcaption>
+      <span class="gb-badge" style={`background: ${BLUE}`}><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"></polyline></svg>Legal</span>
+      <span class="gb-title">Marking near the goal</span>
+      <span class="gb-text">A defender stays tight on an attacker who is near the goal. They are playing an opponent, not guarding the goal.</span>
+      <span class="gb-result" style={`color: ${BLUE}`}>Play on</span>
+    </figcaption>
+  </figure>
+
+  <!-- b) Blocking a shot in play -->
+  <figure style={`border-color: ${BLUE}`}>
+    <svg role="img" aria-label="Blocking a shot in play: Legal" viewBox="0 0 400 240">
+      <rect x="4" y="4" width="392" height="232" rx="18" fill="none" stroke="#2D5A44" stroke-width="6"></rect>
+      <line x1="12" y1="10" x2="12" y2="230" stroke="#4E7F66" stroke-width="2" stroke-dasharray="6 6"></line>
+      <rect x="388" y="95" width="8" height="50" fill="#F4F3F8"></rect>
+      <circle cx="220" cy="70" r="11" fill="#F4F3F8" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="236" cy="172" r="11" fill="#F4F3F8" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="250" cy="166" r="5.5" fill="#F5D90A" stroke="#0A0A12" stroke-width="1.5"></circle>
+      <line x1="256" y1="163" x2="287.7" y2="144.1" stroke="#F5D90A" stroke-width="2.5"></line>
+      <path d="M298 138 L284.6 139.0 L290.8 149.3 Z" fill="#F5D90A"></path>
+      <line x1="300" y1="64" x2="309" y2="110" stroke="#3CA8E4" stroke-width="2.5" stroke-dasharray="6 5"></line>
+      <circle cx="300" cy="64" r="11" fill="none" stroke="#3CA8E4" stroke-width="2" stroke-dasharray="4 3" opacity="0.5"></circle>
+      <circle cx="312" cy="130" r="11" fill="#3CA8E4" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="312" cy="130" r="17" fill="none" stroke="#3CA8E4" stroke-width="3"></circle>
+    </svg>
+    <figcaption>
+      <span class="gb-badge" style={`background: ${BLUE}`}><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"></polyline></svg>Legal</span>
+      <span class="gb-title">Blocking a shot in play</span>
+      <span class="gb-text">A defender closes down the ball and steps into the shooting lane to block it with their body.</span>
+      <span class="gb-result" style={`color: ${BLUE}`}>Play on</span>
+    </figcaption>
+  </figure>
+
+  <!-- c) Parked in front of the goal -->
+  <figure style={`border-color: ${RED}`}>
+    <svg role="img" aria-label="Parked in front of the goal: Goal blocking" viewBox="0 0 400 240">
+      <rect x="4" y="4" width="392" height="232" rx="18" fill="none" stroke="#2D5A44" stroke-width="6"></rect>
+      <line x1="12" y1="10" x2="12" y2="230" stroke="#4E7F66" stroke-width="2" stroke-dasharray="6 6"></line>
+      <rect x="388" y="95" width="8" height="50" fill="#F4F3F8"></rect>
+      <circle cx="58" cy="128" r="11" fill="#F4F3F8" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="71" cy="133" r="5.5" fill="#F5D90A" stroke="#0A0A12" stroke-width="1.5"></circle>
+      <circle cx="96" cy="118" r="11" fill="#3CA8E4" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="120" cy="60" r="11" fill="#F4F3F8" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="150" cy="80" r="11" fill="#3CA8E4" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="368" cy="120" r="11" fill="#3CA8E4" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="368" cy="120" r="17" fill="none" stroke="#FF6B6B" stroke-width="3"></circle>
+      <rect x="306" y="74" width="58" height="24" rx="12" fill="#FF6B6B"></rect>
+      <text x="335" y="91" text-anchor="middle" font-family="Archivo, sans-serif" font-size="13" font-weight="800" fill="#0A0A12">3+ sec</text>
+    </svg>
+    <figcaption>
+      <span class="gb-badge" style={`background: ${RED}`}><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="3" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>Goal blocking</span>
+      <span class="gb-title">Parked in front of the goal</span>
+      <span class="gb-text">The ball is up the field, but a defender stands in front of the goal and waits there. No ball to play and no one to mark.</span>
+      <span class="gb-result" style={`color: ${RED}`}>{blockingResult}</span>
+    </figcaption>
+  </figure>
+
+  <!-- d) Back to the same spot -->
+  <figure style={`border-color: ${RED}`}>
+    <svg role="img" aria-label="Back to the same spot: Goal blocking" viewBox="0 0 400 240">
+      <rect x="4" y="4" width="392" height="232" rx="18" fill="none" stroke="#2D5A44" stroke-width="6"></rect>
+      <line x1="12" y1="10" x2="12" y2="230" stroke="#4E7F66" stroke-width="2" stroke-dasharray="6 6"></line>
+      <rect x="388" y="95" width="8" height="50" fill="#F4F3F8"></rect>
+      <circle cx="132" cy="176" r="11" fill="#F4F3F8" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="145" cy="181" r="5.5" fill="#F5D90A" stroke="#0A0A12" stroke-width="1.5"></circle>
+      <circle cx="170" cy="164" r="11" fill="#3CA8E4" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="96" cy="70" r="11" fill="#F4F3F8" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="200" cy="120" r="11" fill="none" stroke="#3CA8E4" stroke-width="2" stroke-dasharray="4 3" opacity="0.5"></circle>
+      <line x1="215" y1="120" x2="334" y2="120" stroke="#FF6B6B" stroke-width="2.5" stroke-dasharray="7 5"></line>
+      <path d="M346 120 L333 113 L333 127 Z" fill="#FF6B6B"></path>
+      <line x1="362" y1="111" x2="352" y2="94" stroke="#3CA8E4" stroke-width="4" stroke-linecap="round"></line>
+      <line x1="362" y1="129" x2="352" y2="146" stroke="#3CA8E4" stroke-width="4" stroke-linecap="round"></line>
+      <circle cx="368" cy="120" r="11" fill="#3CA8E4" stroke="#0A0A12" stroke-width="2"></circle>
+      <circle cx="368" cy="120" r="17" fill="none" stroke="#FF6B6B" stroke-width="3"></circle>
+    </svg>
+    <figcaption>
+      <span class="gb-badge" style={`background: ${RED}`}><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A0A12" stroke-width="3" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>Goal blocking</span>
+      <span class="gb-title">Back to the same spot</span>
+      <span class="gb-text">After every play, the same player runs back and sets up in front of the goal, body and arms spread wide like a keeper.</span>
+      <span class="gb-result" style={`color: ${RED}`}>{blockingResult}</span>
+    </figcaption>
+  </figure>
+</div>
+
+<style>
+  .gb-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    align-items: center;
+    font-size: 14px;
+    color: #c9c8d8;
+  }
+  .gb-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .gb-guide,
+  .gb-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  @media (max-width: 699px) {
+    .gb-guide,
+    .gb-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .gb-guide-card {
+    border: 2px solid;
+    border-radius: 18px;
+    padding: 18px 20px;
+    background: #0f0f19;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .gb-guide-title {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 18px;
+    line-height: 1.25;
+  }
+  .gb-guide-card ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #c9c8d8;
+    font-size: 15px;
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .gb-grid figure {
+    margin: 0;
+    border: 2px solid;
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #0f0f19;
+    min-width: 0;
+  }
+  .gb-grid svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: #0e2a1c;
+    border-radius: 14px;
+  }
+  .gb-grid figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .gb-badge {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 6px;
+    color: #0a0a12;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 12px 5px 8px;
+    border-radius: 999px;
+  }
+  .gb-title {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 20px;
+    color: #f4f3f8;
+  }
+  .gb-text {
+    color: #c9c8d8;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .gb-result {
+    font-weight: 800;
+    font-size: 14px;
+  }
+</style>
